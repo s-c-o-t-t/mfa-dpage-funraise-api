@@ -1,0 +1,31 @@
+{
+	"name": "mfa-dpage-funraise-api",
+	"version": "1.0.0",
+	"description": "MFA Dpage with Funraise API",
+	"main": "index.html",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/s-c-o-t-t/mfa-dpage-funraise-api.git"
+	},
+	"author": "SMC",
+	"license": "ISC",
+	"devDependencies": {
+		"autoprefixer": "^7.1.6",
+		"cssnano": "^4.0.0-rc.2",
+		"gulp": "^3.9.1",
+		"gulp-htmlmin": "^3.0.0",
+		"gulp-if": "^2.0.2",
+		"gulp-image-resize": "^0.13.0",
+		"gulp-imagemin": "^3.4.0",
+		"gulp-postcss": "^7.0.0",
+		"gulp-sass": "^3.1.0",
+		"gulp-uglify": "^3.0.0",
+		"gulp-useref": "^3.1.3",
+		"prettier": "1.11.1",
+		"run-sequence": "^2.2.0"
+	},
+	"private": true
+}
