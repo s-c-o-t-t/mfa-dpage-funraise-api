@@ -15,20 +15,170 @@
 
     <!-- <link async rel='stylesheet' href='https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css' type='text/css'> -->
 
-    <link async rel='stylesheet' href='vendor/font-awesome-4.7.0/css/font-awesome.min.css' type='text/css'>
+    <link async rel='stylesheet' href='vendor/fontawesome-free-5.0.10/web-fonts-with-css/css/fontawesome-all.min.css' type='text/css'>
 
-    <!--build:css css/global.css -->
-    <link rel="stylesheet" href="css/main.css">
+    <!--build:css css/global.css async -->
+    <link async rel="stylesheet" href="css/main.css">
     <!-- endbuild -->
 
 </head>
 
 <body>
 
-    <!--build:js js/global.js -->
-    <script src="js/shared-utils.js"></script>
-    <script src="js/main.js"></script>
+    <header></header>
+
+    <div class="mainBackground">
+
+        <div class="giftFormContainer">
+            <form class="mainGiftForm">
+
+                <div class="giftFormHeader">
+                    <button class="goPreviousStep subtle" title="Go to the previous step" type="button">
+                        <i class="fa fa-arrow-left"></i>
+                    </button>
+                    <span class="giftDisplayContainer">
+                        <h3>Your donation</h3>
+                        <div class="amountDisplay">
+                            <span class="money__symbol">$</span>
+                            <span class="money__dollars">99</span>
+                            <span class="money__cents">00</span>
+                        </div>
+                    </span>
+                    <span></span>
+                </div>
+
+                <div class="stepContainer">
+                    <!-- GIFT AMOUNT -->
+                    <section class="step" data-step-name="giftAmount">
+                        <h3>Select donation amount</h3>
+                        <div class="giftAmountContainer">
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="25"> $25
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="50"> $50
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="75"> $75
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="100"> $100
+                                </label>
+                            </div>
+                            <div class="giftOption freeform">
+                                <input type="text" name="giftAmountFreeForm" placeholder="or enter amount">
+                            </div>
+                        </div>
+
+                        <div class="stepButtonContainer">
+                            <button class="goNextStep main" title="Go to the next step" type="button">
+                                <span>Enter Your Information</span>
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- DONOR INFO -->
+                    <section class="step" data-step-name="donorInfo">
+                        <h3>Select donation amount</h3>
+                        <div class="giftAmountContainer">
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="25"> $25
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="50"> $50
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="75"> $75
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="100"> $100
+                                </label>
+                            </div>
+                            <div class="giftOption freeform">
+                                <input type="text" name="giftAmountFreeForm" placeholder="or enter amount">
+                            </div>
+                        </div>
+
+                        <div class="stepButtonContainer">
+                            <button class="goNextStep main" title="Go to the next step" type="button">
+                                <span>Enter Payment Information</span>
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- PAYMENT -->
+                    <section class="step" data-step-name="payment">
+                        <h3>Select donation amount</h3>
+                        <div class="giftAmountContainer">
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="25"> $25
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="50"> $50
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="75"> $75
+                                </label>
+                            </div>
+                            <div class="giftOption fixed">
+                                <label class="giftOption">
+                                    <input type="radio" name="giftAmountFixed" value="100"> $100
+                                </label>
+                            </div>
+                            <div class="giftOption freeform">
+                                <input type="text" name="giftAmountFreeForm" placeholder="or enter amount">
+                            </div>
+                        </div>
+
+                        <div class="stepButtonContainer">
+                            <button class="processDonation main" data-working='<span>Processing</span><i class=" fa fa-spinner fa-spin"></i>' title="Send your donation now"
+                                type="button">
+                                <span>Submit Donation</span>
+                                <i class="fa fa-check"></i>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+        </div>
+
+        </form>
+    </div>
+
+    </div>
+
+    <aside class="giftInfo"></aside>
+    <aside class="securitySeals"></aside>
+
+    <footer></footer>
+
+    <!--build:js js/global.js async -->
+    <script async src="js/shared-utils.js"></script>
+    <script async src="js/main.js"></script>
     <!-- endbuild -->
+
+    <script async src="vendor/jquery/jquery-1.12.4.min.js"></script>
+
 </body>
 
 </html>

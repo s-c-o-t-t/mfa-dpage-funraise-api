@@ -2,3 +2,91 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0; }
+
+body {
+  font-family: 'MuseoSans', Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  color: #707070;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%; }
+
+button {
+  cursor: pointer;
+  padding: 0.5em;
+  font-size: 1.25em;
+  text-align: center;
+  border-radius: 0.15em;
+  outline: none;
+  transition: color 0.33s, background-color 0.5s, border 0.5s; }
+  button:active {
+    position: relative;
+    top: 1px;
+    opacity: 0.5; }
+  button.blocked {
+    opacity: 0.5 !important;
+    background-color: gray !important;
+    border-color: darkgray !important; }
+
+div.mainBackground {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 0.15em;
+  background: #efefef url("https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg") no-repeat;
+  background-position: 80% 50%;
+  background-size: cover; }
+
+div.giftFormContainer {
+  width: 100%;
+  min-width: 280px;
+  max-width: 400px; }
+  div.giftFormContainer form.mainGiftForm {
+    padding: 1rem;
+    background: linear-gradient(#fff, #f3f3f4, #f3f3f4, #f3f3f4);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 0.15em; }
+    div.giftFormContainer form.mainGiftForm section.step {
+      display: none; }
+    div.giftFormContainer form.mainGiftForm h3 {
+      font-weight: normal; }
+    div.giftFormContainer form.mainGiftForm button.main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.5em 1em;
+      text-align: left;
+      color: #fff;
+      background-color: #01a7df;
+      border: 1px solid #01a7df; }
+      div.giftFormContainer form.mainGiftForm button.main i.fa {
+        position: relative;
+        font-size: 1.1em;
+        left: 0;
+        transition: left 0.66s; }
+      div.giftFormContainer form.mainGiftForm button.main.goNextStep:hover i.fa, div.giftFormContainer form.mainGiftForm button.main.goNextStep:active i.fa {
+        left: 0.5em; }
+    div.giftFormContainer form.mainGiftForm button.goPreviousStep {
+      display: none;
+      color: #707070;
+      padding: 0 0.5em 0.5em 0;
+      border: none;
+      background: none;
+      left: 0;
+      transition: left 0.66s; }
+      div.giftFormContainer form.mainGiftForm button.goPreviousStep:hover {
+        position: relative;
+        left: -0.15em;
+        color: #000; }
+
+div.giftFormHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background: linear-gradient(#fff, #f5f5f5);
+  border-bottom: 1px solid #e5e5e5; }
+  div.giftFormHeader span.giftDisplayContainer {
+    display: none;
+    text-align: center; }
