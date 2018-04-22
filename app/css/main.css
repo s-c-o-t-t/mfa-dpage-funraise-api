@@ -22,6 +22,8 @@ button {
     position: relative;
     top: 1px;
     opacity: 0.5; }
+  button.error {
+    background: tomato; }
   button.blocked {
     animation-name: buttonInAction;
     animation-duration: 2s;
