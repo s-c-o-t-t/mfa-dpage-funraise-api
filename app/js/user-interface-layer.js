@@ -20,15 +20,33 @@ $('input[type=radio]').change(function() {
 document.addEventListener('click', function(event) {
 	console.log('CLICK ON', event.target.tagName, event.target.className);
 	var clickTarget = $(event.target).closest('button, .clickTarget');
-	console.log('RESOLVED TO', clickTarget.prop('tagName'), clickTarget.attr('class'));
-	console.log('typeof clickTarget', typeof clickTarget);
 	if (clickTarget) {
 		if (clickTarget.hasClass('processDonation')) {
-			var htmlWorking = event.target.getAttribute('data-working');
-			if (htmlWorking) {
+			var buttonHtml = event.target.getAttribute('data-working');
+			if (buttonHtml) {
 				event.target.classList.add('blocked');
-				event.target.innerHTML = htmlWorking;
+				event.target.innerHTML = buttonHtml;
 			}
+			var data = {
+				amount: 6.66,
+			};
+			startDonation(
+				data,
+				function(donationInfo) {
+					console.log('SUCCESS FUNCTION', donationInfo);
+					var buttonHtml = event.target.getAttribute('data-success');
+					event.target.classList.remove('blocked');
+					event.target.innerHTML = buttonHtml;
+					alert(donationInfo.text);
+				},
+				function(donationInfo) {
+					console.log('FAIL FUNCTION', donationInfo);
+					var buttonHtml = event.target.getAttribute('data-error');
+					event.target.classList.remove('blocked');
+					event.target.classList.add('error');
+					event.target.innerHTML = buttonHtml;
+				}
+			);
 		} else if (clickTarget.hasClass('goNextStep')) {
 			showStep('payment');
 		}

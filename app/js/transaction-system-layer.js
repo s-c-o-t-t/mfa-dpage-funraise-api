@@ -1,78 +1,109 @@
 console.log('transaction-system-layer.js v18.4.19');
 
 // https://platform.funraise.io/
-var apiConstants = { baseUrl: 'localhost:8080/funraise/public/v2/' };
+var apiConstants = { baseUrl: 'http://localhost:8080/funraise/api/v2/' };
 
-var donationStartTime;
 var requestTimeoutSeconds = 20;
+var donationInProgress = false;
+var donationStartTime;
 
 function startDonation(options, successFunction, failFunction) {
 	console.log('>>>> startDonation()');
-	console.log();
 	if (typeof options == 'undefined') {
 		var options = {};
 	}
 
+	var sendData = options.data || {};
+
 	var donationOptions = {
 		method: 'post',
-		url: apiConstants + 'donation',
+		url: apiConstants.baseUrl + 'donation',
+		sendData: sendData,
+		verbose: true,
 	};
 
 	//initial post to create donation
-	sendXhrRequest(
-		donationOptions,
-		function(response) {
-			if (!response.jsonData || !response.jsonData.id) {
-				console.error('startDonation(): Invalid response, no "id". Response from', url, 'follows:');
-				return failFunction(response);
-			}
-			var donateId = response.jsonData.id;
-			donationStartTime = new Date();
-			setSessionValue('donationInProgress', donateId);
-			setSessionValue('donationStartTime', donationStartTime.toUTCString());
-			completeDonation(donateId, 100, successFunction, failFunction);
-		},
-		failFunction
-	);
+	try {
+		sendXhrRequest(
+			donationOptions,
+			function(response) {
+				console.log('response INITIAL', typeof response, response);
+				if (!response.json || !response.json.id) {
+					console.error('startDonation(): Invalid response, no "id":');
+					console.log(response);
+					return failFunction(response);
+				}
+				var donateId = response.json.id;
+				donationInProgress = true;
+				donationStartTime = new Date();
+				setSessionValue('donationInProgress', donateId);
+				setSessionValue('donationStartTime', donationStartTime.toUTCString());
+				completeDonation(donateId, 1000, successFunction, failFunction);
+			},
+			failFunction
+		);
+	} catch (err) {
+		console.error('startDonation CAUGHT ERROR', err);
+		failFunction({});
+	}
 }
 
 //poll API for response
 function completeDonation(donateId, delayMilliseconds, successFunction, failFunction) {
-	console.log('>>>> completeDonation()', donateId, delayMilliseconds);
+	if (typeof donateId == 'undefined') {
+		var donateId = '';
+	}
+	if (typeof delayMilliseconds == 'undefined') {
+		var delayMilliseconds = 0;
+	}
+	if (!donateId) {
+		console.error('completeDonation(): Empty id given');
+		failFunction({});
+	}
+	if (delayMilliseconds <= 0) {
+		delayMilliseconds = 500;
+	}
+	console.log('>>>> completeDonation() (', typeof donateId, ')', donateId, delayMilliseconds);
 	var elapsedMilliseconds = new Date().getTime() - donationStartTime.getTime();
 	console.log('elapsedMilliseconds', elapsedMilliseconds);
 	if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
 		console.error('completeDonation(): request timeout reached, calling fail function.');
 		return failFunction({});
 	}
-	console.log('completeDonation() WAITING...');
+
 	setTimeout(function() {
 		console.log('completeDonation() RUNNING');
 
+		var targetUrl = apiConstants.baseUrl + 'donation/' + donateId;
+
 		var donationOptions = {
 			method: 'get',
-			url: apiConstants + 'donation/' + donateId,
+			url: targetUrl,
+			verbose: true,
 		};
 
 		sendXhrRequest(
 			donationOptions,
 			function(response) {
+				console.log('response POLL', typeof response, response);
 				if (response.status == 204) {
 					console.log('STATUS 204 RECEIVED, DONATION STILL PROCESSING');
-					return completeDonation(donateId, (delayMilliseconds *= 1.5));
-				}
-				if (!response.jsonData) {
-					console.error(
-						'completeDonation(): Invalid response, no "id". Response from',
-						url,
-						'follows:'
+					return completeDonation(
+						donateId,
+						(delayMilliseconds *= 1.25),
+						successFunction,
+						failFunction
 					);
+				}
+				if (!response.json) {
+					console.error('completeDonation(): Invalid response follows:');
+					console.warn(response);
 					return failFunction(response);
 				}
 
 				removeSessionValue('donationInProgress');
 				removeSessionValue('donationStartTime');
-				successFunction(response);
+				return successFunction(response);
 			},
 			failFunction
 		);
@@ -88,14 +119,13 @@ function sendXhrRequest(options, successFunction, failFunction) {
 	// process options
 	var requestMethod = options.method || 'post';
 	var requestUrl = options.url || '';
+	var sendData = options.sendData || {};
 	var verboseMode = options.verbose === true ? true : false;
 	var sendContentType = getContentType(options.sendContentType || null);
 	var acceptContentType = getContentType(options.acceptContentType || null);
 	var progressCallback = typeof options.progressFunction === 'function' ? options.progressFunction : false;
 
 	var xhr = new XMLHttpRequest();
-	xhr.setRequestHeader('Content-Type', sendContentType);
-	xhr.setRequestHeader('Accept', acceptContentType);
 
 	xhr.addEventListener('load', requestComplete);
 	xhr.addEventListener('error', requestFailed);
@@ -104,12 +134,18 @@ function sendXhrRequest(options, successFunction, failFunction) {
 		xhr.addEventListener('progress', requestProgress);
 	}
 
-	var requestUrlArgString = options.urlArgString;
+	//var requestUrlArgString = options.urlArgString;
 	if (verboseMode) {
 		console.log('>>> sendXhrRequest() sending to', requestUrl);
 	}
 	xhr.open(requestMethod, requestUrl, true);
+	xhr.setRequestHeader('Content-Type', sendContentType);
+	xhr.setRequestHeader('Accept', acceptContentType);
+	//xhr.setRequestHeader('Accept-Charset', 'utf-8');
 	xhr.send();
+	if (verboseMode) {
+		console.log('>>> sendXhrRequest() sent');
+	}
 
 	// if (options.formData) {
 	// 	var jFormData = options.formData;
@@ -151,41 +187,44 @@ function sendXhrRequest(options, successFunction, failFunction) {
 
 	function requestComplete() {
 		if (this.status >= 200 && this.status <= 299) {
-			if (verboseMode) {
-				console.log(this.responseText);
+			var response = {
+				status: this.status,
+				text: this.responseText,
+				json: {},
+			};
+			if (this.responseText) {
+				response.json = safeJsonParse(this.responseText) || {};
 			}
-			var xfrPackage = safeJsonParse(this.responseText);
-			if (xfrPackage && !isEmpty(xfrPackage.messages)) {
-				for (var i = 0; i < xfrPackage.messages.length; i++) {
-					showUserMessage('Server says - ' + xfrPackage.messages[i]);
-				}
-			}
-			if (xfrPackage) {
-				successFunction(xfrPackage);
+			// blank response body is valid for status 204
+			if (response.json || this.status == 204) {
+				successFunction(response);
 			} else {
 				console.error('INVALID RESPONSE FROM SERVER. RESPONSE FOLLOWS:');
 				console.log(this.responseText);
-				showUserMessage('There appears to be a problem on the server.', {
+				console.warn('There appears to be a problem on the server.', {
 					isError: true,
 				});
 				successFunction({});
 			}
 		} else {
 			console.log('>>> sendXhrRequest() raw response', this.responseText);
-			showUserMessage('The server has reported an issue.', {
+			console.warn('The server has reported an issue.', {
 				isError: true,
 			});
 			successFunction({});
 		}
 	}
 
-	function requestFailed() {
-		console.warn('sendXhrRequest(): request failed');
+	function requestFailed(event) {
+		console.log('event.status', event.status);
+		console.warn('sendXhrRequest(): request failed', this);
+		console.log(event);
 		failFunction(this);
 	}
 
-	function requestFailed() {
-		console.warn('sendXhrRequest(): request canceled');
+	function requestCanceled(event) {
+		console.warn('sendXhrRequest(): request canceled', this);
+		console.log(event);
 		failFunction(this);
 	}
 
@@ -208,6 +247,6 @@ function getContentType(input) {
 			return 'text/plain';
 			break;
 		default:
-			return 'application/json; charset=utf-8';
+			return 'application/json';
 	}
 }
