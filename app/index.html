@@ -17,8 +17,9 @@
 
     <link async rel='stylesheet' href='vendor/fontawesome-free-5.0.10/web-fonts-with-css/css/fontawesome-all.min.css' type='text/css'>
 
-    <!--build:css css/global.css async -->
+    <!--build:css css/main.css async -->
     <link async rel="stylesheet" href="css/main.css">
+    <link async rel="stylesheet" href="css/animations.css">
     <!-- endbuild -->
 
 </head>
@@ -32,19 +33,23 @@
         <div class="giftFormContainer">
             <form class="mainGiftForm">
 
-                <div class="giftFormHeader">
-                    <button class="goPreviousStep subtle" title="Go to the previous step" type="button">
-                        <i class="fa fa-arrow-left"></i>
-                    </button>
-                    <span class="giftDisplayContainer">
-                        <h3>Your donation</h3>
-                        <div class="amountDisplay">
-                            <span class="money__symbol">$</span>
-                            <span class="money__dollars">99</span>
-                            <span class="money__cents">00</span>
+                <div class="giftFormHeaderContainer">
+                    <div class="giftFormHeader">
+                        <div>
+                            <button class="goPreviousStep subtle" title="Go to the previous step" type="button">
+                                <i class="fa fa-arrow-left"></i>
+                            </button>
                         </div>
-                    </span>
-                    <span></span>
+                        <div class="giftDisplayContainer">
+                            <h3>Your donation</h3>
+                            <div class="amountDisplay">
+                                <span class="currencySymbol">$</span>
+                                <span class="displayWholeAmount">99</span>
+                                <span class="displaySubAmount">00</span>
+                            </div>
+                        </div>
+                        <div></div>
+                    </div>
                 </div>
 
                 <div class="stepContainer">
@@ -151,9 +156,14 @@
                             </div>
                         </div>
 
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-amex"></i>
+                        <i class="fab fa-cc-discover"></i>
+                        <i class="fab fa-bitcoin"></i>
                         <div class="stepButtonContainer">
-                            <button class="processDonation main" data-working='<span>Processing</span><i class=" fa fa-spinner fa-spin"></i>' title="Send your donation now"
-                                type="button">
+                            <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class=" fa fa-spinner fa-spin"></i>'
+                                title="Send your donation now" type="button">
                                 <span>Submit Donation</span>
                                 <i class="fa fa-check"></i>
                             </button>
@@ -172,12 +182,14 @@
 
     <footer></footer>
 
-    <!--build:js js/global.js async -->
-    <script async src="js/shared-utils.js"></script>
-    <script async src="js/main.js"></script>
-    <!-- endbuild -->
+    <script defer src="vendor/jquery/jquery-1.12.4.min.js"></script>
 
-    <script async src="vendor/jquery/jquery-1.12.4.min.js"></script>
+    <!--build:js js/main.js defer -->
+    <script defer src="js/shared-utils.js"></script>
+    <script defer src="js/business-logic-layer.js"></script>
+    <script defer src="js/transaction-system-layer.js"></script>
+    <script defer src="js/user-interface-layer.js"></script>
+    <!-- endbuild -->
 
 </body>
 

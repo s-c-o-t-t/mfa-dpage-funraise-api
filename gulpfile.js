@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+	changed = require('gulp-changed'),
 	sass = require('gulp-sass'),
 	useref = require('gulp-useref'),
 	uglify = require('gulp-uglify'),
@@ -91,7 +92,11 @@ gulp.task('optimize-dist-html', function() {
 });
 
 gulp.task('copy-other-files', function() {
-	return gulp.src(['app/vendor/**']).pipe(gulp.dest('dist/vendor'));
+	const destination = 'dist/vendor';
+	return gulp
+		.src(['app/vendor/**'])
+		.pipe(changed(destination))
+		.pipe(gulp.dest(destination));
 });
 
 gulp.task('build', function(callback) {
