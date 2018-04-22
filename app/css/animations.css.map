@@ -1,6 +1,6 @@
 {
 "version": 3,
-"mappings": "AAEA,gBAAgB",
+"mappings": "AAEA,gBAAgB;AAEhB,uBAAuB;AACvB,yBAWC;EAVA,EAAG;IACF,OAAO,EAAE,GAAG;EAEb,GAAI;IACH,OAAO,EAAE,GAAG;IACZ,gBAAgB,EAAE,OAA4B;EAE/C,IAAK;IACJ,OAAO,EAAE,GAAG",
 "sources": ["../sass/animations.scss"],
 "names": [],
 "file": "animations.css"
