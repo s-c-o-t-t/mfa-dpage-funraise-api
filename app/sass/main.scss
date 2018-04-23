@@ -28,9 +28,6 @@ button {
 		top: 1px;
 		opacity: 0.5;
 	}
-	&.error {
-		background: tomato;
-	}
 	&.blocked {
 		animation-name: buttonInAction;
 		animation-duration: 2s;
@@ -89,10 +86,19 @@ div.giftFormContainer {
 		h3 {
 			font-weight: normal;
 		}
+		select,
+		input[type='text'] {
+			width: 100%;
+			min-height: $standardInputHeight;
+			padding: 0.5em;
+			font-size: 1.25em;
+			border: 1px solid #ccc;
+			border-radius: $standardRadius;
+		}
 		button {
 			&.main {
 				display: flex;
-				align-items: center;
+				align-items: stretch;
 				justify-content: space-between;
 				margin-top: 1rem;
 				width: 100%;
@@ -117,6 +123,10 @@ div.giftFormContainer {
 						}
 					}
 				}
+				&.error {
+					background: tomato;
+					border-color: darken(tomato, 10%);
+				}
 			}
 			&.goPreviousStep {
 				display: none;
@@ -131,6 +141,64 @@ div.giftFormContainer {
 					left: -0.15em;
 					color: #000;
 				}
+			}
+		}
+	}
+}
+
+div.giftAmountContainer,
+div.giftFrequencyContainer {
+	display: flex;
+	flex-flow: row wrap;
+	align-items: center;
+	margin: 0.5em 0;
+	div.giftOption {
+		padding: 0.125em;
+		&.fixed {
+			flex: 1;
+			label {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 100%;
+				padding: 0.25em;
+				text-align: center;
+				color: #333;
+				min-height: 50px;
+				@include basicButton;
+				span {
+					vertical-align: middle;
+				}
+				input[type='radio'] {
+					display: none;
+				}
+			}
+		}
+		&.freeform {
+			display: flex;
+			align-items: stretch;
+			flex: 1 100%;
+			> * {
+				padding: 0.5rem;
+				//height: $standardInputHeight;
+			}
+			input[type='text'] {
+				width: 100%;
+				border-radius: 0;
+			}
+			div.currencyDisplay {
+				@include basicButtonLook;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+				border-right: 0;
+			}
+			select[name='giftCurrency'] {
+				min-width: 3em;
+				max-width: 6.25em;
+				@include basicButtonLook;
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+				border-left: none;
 			}
 		}
 	}
