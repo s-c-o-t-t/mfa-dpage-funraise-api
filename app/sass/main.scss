@@ -48,6 +48,12 @@ div.mainBackground {
 	background-size: cover;
 }
 
+div.loadingDisplay {
+	color: transparentize($colorFormBg, 0.2);
+	text-align: center;
+	font-size: 2em;
+}
+
 div.giftFormHeaderContainer {
 	display: none;
 	div.giftFormHeader {
@@ -87,13 +93,19 @@ div.giftFormContainer {
 			font-weight: normal;
 		}
 		select,
-		input[type='text'] {
+		input[type='text'],
+		div.cardTokenizerFrame {
 			width: 100%;
 			min-height: $standardInputHeight;
-			padding: 0.5em;
-			font-size: 1.25em;
+			padding: 0.5rem;
+			font-size: 1.25rem;
+			background: #fff;
 			border: 1px solid #ccc;
 			border-radius: $standardRadius;
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+		}
+		div.cardTokenizerFrame {
+			height: $standardInputHeight;
 		}
 		button {
 			&.main {
@@ -201,5 +213,13 @@ div.giftFrequencyContainer {
 				border-left: none;
 			}
 		}
+	}
+}
+
+div.payInfoContainer {
+	display: flex;
+	flex-flow: row wrap;
+	div.inputGroup {
+		flex: 1 50%;
 	}
 }

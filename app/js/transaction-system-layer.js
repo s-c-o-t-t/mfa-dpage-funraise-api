@@ -2,14 +2,19 @@ console.log('transaction-system-layer.js v18.4.19');
 
 // https://platform.funraise.io/
 var apiConstants = {
-	baseUrl: 'http://localhost:8080/funraise/public/api/v2/'
+	baseUrl: 'http://localhost:8080/funraise/public/api/v2/',
+	organizationId: '1e78fec4-8fd0-4a3e-b82b-866c29012531',
 };
 
 var requestTimeoutSeconds = 20;
+var requestInitialPollDelay = 1000;
+window.mwdspace = window.mwdspace || {};
+
 window.mwdspace.donationInProgress = false;
 window.mwdspace.donationStartTime;
 
-window.mwdspace.currencyList = [{
+window.mwdspace.currencyList = [
+	{
 		code: 'USD',
 		name: 'U.S. Dollar',
 		symbol: '$',
@@ -36,17 +41,21 @@ window.mwdspace.currencyList = [{
 	},
 ];
 
-window.mwdspace.payMethodList = [{
+window.mwdspace.payMethodList = [
+	{
 		code: 'card',
 		name: 'Card',
 		description: 'Donate With Card',
 		minimumAmount: 5.0,
 		maximumAmount: 20000.0,
-		subtypes: [{
-			code: 'card',
-			name: 'Donate With Card',
-		}, ],
-		frequencies: [{
+		subtypes: [
+			{
+				code: 'card',
+				name: 'Donate With Card',
+			},
+		],
+		frequencies: [
+			{
 				code: 'single',
 				name: 'One-Time',
 			},
@@ -62,10 +71,12 @@ window.mwdspace.payMethodList = [{
 		description: 'Donate With Bitcoin',
 		minimumAmount: 5.0,
 		maximumAmount: 20000.0,
-		frequencies: [{
-			code: 'single',
-			name: 'One-Time',
-		}, ],
+		frequencies: [
+			{
+				code: 'single',
+				name: 'One-Time',
+			},
+		],
 	},
 ];
 
@@ -77,6 +88,9 @@ function startDonation(options, successFunction, failFunction) {
 	window.mwdspace.donationInProgress = true;
 
 	var sendData = options.data || {};
+	sendData.organizationId = apiConstants.organizationId;
+	sendData.sourceUrl = sendData.sourceUrl || window.location.hostname + window.location.pathname;
+	sendData.referrer = sendData.referrer || document.referrer || '';
 
 	var donationOptions = {
 		method: 'post',
@@ -89,7 +103,7 @@ function startDonation(options, successFunction, failFunction) {
 	try {
 		sendXhrRequest(
 			donationOptions,
-			function (response) {
+			function(response) {
 				console.log('response INITIAL', typeof response, response);
 				if (!response.json || !response.json.id) {
 					console.error('startDonation(): Invalid response, no "id":');
@@ -100,7 +114,7 @@ function startDonation(options, successFunction, failFunction) {
 				window.mwdspace.donationStartTime = new Date();
 				setSessionValue('donationId', donateId);
 				setSessionValue('donationStartTime', window.mwdspace.donationStartTime.toUTCString());
-				completeDonation(donateId, 1000, successFunction, failFunction);
+				completeDonation(donateId, requestInitialPollDelay, successFunction, failFunction);
 			},
 			failFunction
 		);
@@ -123,7 +137,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 		failFunction({});
 	}
 	if (delayMilliseconds <= 0) {
-		delayMilliseconds = 500;
+		delayMilliseconds = 1000;
 	}
 	console.log('>>>> completeDonation() (', typeof donateId, ')', donateId, delayMilliseconds);
 	var elapsedMilliseconds = new Date().getTime() - window.mwdspace.donationStartTime.getTime();
@@ -133,7 +147,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 		return failFunction({});
 	}
 
-	setTimeout(function () {
+	setTimeout(function() {
 		console.log('completeDonation() RUNNING');
 
 		var targetUrl = apiConstants.baseUrl + 'donation/' + donateId;
@@ -146,7 +160,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 
 		sendXhrRequest(
 			donationOptions,
-			function (response) {
+			function(response) {
 				console.log('response POLL', typeof response, response);
 				if (response.status == 204) {
 					console.log('STATUS 204 RECEIVED, DONATION STILL PROCESSING');
@@ -181,11 +195,15 @@ function sendXhrRequest(options, successFunction, failFunction) {
 	// process options
 	var requestMethod = options.method || 'post';
 	var requestUrl = options.url || '';
-	var sendData = options.sendData || {};
-	var verboseMode = options.verbose === true ? true : false;
 	var sendContentType = getContentType(options.sendContentType || null);
 	var acceptContentType = getContentType(options.acceptContentType || null);
 	var progressCallback = typeof options.progressFunction === 'function' ? options.progressFunction : false;
+	var verboseMode = options.verbose === true ? true : false;
+
+	var sendData = options.sendData || {};
+	if (sendData && typeof sendData != 'string') {
+		sendData = safeJsonString(sendData);
+	}
 
 	var xhr = new XMLHttpRequest();
 
@@ -203,10 +221,10 @@ function sendXhrRequest(options, successFunction, failFunction) {
 	xhr.open(requestMethod, requestUrl, true);
 	xhr.setRequestHeader('Content-Type', sendContentType);
 	xhr.setRequestHeader('Accept', acceptContentType);
-	//xhr.setRequestHeader('Accept-Charset', 'utf-8');
-	var sendResult = xhr.send();
+
+	xhr.send(sendData);
 	if (verboseMode) {
-		console.log('>>> sendXhrRequest() sent');
+		console.log('>>> sendXhrRequest() sent with data', sendData);
 	}
 
 	// if (options.formData) {
