@@ -200,13 +200,11 @@ function makeUrlParameterList() {
 	for (var i = 0; i < rawPairs.length; i++) {
 		if (!isEmpty(rawPairs[i])) {
 			thisPair = rawPairs[i].split('=');
-			thisKey = ensureString(thisPair[0]);
-			thisKey = thisKey.replace('+', ' ');
+			// account for plus signs as spaces in URL
+			thisKey = ensureString(thisPair[0]).replace('+', ' ');
 			thisKey = decodeURIComponent(thisKey);
 			if (!isEmpty(thisKey)) {
-				if (!isEmpty(thisKey)) {
-					window.mwdspace.urlParameters[thisKey] = decodeURIComponent(thisPair[1]);
-				}
+				window.mwdspace.urlParameters[thisKey] = decodeURIComponent(thisPair[1]);
 			}
 		}
 	}

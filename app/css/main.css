@@ -22,8 +22,6 @@ button {
     position: relative;
     top: 1px;
     opacity: 0.5; }
-  button.error {
-    background: tomato; }
   button.blocked {
     animation-name: buttonInAction;
     animation-duration: 2s;
@@ -69,9 +67,17 @@ div.giftFormContainer {
       padding: 1.75rem; }
     div.giftFormContainer form.mainGiftForm h3 {
       font-weight: normal; }
+    div.giftFormContainer form.mainGiftForm select,
+    div.giftFormContainer form.mainGiftForm input[type='text'] {
+      width: 100%;
+      min-height: 2.25rem;
+      padding: 0.5em;
+      font-size: 1.25em;
+      border: 1px solid #ccc;
+      border-radius: 0.15em; }
     div.giftFormContainer form.mainGiftForm button.main {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: space-between;
       margin-top: 1rem;
       width: 100%;
@@ -89,6 +95,9 @@ div.giftFormContainer {
         transition: left 0.66s; }
       div.giftFormContainer form.mainGiftForm button.main.goNextStep:hover i.fa, div.giftFormContainer form.mainGiftForm button.main.goNextStep:active i.fa {
         left: 0.33em; }
+      div.giftFormContainer form.mainGiftForm button.main.error {
+        background: tomato;
+        border-color: #ff3814; }
     div.giftFormContainer form.mainGiftForm button.goPreviousStep {
       display: none;
       color: #707070;
@@ -101,3 +110,77 @@ div.giftFormContainer {
         position: relative;
         left: -0.15em;
         color: #000; }
+
+div.giftAmountContainer,
+div.giftFrequencyContainer {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  margin: 0.5em 0; }
+  div.giftAmountContainer div.giftOption,
+  div.giftFrequencyContainer div.giftOption {
+    padding: 0.125em; }
+    div.giftAmountContainer div.giftOption.fixed,
+    div.giftFrequencyContainer div.giftOption.fixed {
+      flex: 1; }
+      div.giftAmountContainer div.giftOption.fixed label,
+      div.giftFrequencyContainer div.giftOption.fixed label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0.25em;
+        text-align: center;
+        color: #333;
+        min-height: 50px;
+        background: linear-gradient(#fff, #e9e9e9);
+        border: 1px solid #ccc;
+        border-radius: 0.15em;
+        outline: none;
+        transition: color 0.33s, background-color 0.33s, box-shadow 0.4s; }
+        div.giftAmountContainer div.giftOption.fixed label:hover, div.giftAmountContainer div.giftOption.fixed label.selected,
+        div.giftFrequencyContainer div.giftOption.fixed label:hover,
+        div.giftFrequencyContainer div.giftOption.fixed label.selected {
+          color: white;
+          background: #01a7df; }
+        div.giftAmountContainer div.giftOption.fixed label.selected,
+        div.giftFrequencyContainer div.giftOption.fixed label.selected {
+          box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
+        div.giftAmountContainer div.giftOption.fixed label span,
+        div.giftFrequencyContainer div.giftOption.fixed label span {
+          vertical-align: middle; }
+        div.giftAmountContainer div.giftOption.fixed label input[type='radio'],
+        div.giftFrequencyContainer div.giftOption.fixed label input[type='radio'] {
+          display: none; }
+    div.giftAmountContainer div.giftOption.freeform,
+    div.giftFrequencyContainer div.giftOption.freeform {
+      display: flex;
+      align-items: stretch;
+      flex: 1 100%; }
+      div.giftAmountContainer div.giftOption.freeform > *,
+      div.giftFrequencyContainer div.giftOption.freeform > * {
+        padding: 0.5rem; }
+      div.giftAmountContainer div.giftOption.freeform input[type='text'],
+      div.giftFrequencyContainer div.giftOption.freeform input[type='text'] {
+        width: 100%;
+        border-radius: 0; }
+      div.giftAmountContainer div.giftOption.freeform div.currencyDisplay,
+      div.giftFrequencyContainer div.giftOption.freeform div.currencyDisplay {
+        background: linear-gradient(#fff, #e9e9e9);
+        border: 1px solid #ccc;
+        border-radius: 0.15em;
+        outline: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: 0; }
+      div.giftAmountContainer div.giftOption.freeform select[name='giftCurrency'],
+      div.giftFrequencyContainer div.giftOption.freeform select[name='giftCurrency'] {
+        min-width: 3em;
+        max-width: 6.25em;
+        background: linear-gradient(#fff, #e9e9e9);
+        border: 1px solid #ccc;
+        border-radius: 0.15em;
+        outline: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none; }

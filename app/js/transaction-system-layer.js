@@ -1,17 +1,80 @@
 console.log('transaction-system-layer.js v18.4.19');
 
 // https://platform.funraise.io/
-var apiConstants = { baseUrl: 'http://localhost:8080/funraise/api/v2/' };
+var apiConstants = {
+	baseUrl: 'http://localhost:8080/funraise/public/api/v2/'
+};
 
 var requestTimeoutSeconds = 20;
-var donationInProgress = false;
-var donationStartTime;
+window.mwdspace.donationInProgress = false;
+window.mwdspace.donationStartTime;
+
+window.mwdspace.currencyList = [{
+		code: 'USD',
+		name: 'U.S. Dollar',
+		symbol: '$',
+	},
+	{
+		code: 'CAD',
+		name: 'Canadian Dollar',
+		symbol: 'C$',
+	},
+	{
+		code: 'MXN',
+		name: 'Mexican Peso',
+		symbol: 'MEX',
+	},
+	{
+		code: 'BRL',
+		name: 'Brazilian Real',
+		symbol: 'R$',
+	},
+	{
+		code: 'INR',
+		name: 'Indian Rupee',
+		symbol: '&#8360;', // &#8360; &#8377;
+	},
+];
+
+window.mwdspace.payMethodList = [{
+		code: 'card',
+		name: 'Card',
+		description: 'Donate With Card',
+		minimumAmount: 5.0,
+		maximumAmount: 20000.0,
+		subtypes: [{
+			code: 'card',
+			name: 'Donate With Card',
+		}, ],
+		frequencies: [{
+				code: 'single',
+				name: 'One-Time',
+			},
+			{
+				code: 'monthly',
+				name: 'Monthly',
+			},
+		],
+	},
+	{
+		code: 'bitcoin',
+		name: 'Bitcoin',
+		description: 'Donate With Bitcoin',
+		minimumAmount: 5.0,
+		maximumAmount: 20000.0,
+		frequencies: [{
+			code: 'single',
+			name: 'One-Time',
+		}, ],
+	},
+];
 
 function startDonation(options, successFunction, failFunction) {
 	console.log('>>>> startDonation()');
 	if (typeof options == 'undefined') {
 		var options = {};
 	}
+	window.mwdspace.donationInProgress = true;
 
 	var sendData = options.data || {};
 
@@ -26,7 +89,7 @@ function startDonation(options, successFunction, failFunction) {
 	try {
 		sendXhrRequest(
 			donationOptions,
-			function(response) {
+			function (response) {
 				console.log('response INITIAL', typeof response, response);
 				if (!response.json || !response.json.id) {
 					console.error('startDonation(): Invalid response, no "id":');
@@ -34,10 +97,9 @@ function startDonation(options, successFunction, failFunction) {
 					return failFunction(response);
 				}
 				var donateId = response.json.id;
-				donationInProgress = true;
-				donationStartTime = new Date();
-				setSessionValue('donationInProgress', donateId);
-				setSessionValue('donationStartTime', donationStartTime.toUTCString());
+				window.mwdspace.donationStartTime = new Date();
+				setSessionValue('donationId', donateId);
+				setSessionValue('donationStartTime', window.mwdspace.donationStartTime.toUTCString());
 				completeDonation(donateId, 1000, successFunction, failFunction);
 			},
 			failFunction
@@ -64,14 +126,14 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 		delayMilliseconds = 500;
 	}
 	console.log('>>>> completeDonation() (', typeof donateId, ')', donateId, delayMilliseconds);
-	var elapsedMilliseconds = new Date().getTime() - donationStartTime.getTime();
+	var elapsedMilliseconds = new Date().getTime() - window.mwdspace.donationStartTime.getTime();
 	console.log('elapsedMilliseconds', elapsedMilliseconds);
 	if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
 		console.error('completeDonation(): request timeout reached, calling fail function.');
 		return failFunction({});
 	}
 
-	setTimeout(function() {
+	setTimeout(function () {
 		console.log('completeDonation() RUNNING');
 
 		var targetUrl = apiConstants.baseUrl + 'donation/' + donateId;
@@ -84,7 +146,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 
 		sendXhrRequest(
 			donationOptions,
-			function(response) {
+			function (response) {
 				console.log('response POLL', typeof response, response);
 				if (response.status == 204) {
 					console.log('STATUS 204 RECEIVED, DONATION STILL PROCESSING');
@@ -101,7 +163,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 					return failFunction(response);
 				}
 
-				removeSessionValue('donationInProgress');
+				removeSessionValue('donationId');
 				removeSessionValue('donationStartTime');
 				return successFunction(response);
 			},
@@ -142,7 +204,7 @@ function sendXhrRequest(options, successFunction, failFunction) {
 	xhr.setRequestHeader('Content-Type', sendContentType);
 	xhr.setRequestHeader('Accept', acceptContentType);
 	//xhr.setRequestHeader('Accept-Charset', 'utf-8');
-	xhr.send();
+	var sendResult = xhr.send();
 	if (verboseMode) {
 		console.log('>>> sendXhrRequest() sent');
 	}
@@ -201,7 +263,7 @@ function sendXhrRequest(options, successFunction, failFunction) {
 			} else {
 				console.error('INVALID RESPONSE FROM SERVER. RESPONSE FOLLOWS:');
 				console.log(this.responseText);
-				console.warn('There appears to be a problem on the server.', {
+				console.warn('There may be a problem on the server.', {
 					isError: true,
 				});
 				successFunction({});
