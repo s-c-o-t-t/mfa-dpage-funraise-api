@@ -29,7 +29,10 @@
     <div class="mainBackground">
 
         <div class="giftFormContainer">
-            <form class="mainGiftForm">
+            <div class="loadingDisplay">
+                <i class=" fa fa-spinner fa-spin"></i>
+            </div>
+            <form class="mainGiftForm" novalidate="novalidate" role="form">
 
                 <div class="giftFormHeaderContainer">
                     <div class="giftFormHeader">
@@ -116,7 +119,6 @@
 
                     <!-- DONOR INFO -->
                     <section class="step" data-step-name="donorInfo">
-                        <h3>Select donation amount</h3>
                         <div class="giftAmountContainer">
                             <div class="giftOption fixed">
                                 <label class="giftOption">
@@ -159,40 +161,23 @@
                         </div>
                     </section>
 
-                    <!-- PAYMENT -->
+                    <!-- PAYMENT ********************************************* -->
                     <section class="step" data-step-name="payment">
-                        <h3>Select donation amount</h3>
-                        <div class="giftAmountContainer">
-                            <div class="giftOption fixed">
-                                <label class="giftOption">
-                                    <input type="radio" name="giftAmountFixed" value="25">
-                                    <span class="currencySymbol">$</span>
-                                    <span class="displayAmount">25</span>
-                                </label>
+                        <div class="payInfoContainer">
+                            <div class="inputGroup">
+                                <div id="cardNumberTarget" class="cardTokenizerFrame"></div>
                             </div>
-                            <div class="giftOption fixed">
-                                <label class="giftOption">
-                                    <input type="radio" name="giftAmountFixed" value="50">
-                                    <span class="currencySymbol">$</span>
-                                    <span class="displayAmount">50</span>
-                                </label>
+                            <div class="inputGroup">
+                                <div id="cardCvvTarget" class="cardTokenizerFrame"></div>
                             </div>
-                            <div class="giftOption fixed">
-                                <label class="giftOption">
-                                    <input type="radio" name="giftAmountFixed" value="75">
-                                    <span class="currencySymbol">$</span>
-                                    <span class="displayAmount">75</span>
-                                </label>
+                            <div class="inputGroup">
+                                <input name="payCardExpireMonth" type="text" placeholder="Month">
                             </div>
-                            <div class="giftOption fixed">
-                                <label class="giftOption">
-                                    <input type="radio" name="giftAmountFixed" value="100">
-                                    <span class="currencySymbol">$</span>
-                                    <span class="displayAmount">100</span>
-                                </label>
-                            </div>
-                            <div class="giftOption freeform">
-                                <input type="text" name="giftAmountFreeForm" placeholder="or enter amount">
+                            <div class="inputGroup">
+                                <select name="payCardExpireYear"></select>
+                                <div class="userFeedback">
+                                    <span class="message">&nbsp;</span>
+                                </div>
                             </div>
                         </div>
 
@@ -204,7 +189,7 @@
                         <div class="stepButtonContainer">
                             <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class=" fa fa-spinner fa-spin"></i>'
                                 data-success='<span><i class="fab fa-bitcoin"></i> Done!</span><i class="fa fa-thumbs-up"></i>'
-                                data-error='<span><i class="fas fa-exclamation-circle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
+                                data-error='<span><i class="fas fa-exclamation-triangle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
                                 title="Send your donation now" type="button">
                                 <span>Submit Donation</span>
                                 <i class="fa fa-check"></i>
@@ -231,9 +216,10 @@
 
     <footer></footer>
 
+    <script defer src="https://core.spreedly.com/iframe/iframe-v1.min.js"></script>
     <script defer src="vendor/jquery/jquery-1.12.4.min.js"></script>
 
-    <!--build:js js/main.js defer -->
+    <!--build:js js/main.js defer  -->
     <script defer src="js/shared-utils.js"></script>
     <script defer src="js/business-logic-layer.js"></script>
     <script defer src="js/transaction-system-layer.js"></script>

@@ -38,6 +38,11 @@ div.mainBackground {
   background-position: 80% 50%;
   background-size: cover; }
 
+div.loadingDisplay {
+  color: rgba(243, 243, 244, 0.8);
+  text-align: center;
+  font-size: 2em; }
+
 div.giftFormHeaderContainer {
   display: none; }
   div.giftFormHeaderContainer div.giftFormHeader {
@@ -68,13 +73,18 @@ div.giftFormContainer {
     div.giftFormContainer form.mainGiftForm h3 {
       font-weight: normal; }
     div.giftFormContainer form.mainGiftForm select,
-    div.giftFormContainer form.mainGiftForm input[type='text'] {
+    div.giftFormContainer form.mainGiftForm input[type='text'],
+    div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
       width: 100%;
       min-height: 2.25rem;
-      padding: 0.5em;
-      font-size: 1.25em;
+      padding: 0.5rem;
+      font-size: 1.25rem;
+      background: #fff;
       border: 1px solid #ccc;
-      border-radius: 0.15em; }
+      border-radius: 0.15em;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+    div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
+      height: 2.25rem; }
     div.giftFormContainer form.mainGiftForm button.main {
       display: flex;
       align-items: stretch;
@@ -184,3 +194,9 @@ div.giftFrequencyContainer {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left: none; }
+
+div.payInfoContainer {
+  display: flex;
+  flex-flow: row wrap; }
+  div.payInfoContainer div.inputGroup {
+    flex: 1 50%; }

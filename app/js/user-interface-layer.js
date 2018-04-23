@@ -1,20 +1,51 @@
 console.log('user-interface-layer.js v18.4.19');
 
 // GLOBALS
+var paymentTokenizerId = 'ODBm2idmYFT3pBge5qxRBjQaWH9';
 
 // DOM OBJECTS
-var stepList = document.querySelectorAll('section.step');
+var stepList = document.querySelectorAll('div.giftFormContainer section.step');
 var domMainBackButton = document.querySelector('button.goPreviousStep');
+
+Spreedly.on('ready', function() {
+	console.log('\n\nSPREEDLY READY', Spreedly);
+
+	console.log('Setting Spreedly stuff');
+	//format card number
+	Spreedly.setPlaceholder('number', 'Card');
+	Spreedly.setFieldType('number', 'text');
+	Spreedly.setNumberFormat('prettyFormat');
+	Spreedly.setLabel('number', 'Payment card number');
+
+	//format cvv
+	Spreedly.setPlaceholder('cvv', 'cvv');
+	Spreedly.setLabel('cvv', 'Payment card 3-digit verification code');
+
+	// Spreedly.setValue('number', '4111111111111111');
+	// Spreedly.setValue('cvv', '123');
+	console.log('Spreedly stuff set');
+});
+Spreedly.on('paymentMethod', function(result) {
+	console.log('\n\nSPREEDLY PAYMENT TOKENIZED', result);
+});
+Spreedly.on('errors', function(errors) {
+	console.log('\n\nSPREEDLY REPORTS ERRORS:');
+	for (var i = 0; i < errors.length; i++) {
+		var error = errors[i];
+		console.log(error);
+	}
+});
 
 buildCurrencySelect();
 buildPayMethodSelect();
 buildFrequencyButtons(window.mwdspace.payMethodList[0].frequencies);
+buildCardExpireYearSelect();
 
 showStep();
-
-// setTimeout(function() {
-// 	showStep('payment');
-// }, 3000);
+Spreedly.init(paymentTokenizerId, {
+	numberEl: 'cardNumberTarget',
+	cvvEl: 'cardCvvTarget',
+});
 
 $('input[type=radio]').change(function() {
 	$(this)
@@ -46,6 +77,18 @@ document.addEventListener('click', function(event) {
 			var data = {
 				amount: 6.66,
 			};
+			// Spreedly.tokenizeCreditCard({
+
+			// 	// Required
+			// 	"first_name": document.getElementById("first-name").value,
+			// 	"last_name": document.getElementById("last-name").value,
+			// 	"month": document.getElementById("month").value,
+			// 	"year": document.getElementById("year").value,
+
+			// 	// Optional
+			// 	"email": document.getElementById("email").value,
+			// 	"zip": document.getElementById("zip").value
+			//   });
 			startDonation(
 				data,
 				function(donationInfo) {
@@ -71,8 +114,12 @@ document.addEventListener('click', function(event) {
 function showStep(targetStepName) {
 	targetStepName = ensureString(targetStepName);
 	if (!targetStepName) {
-		targetStepName = 'giftAmount';
+		targetStepName = getSessionValue('currentStep');
+		if (!targetStepName) {
+			targetStepName = 'giftAmount';
+		}
 	}
+	$('div.giftFormContainer div.loadingDisplay').hide();
 	var thisName;
 	stepList.forEach(function(step) {
 		thisName = step.getAttribute('data-step-name');
@@ -165,7 +212,6 @@ function buildPayMethodOption(method) {
 }
 
 function buildFrequencyButtons(frequencyList) {
-	console.log('frequencyList', frequencyList);
 	try {
 		if (!frequencyList) {
 			throw new Error('Invalid list of frequencies given');
@@ -182,7 +228,6 @@ function buildFrequencyButtons(frequencyList) {
 
 		var domThisButton;
 		frequencyList.forEach(function(item) {
-			console.log('PROCESSING', item);
 			domThisButton = buildFrequencyButton(item);
 			if (domThisButton) {
 				domFrequencyContainer.append(domThisButton);
@@ -196,7 +241,6 @@ function buildFrequencyButtons(frequencyList) {
 }
 
 function buildFrequencyButton(frequency) {
-	console.log('buildFrequencyButton(frequency)', frequency);
 	var domButton = null;
 	try {
 		if (frequency.code) {
@@ -222,4 +266,46 @@ function buildFrequencyButton(frequency) {
 		console.error('Error building the button for frequency:', frequency, err);
 	}
 	return domButton;
+}
+
+function buildCardExpireYearSelect() {
+	try {
+		// show only current year and beyond, but with a few days fudge factor
+		var recentDate = new Date();
+		recentDate.setDate(recentDate.getDate() - 7);
+		var startYear = recentDate.getFullYear();
+		var yearsToShow = 15;
+
+		var domCardExpireYearSelect = document.querySelector(
+			'form.mainGiftForm select[name=payCardExpireYear]'
+		);
+		if (!domCardExpireYearSelect) {
+			throw new Error('Unable to identify the card expire year select dropdown');
+		}
+		var domThisOption;
+		for (var expireYear = startYear; expireYear < startYear + yearsToShow; expireYear++) {
+			domThisOption = buildCardExpireYearOption(expireYear);
+			if (domThisOption) {
+				domCardExpireYearSelect.appendChild(domThisOption);
+			} else {
+				console.warn('Unable to add card expire year:', expireYear);
+			}
+		}
+	} catch (err) {
+		console.error('Unable to build the card expire year select dropdown', err);
+	}
+}
+
+function buildCardExpireYearOption(year) {
+	var domOption = null;
+	try {
+		if (year) {
+			domOption = document.createElement('option');
+			domOption.setAttribute('value', year.code);
+			domOption.innerText = year;
+		}
+	} catch (err) {
+		console.error('Unable to build the option element for currency:', currency);
+	}
+	return domOption;
 }
