@@ -1,0 +1,17 @@
+div.mfaDonationWidgetContainer {
+  opacity: 0;
+  max-width: 30em;
+  margin: 3em auto;
+  background-color: #0087c8;
+  border: 1px solid whitesmoke;
+  border-radius: .25em;
+  transition: opacity 1s; }
+  div.mfaDonationWidgetContainer.reveal {
+    opacity: 1 !important; }
+  div.mfaDonationWidgetContainer h2 {
+    text-align: center;
+    padding: 1em;
+    color: whitesmoke; }
+
+body {
+  background: pink; }

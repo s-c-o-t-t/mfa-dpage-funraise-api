@@ -10,7 +10,6 @@ var domMainBackButton = document.querySelector('button.goPreviousStep');
 Spreedly.on('ready', function() {
 	console.log('\n\nSPREEDLY READY', Spreedly);
 
-	console.log('Setting Spreedly stuff');
 	//format card number
 	Spreedly.setPlaceholder('number', 'Card');
 	Spreedly.setFieldType('number', 'text');
@@ -23,7 +22,6 @@ Spreedly.on('ready', function() {
 
 	// Spreedly.setValue('number', '4111111111111111');
 	// Spreedly.setValue('cvv', '123');
-	console.log('Spreedly stuff set');
 });
 Spreedly.on('paymentMethod', function(result) {
 	console.log('\n\nSPREEDLY PAYMENT TOKENIZED', result);
