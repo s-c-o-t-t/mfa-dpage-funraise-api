@@ -1,6 +1,5 @@
 @import 'vars';
 @import 'mixins';
-
 * {
 	box-sizing: border-box;
 	margin: 0;
@@ -42,8 +41,7 @@ div.mainBackground {
 	justify-content: center;
 	height: 100vh;
 	padding: 0.15em;
-	background: #efefef url('https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg')
-		no-repeat;
+	background: #efefef url('https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg') no-repeat;
 	background-position: 80% 50%;
 	background-size: cover;
 }
@@ -63,7 +61,7 @@ div.giftFormHeaderContainer {
 		padding: 0.75em 0.75em 1.5em 0.75em;
 		background: linear-gradient(#fff, darken($colorFormBg, 2%));
 		border-bottom: 1px solid darken($colorFormBg, 8%);
-		> div {
+		>div {
 			width: 25%;
 		}
 		div.giftDisplayContainer {
@@ -77,18 +75,15 @@ div.giftFormContainer {
 	width: 100%;
 	min-width: 17.5em;
 	max-width: 25em;
-
 	form.mainGiftForm {
 		background: linear-gradient(#fff, $colorFormBg, $colorFormBg, $colorFormBg);
 		box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
 		border-radius: $standardRadius;
 		overflow: hidden;
-
 		section.step {
 			display: none;
 			padding: 1.75rem;
 		}
-
 		h3 {
 			font-weight: normal;
 		}
@@ -190,9 +185,8 @@ div.giftFrequencyContainer {
 			display: flex;
 			align-items: stretch;
 			flex: 1 100%;
-			> * {
-				padding: 0.5rem;
-				//height: $standardInputHeight;
+			>* {
+				padding: 0.5rem; //height: $standardInputHeight;
 			}
 			input[type='text'] {
 				width: 100%;
@@ -207,7 +201,6 @@ div.giftFrequencyContainer {
 			select[name='giftCurrency'] {
 				min-width: 3em;
 				max-width: 6.25em;
-				@include basicButtonLook;
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 				border-left: none;
