@@ -28,6 +28,20 @@
 
     <div class="mainBackground">
 
+        <div id="form-test-01">
+            <p>Loading...</p>
+        </div>
+
+        <script src="https://donordigital.com/mfa-test/widget/1.0.0/mfa_funraise_widget.js"></script>
+        <script>
+            var mainWidget = new MFA_Funraise_Widget({
+                element: 'div#form-test-01',
+                styleSheets: "https://donordigital.com/mfa-test/widget/1.0.0/mfa_funraise_widget.css",
+                textOverride: 'http://services.mwdagency.com/'
+            });
+            mainWidget.start();
+        </script>
+
         <div class="giftFormContainer">
             <div class="loadingDisplay">
                 <i class=" fa fa-spinner fa-spin"></i>
