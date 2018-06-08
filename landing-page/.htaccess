@@ -1,0 +1,3 @@
+Header unset Content-Security-Policy
+Header unset X-Content-Security-Policy
+Header unset X-WebKit-CSP
