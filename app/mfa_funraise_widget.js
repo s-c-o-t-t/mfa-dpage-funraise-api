@@ -1,4 +1,4 @@
-console.log("mfa_funraise_widget.js v18.5.17");
+console.log("mfa_funraise_widget.js v18.6.8");
 
 var MFA_Funraise_Widget = function (input) {
     if (typeof input == 'object') {
@@ -8,7 +8,7 @@ var MFA_Funraise_Widget = function (input) {
     }
 
     this.codeVersion = '1.0.0';
-    this.mainStylesUrl = "css/mfa_funraise_widget.css";
+    this.mainStylesUrl = "http://services.mwdagency.com/donate-widget/1.0.0/mfa_funraise_widget.css";
 
     console.log("MFA_Funraise_Widget", this.codeVersion);
 
