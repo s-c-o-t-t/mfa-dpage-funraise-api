@@ -1,75 +1,158 @@
-console.log("mfa_funraise_widget.js v18.6.8");
+console.log("mfa_funraise_widget.js v18.6.13e");
 
 var MFA_Funraise_Widget = function (input) {
+    var thisWidget = this;
     if (typeof input == 'object') {
-        this.options = input;
+        thisWidget.options = input;
     } else {
-        this.options = {};
+        thisWidget.options = {};
     }
 
-    this.codeVersion = '1.0.0';
-    this.mainStylesUrl = "http://services.mwdagency.com/donate-widget/1.0.0/mfa_funraise_widget.css";
+    thisWidget.targetElement = {};
+    thisWidget.isStarted = false;
 
-    console.log("MFA_Funraise_Widget", this.codeVersion);
+    thisWidget.codeVersion = '1.0.0';
+    thisWidget.mainStylesUrl = "http://services.mwdagency.com/donate-widget/1.0.0/css/mfa_funraise_widget.css";
+    thisWidget.mainHtmlUrl = "http://services.mwdagency.com/donate-widget/1.0.0/mfa_funraise_widget.html";
 
-    if (!this.options.loadingText) {
-        this.options.loadingText = 'One moment...';
+    console.log("MFA_Funraise_Widget", thisWidget.codeVersion);
+
+    if (!thisWidget.options.loadingText) {
+        thisWidget.options.loadingText = 'One moment...';
     }
 
-    var stylesUrl = this.options.styleSheets || this.mainStylesUrl;
-    this.loadStylesheet(stylesUrl);
+    if (!thisWidget.options.element) {
+        console.warn("Invalid options - No target element:", thisWidget.options);
+        return false;
+    }
+    var target = document.querySelectorAll(thisWidget.options.element);
+    if (!target) {
+        console.warn("Specified target element not found:", thisWidget.options.element);
+        return false;
+    }
+    thisWidget.targetElement = target[0];
 
 }
-MFA_Funraise_Widget.prototype.start = function (input) {
-    if (typeof input == 'undefined') {
-        var input = {};
+
+MFA_Funraise_Widget.prototype.start = async function () {
+    var thisWidget = this;
+    if (thisWidget.isStarted) {
+        console.warn("MFA_Funraise_Widget already started");
+        return;
     }
-    console.log("MFA_Funraise_Widget start()", this.options);
+    thisWidget.isStarted = true;
+    console.log("MFA_Funraise_Widget start()", thisWidget.options);
 
-    if (input.loadingText) {
-        this.options.loadingText = input.loadingText;
-    }
+    thisWidget.targetElement.innerHTML = "";
 
-    if (!this.options.element) {
-        console.warn("Invalid options given:", this.options);
-        return false;
-    }
+    var stylesUrl = thisWidget.options.styleSheets || thisWidget.mainStylesUrl;
+    thisWidget.linkExternalStylesheet(stylesUrl);
 
-    var target = document.querySelectorAll(this.options.element);
-    if (!target) {
-        console.warn("Specified target element not found:", this.options.element);
-        return false;
-    }
-    target = target[0];
-    target.innerHTML = "";
-    var container = document.createElement("div");
-    container.classList.add('mfaDonationWidgetContainer');
-    container.style.opacity = 0;
-    target.appendChild(container);
+    thisWidget.loadFile(thisWidget.mainHtmlUrl, async function (widgetHtml) {
 
-    var message = document.createElement("h2");
-    message.innerText = this.options.loadingText + ' - v' + this.codeVersion;
-    container.appendChild(message);
+        var container = document.createElement("div");
+        container.id = 'mfaDonationWidgetContainer';
+        container.style.opacity = 0;
+        thisWidget.targetElement.appendChild(container);
 
-    setTimeout(function () {
-        container.classList.add("reveal");
-    }, 100);
+        container.innerHTML = widgetHtml;
+
+        setTimeout(function () {
+            container.classList.add("reveal");
+        }, 1);
+
+        await thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js");
+        thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js");
+        thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js");
+
+        await thisWidget.linkExternalScript("https://core.spreedly.com/iframe/iframe-v1.min.js");
+        await thisWidget.linkExternalScript("https://code.jquery.com/jquery-3.3.1.min.js", {
+            integrity: "sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=",
+            crossorigin: "anonymous"
+        });
+        thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/user-interface-layer.js");
+
+    });
 
 };
-MFA_Funraise_Widget.prototype.loadStylesheet = function (url) {
-    console.log("loadStylesheet()", url);
+
+MFA_Funraise_Widget.prototype.linkExternalStylesheet = function (url) {
+    var thisWidget = this;
+    // console.log("linkExternalStylesheet()", url);
     var domStyleLink = document.createElement("link");
+    thisWidget.targetElement.appendChild(domStyleLink);
     domStyleLink.rel = "stylesheet";
     domStyleLink.type = "text/css";
+    domStyleLink.addEventListener('load', function (event) {
+        console.log("linkExternalStylesheet() loaded:", url);
+    });
+    domStyleLink.addEventListener('error', function (event) {
+        console.error("linkExternalStylesheet() ERROR EVENT", url, event);
+    });
+    domStyleLink.addEventListener('abort', function (event) {
+        console.warn("linkExternalStylesheet() ABORT EVENT", url, event);
+    });
     domStyleLink.href = encodeURI(url);
-    domStyleLink.addEventListener('onload', function (event) {
-        console.log("loadStylesheet() EVENT", url, event);
+};
+
+MFA_Funraise_Widget.prototype.linkExternalScript = function (url) {
+    var thisWidget = this;
+    return new Promise(function (resolve, reject) {
+        // console.log("linkExternalScript()", url);
+        var domScript = document.createElement("script");
+        thisWidget.targetElement.appendChild(domScript);
+        var timeout = setTimeout(function () {
+            console.log("linkExternalScript() No result after 2s", url);
+            resolve(false);
+        }, 2000);
+        domScript.addEventListener('load', function (event) {
+            clearTimeout(timeout);
+            console.log("linkExternalScript() EVENT", url, event);
+            resolve(true);
+        });
+        domScript.addEventListener('error', function (event) {
+            clearTimeout(timeout);
+            console.log("linkExternalScript() EVENT", url, event);
+            resolve(false);
+        });
+        domScript.addEventListener('abort', function (event) {
+            clearTimeout(timeout);
+            console.log("linkExternalScript() EVENT", url, event);
+            resolve(false);
+        });
+        domScript.src = encodeURI(url);
     });
-    domStyleLink.addEventListener('onerror', function (event) {
-        console.log("loadStylesheet() EVENT", url, event);
+};
+
+MFA_Funraise_Widget.prototype.loadFile = function (input, callback) {
+    var thisWidget = this;
+    if (typeof input == 'undefined') {
+        console.warn("loadFile() given empty url");
+        return null;
+    }
+    if (typeof input != 'string') {
+        console.warn("loadFile() given invalid url type:", typeof input, input);
+        return null;
+    }
+    console.log("loadFile()", input);
+    var requestUrl = encodeURI(input);
+    var xhr = new XMLHttpRequest();
+
+    xhr.addEventListener('load', function (event) {
+        // console.log("loadFile() EVENT", requestUrl, event);
+        // console.log("event.response", event.target.response);
+        if (typeof callback == 'function') {
+            callback(event.target.response);
+        }
     });
-    domStyleLink.addEventListener('onabort', function (event) {
-        console.log("loadStylesheet() EVENT", url, event);
+    xhr.addEventListener('error', function (event) {
+        console.error("loadFile() ERROR EVENT", requestUrl, event);
     });
-    document.getElementsByTagName("head")[0].appendChild(domStyleLink);
+    xhr.addEventListener('abort', function (event) {
+        console.warn("loadFile() ABORT EVENT", requestUrl, event);
+    });
+
+    xhr.open("get", requestUrl, true);
+    // xhr.setRequestHeader('Accept', acceptContentType);
+    xhr.send();
 };

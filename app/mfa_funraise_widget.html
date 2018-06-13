@@ -1,0 +1,178 @@
+<div class="giftFormContainer">
+    <div class="loadingDisplay">
+        <i class=" fa fa-spinner fa-spin"></i>
+    </div>
+    <form class="mainGiftForm" novalidate="novalidate" role="form">
+
+        <div class="giftFormHeaderContainer">
+            <div class="giftFormHeader">
+                <div>
+                    <button class="goPreviousStep subtle" title="Go to the previous step" type="button">
+                        <i class="fa fa-arrow-left"></i>
+                    </button>
+                </div>
+                <div class="giftDisplayContainer">
+                    <h3>Your donation</h3>
+                    <div class="amountDisplay">
+                        <span class="currencySymbol">$</span>
+                        <span class="displayWholeAmount">99</span>
+                        <span class="displaySubAmount">00</span>
+                    </div>
+                </div>
+                <div></div>
+            </div>
+        </div>
+
+        <div class="stepContainer">
+            <!-- GIFT AMOUNT -->
+            <section class="step" data-step-name="giftAmount">
+                <h3>Select donation amount</h3>
+                <div class="giftAmountContainer">
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="25">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">25</span>
+                        </label>
+                    </div>
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="50">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">50</span>
+                        </label>
+                    </div>
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="75">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">75</span>
+                        </label>
+                    </div>
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="100">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">100</span>
+                        </label>
+                    </div>
+                    <!-- <div class="inputGroup"> -->
+                    <div class="giftOption freeform">
+                        <div class="currencyDisplay">$</div>
+                        <input type="text" name="giftAmountFreeForm" placeholder="or enter amount">
+                        <select name="giftCurrency">
+                        </select>
+
+                    </div>
+                    <!-- <div class="userFeedback">
+                                    <span class="message">&nbsp;</span>
+                                </div>
+                            </div> -->
+                </div>
+
+                <!-- PAYMENT METHOD -->
+                <div class="payMethodContainer">
+                    <select name="payMethod">
+                    </select>
+                </div>
+
+                <!-- FREQUENCY -->
+                <div class="giftFrequencyContainer"></div>
+
+                <div class="stepButtonContainer">
+                    <button class="goNextStep main" title="Go to the next step" type="button">
+                        <span>Enter Your Information</span>
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- DONOR INFO -->
+            <section class="step" data-step-name="donorInfo">
+                <div class="giftAmountContainer">
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="25">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">25</span>
+                        </label>
+                    </div>
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="50">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">50</span>
+                        </label>
+                    </div>
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="75">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">75</span>
+                        </label>
+                    </div>
+                    <div class="giftOption fixed">
+                        <label class="giftOption">
+                            <input type="radio" name="giftAmountFixed" value="100">
+                            <span class="currencySymbol">$</span>
+                            <span class="displayAmount">100</span>
+                        </label>
+                    </div>
+                    <div class="giftOption freeform">
+                        <input type="text" name="giftAmountFreeForm" placeholder="or enter amount">
+                    </div>
+                </div>
+
+                <div class="stepButtonContainer">
+                    <button class="goNextStep main" title="Go to the next step" type="button">
+                        <span>Enter Payment Information</span>
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- PAYMENT ********************************************* -->
+            <section class="step" data-step-name="payment">
+                <div class="payInfoContainer">
+                    <div class="inputGroup">
+                        <div id="cardNumberTarget" class="cardTokenizerFrame"></div>
+                    </div>
+                    <div class="inputGroup">
+                        <div id="cardCvvTarget" class="cardTokenizerFrame"></div>
+                    </div>
+                    <div class="inputGroup">
+                        <input name="payCardExpireMonth" type="text" placeholder="Month">
+                    </div>
+                    <div class="inputGroup">
+                        <select name="payCardExpireYear"></select>
+                        <div class="userFeedback">
+                            <span class="message">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-amex"></i>
+                <i class="fab fa-cc-discover"></i>
+                <i class="fab fa-bitcoin"></i>
+                <div class="stepButtonContainer">
+                    <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class=" fa fa-spinner fa-spin"></i>'
+                        data-success='<span><i class="fab fa-bitcoin"></i> Done!</span><i class="fa fa-thumbs-up"></i>' data-error='<span><i class="fas fa-exclamation-triangle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
+                        title="Send your donation now" type="button">
+                        <span>Submit Donation</span>
+                        <i class="fa fa-check"></i>
+                    </button>
+                    <div class="userFeedback">
+                        <span class="message">&nbsp;</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="giftFormUserMessages">
+
+        </div>
+
+    </form>
+</div>
