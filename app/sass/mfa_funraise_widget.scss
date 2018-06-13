@@ -1,21 +1,231 @@
-div.mfaDonationWidgetContainer {
+/* v18.6.13a */
+
+@import 'vars';
+@import 'mixins';
+div#mfaDonationWidgetContainer {
     opacity: 0;
     max-width: 30em;
     margin: 3em auto;
-    background-color: #0087c8;
-    border: 1px solid whitesmoke;
-    border-radius: .25em;
     transition: opacity 1s;
+    color: #333;
+    font-size: 16px;
     &.reveal {
         opacity: 1 !important;
     }
-    h2 {
-        text-align: center;
-        padding: 1em;
-        color: whitesmoke;
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
     }
-}
-
-body {
-    background: pink;
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    input,
+    select,
+    textarea {
+        color: #333;
+        span {
+            color: #333;
+        }
+    }
+    button {
+        cursor: pointer;
+        padding: 0.5em;
+        font-size: 1.25em;
+        text-align: center;
+        border-radius: $standardRadius;
+        outline: none;
+        transition: color 0.33s, background-color 0.5s, border 0.5s;
+        &:active {
+            position: relative;
+            top: 1px;
+            opacity: 0.5;
+        }
+        &.blocked {
+            animation-name: buttonInAction;
+            animation-duration: 2s;
+            animation-timing-function: ease-out;
+            animation-iteration-count: infinite;
+        }
+    }
+    div.mainBackground {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        padding: 0.15em;
+        background: #efefef url('https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg') no-repeat;
+        background-position: 80% 50%;
+        background-size: cover;
+    }
+    div.loadingDisplay {
+        color: $colorFormBg;
+        text-align: center;
+        font-size: 2em;
+    }
+    div.giftFormHeaderContainer {
+        display: none;
+        div.giftFormHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.75em 0.75em 1.5em 0.75em;
+            background: linear-gradient(#fff, darken($colorFormBg, 2%));
+            border-bottom: 1px solid darken($colorFormBg, 8%);
+            >div {
+                width: 25%;
+            }
+            div.giftDisplayContainer {
+                width: 50%;
+                text-align: center;
+            }
+        }
+    }
+    div.giftFormContainer {
+        width: 100%;
+        min-width: 17.5em;
+        max-width: 25em;
+        form.mainGiftForm {
+            background: linear-gradient(#fff, $colorFormBg, $colorFormBg, $colorFormBg);
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+            border-radius: $standardRadius;
+            overflow: hidden;
+            section.step {
+                display: none;
+                padding: 1.75rem;
+            }
+            h3 {
+                font-weight: normal;
+            }
+            select,
+            input[type='text'],
+            div.cardTokenizerFrame {
+                width: 100%;
+                min-height: $standardInputHeight;
+                padding: 0.5rem;
+                font-size: 1.25rem;
+                background: #fff;
+                border: 1px solid #ccc;
+                border-radius: $standardRadius;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            }
+            div.cardTokenizerFrame {
+                height: $standardInputHeight;
+            }
+            button {
+                &.main {
+                    display: flex;
+                    align-items: stretch;
+                    justify-content: space-between;
+                    margin-top: 1rem;
+                    width: 100%;
+                    padding: 1em;
+                    text-align: left;
+                    font-weight: bold;
+                    font-size: 1em;
+                    color: #fff;
+                    background-color: $colorMercyBlue;
+                    border: 1px solid $colorMercyBlue;
+                    i.fa {
+                        position: relative;
+                        font-size: 1.25em;
+                        left: 0;
+                        transition: left 0.66s;
+                    }
+                    &.goNextStep {
+                        &:hover,
+                        &:active {
+                            i.fa {
+                                left: 0.33em;
+                            }
+                        }
+                    }
+                    &.error {
+                        background: tomato;
+                        border-color: darken(tomato, 10%);
+                    }
+                }
+                &.goPreviousStep {
+                    display: none;
+                    color: $colorMainText;
+                    padding: 0 0.5em 0.5em 0;
+                    border: none;
+                    background: none;
+                    left: 0;
+                    transition: left 0.66s;
+                    &:hover {
+                        position: relative;
+                        left: -0.15em;
+                        color: #000;
+                    }
+                }
+            }
+        }
+    }
+    div.giftAmountContainer,
+    div.giftFrequencyContainer {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        margin: 0.5em 0;
+        div.giftOption {
+            padding: 0.125em;
+            &.fixed {
+                flex: 1;
+                label {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    padding: 0.25em;
+                    text-align: center;
+                    color: #333;
+                    min-height: 50px;
+                    @include basicButton;
+                    span {
+                        vertical-align: middle;
+                    }
+                    input[type='radio'] {
+                        display: none;
+                    }
+                }
+            }
+            &.freeform {
+                display: flex;
+                align-items: stretch;
+                flex: 1 100%;
+                >* {
+                    padding: 0.5rem; //height: $standardInputHeight;
+                }
+                input[type='text'] {
+                    width: 100%;
+                    border-radius: 0;
+                }
+                div.currencyDisplay {
+                    @include basicButtonLook;
+                    border-top-right-radius: 0;
+                    border-bottom-right-radius: 0;
+                    border-right: 0;
+                }
+                select[name='giftCurrency'] {
+                    min-width: 3em;
+                    max-width: 6.25em;
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                    border-left: none;
+                }
+            }
+        }
+    }
+    div.payInfoContainer {
+        display: flex;
+        flex-flow: row wrap;
+        div.inputGroup {
+            flex: 1 50%;
+        }
+    }
 }

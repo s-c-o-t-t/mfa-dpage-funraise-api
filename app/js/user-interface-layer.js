@@ -1,4 +1,4 @@
-console.log('user-interface-layer.js v18.4.19');
+console.log('user-interface-layer.js v18.6.13a');
 
 // GLOBALS
 var paymentTokenizerId = 'ODBm2idmYFT3pBge5qxRBjQaWH9';
@@ -7,7 +7,7 @@ var paymentTokenizerId = 'ODBm2idmYFT3pBge5qxRBjQaWH9';
 var stepList = document.querySelectorAll('div.giftFormContainer section.step');
 var domMainBackButton = document.querySelector('button.goPreviousStep');
 
-Spreedly.on('ready', function() {
+Spreedly.on('ready', function () {
 	console.log('\n\nSPREEDLY READY', Spreedly);
 
 	//format card number
@@ -23,10 +23,10 @@ Spreedly.on('ready', function() {
 	// Spreedly.setValue('number', '4111111111111111');
 	// Spreedly.setValue('cvv', '123');
 });
-Spreedly.on('paymentMethod', function(result) {
+Spreedly.on('paymentMethod', function (result) {
 	console.log('\n\nSPREEDLY PAYMENT TOKENIZED', result);
 });
-Spreedly.on('errors', function(errors) {
+Spreedly.on('errors', function (errors) {
 	console.log('\n\nSPREEDLY REPORTS ERRORS:');
 	for (var i = 0; i < errors.length; i++) {
 		var error = errors[i];
@@ -45,7 +45,7 @@ Spreedly.init(paymentTokenizerId, {
 	cvvEl: 'cardCvvTarget',
 });
 
-$('input[type=radio]').change(function() {
+$('input[type=radio]').change(function () {
 	$(this)
 		.closest('section')
 		.find('input[type=radio]')
@@ -58,7 +58,7 @@ $('input[type=radio]').change(function() {
 });
 
 // GENERAL CLICK HANDLER
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
 	console.log('click', event.target.tagName, event.target.className);
 	var clickTarget = $(event.target).closest('button, .clickTarget');
 	if (clickTarget) {
@@ -89,13 +89,13 @@ document.addEventListener('click', function(event) {
 			//   });
 			startDonation(
 				data,
-				function(donationInfo) {
+				function (donationInfo) {
 					console.log('SUCCESS FUNCTION', donationInfo);
 					var buttonHtml = event.target.getAttribute('data-success');
 					event.target.classList.remove('blocked');
 					event.target.innerHTML = buttonHtml;
 				},
-				function(donationInfo) {
+				function (donationInfo) {
 					console.log('FAIL FUNCTION', donationInfo);
 					var buttonHtml = event.target.getAttribute('data-error');
 					event.target.classList.remove('blocked');
@@ -119,7 +119,7 @@ function showStep(targetStepName) {
 	}
 	$('div.giftFormContainer div.loadingDisplay').hide();
 	var thisName;
-	stepList.forEach(function(step) {
+	stepList.forEach(function (step) {
 		thisName = step.getAttribute('data-step-name');
 
 		if (thisName == targetStepName) {
@@ -145,7 +145,7 @@ function buildCurrencySelect() {
 			throw new Error('Unable to identify the currency select dropdown');
 		}
 		var domThisOption;
-		window.mwdspace.currencyList.forEach(function(item) {
+		window.mwdspace.currencyList.forEach(function (item) {
 			domThisOption = buildCurrencyOption(item);
 			if (domThisOption) {
 				domCurrencySelect.appendChild(domThisOption);
@@ -182,7 +182,7 @@ function buildPayMethodSelect() {
 			throw new Error('Unable to identify the payment method select dropdown');
 		}
 		var domThisOption;
-		window.mwdspace.payMethodList.forEach(function(item) {
+		window.mwdspace.payMethodList.forEach(function (item) {
 			domThisOption = buildPayMethodOption(item);
 			if (domThisOption) {
 				domPayMethodSelect.appendChild(domThisOption);
@@ -220,12 +220,12 @@ function buildFrequencyButtons(frequencyList) {
 		}
 		// remove any existing options
 		var exitingoptions = domFrequencyContainer.querySelectorAll('div.giftOption');
-		exitingoptions.forEach(function(item) {
+		exitingoptions.forEach(function (item) {
 			item.remove();
 		});
 
 		var domThisButton;
-		frequencyList.forEach(function(item) {
+		frequencyList.forEach(function (item) {
 			domThisButton = buildFrequencyButton(item);
 			if (domThisButton) {
 				domFrequencyContainer.append(domThisButton);

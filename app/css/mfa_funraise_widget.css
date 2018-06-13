@@ -1,17 +1,218 @@
-div.mfaDonationWidgetContainer {
+/* v18.6.13a */
+div#mfaDonationWidgetContainer {
   opacity: 0;
   max-width: 30em;
   margin: 3em auto;
-  background-color: #0087c8;
-  border: 1px solid whitesmoke;
-  border-radius: .25em;
-  transition: opacity 1s; }
-  div.mfaDonationWidgetContainer.reveal {
+  transition: opacity 1s;
+  color: #333;
+  font-size: 16px; }
+  div#mfaDonationWidgetContainer.reveal {
     opacity: 1 !important; }
-  div.mfaDonationWidgetContainer h2 {
+  div#mfaDonationWidgetContainer * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0; }
+  div#mfaDonationWidgetContainer p,
+  div#mfaDonationWidgetContainer h1,
+  div#mfaDonationWidgetContainer h2,
+  div#mfaDonationWidgetContainer h3,
+  div#mfaDonationWidgetContainer h4,
+  div#mfaDonationWidgetContainer h5,
+  div#mfaDonationWidgetContainer h6,
+  div#mfaDonationWidgetContainer input,
+  div#mfaDonationWidgetContainer select,
+  div#mfaDonationWidgetContainer textarea {
+    color: #333; }
+    div#mfaDonationWidgetContainer p span,
+    div#mfaDonationWidgetContainer h1 span,
+    div#mfaDonationWidgetContainer h2 span,
+    div#mfaDonationWidgetContainer h3 span,
+    div#mfaDonationWidgetContainer h4 span,
+    div#mfaDonationWidgetContainer h5 span,
+    div#mfaDonationWidgetContainer h6 span,
+    div#mfaDonationWidgetContainer input span,
+    div#mfaDonationWidgetContainer select span,
+    div#mfaDonationWidgetContainer textarea span {
+      color: #333; }
+  div#mfaDonationWidgetContainer button {
+    cursor: pointer;
+    padding: 0.5em;
+    font-size: 1.25em;
     text-align: center;
-    padding: 1em;
-    color: whitesmoke; }
+    border-radius: 0.15em;
+    outline: none;
+    transition: color 0.33s, background-color 0.5s, border 0.5s; }
+    div#mfaDonationWidgetContainer button:active {
+      position: relative;
+      top: 1px;
+      opacity: 0.5; }
+    div#mfaDonationWidgetContainer button.blocked {
+      animation-name: buttonInAction;
+      animation-duration: 2s;
+      animation-timing-function: ease-out;
+      animation-iteration-count: infinite; }
+  div#mfaDonationWidgetContainer div.mainBackground {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 0.15em;
+    background: #efefef url("https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg") no-repeat;
+    background-position: 80% 50%;
+    background-size: cover; }
+  div#mfaDonationWidgetContainer div.loadingDisplay {
+    color: #f3f3f4;
+    text-align: center;
+    font-size: 2em; }
+  div#mfaDonationWidgetContainer div.giftFormHeaderContainer {
+    display: none; }
+    div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.75em 0.75em 1.5em 0.75em;
+      background: linear-gradient(#fff, #eeeeef);
+      border-bottom: 1px solid #dedee0; }
+      div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader > div {
+        width: 25%; }
+      div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer {
+        width: 50%;
+        text-align: center; }
+  div#mfaDonationWidgetContainer div.giftFormContainer {
+    width: 100%;
+    min-width: 17.5em;
+    max-width: 25em; }
+    div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm {
+      background: linear-gradient(#fff, #f3f3f4, #f3f3f4, #f3f3f4);
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+      border-radius: 0.15em;
+      overflow: hidden; }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm section.step {
+        display: none;
+        padding: 1.75rem; }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h3 {
+        font-weight: normal; }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm select,
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type='text'],
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
+        width: 100%;
+        min-height: 2.25rem;
+        padding: 0.5rem;
+        font-size: 1.25rem;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 0.15em;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
+        height: 2.25rem; }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        margin-top: 1rem;
+        width: 100%;
+        padding: 1em;
+        text-align: left;
+        font-weight: bold;
+        font-size: 1em;
+        color: #fff;
+        background-color: #01a7df;
+        border: 1px solid #01a7df; }
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main i.fa {
+          position: relative;
+          font-size: 1.25em;
+          left: 0;
+          transition: left 0.66s; }
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main.goNextStep:hover i.fa, div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main.goNextStep:active i.fa {
+          left: 0.33em; }
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main.error {
+          background: tomato;
+          border-color: #ff3814; }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.goPreviousStep {
+        display: none;
+        color: #707070;
+        padding: 0 0.5em 0.5em 0;
+        border: none;
+        background: none;
+        left: 0;
+        transition: left 0.66s; }
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.goPreviousStep:hover {
+          position: relative;
+          left: -0.15em;
+          color: #000; }
+  div#mfaDonationWidgetContainer div.giftAmountContainer,
+  div#mfaDonationWidgetContainer div.giftFrequencyContainer {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    margin: 0.5em 0; }
+    div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption,
+    div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption {
+      padding: 0.125em; }
+      div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed,
+      div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed {
+        flex: 1; }
+        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed label,
+        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed label {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          padding: 0.25em;
+          text-align: center;
+          color: #333;
+          min-height: 50px;
+          background: linear-gradient(#fff, #e9e9e9);
+          border: 1px solid #ccc;
+          border-radius: 0.15em;
+          outline: none;
+          transition: color 0.33s, background-color 0.33s, box-shadow 0.4s; }
+          div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed label:hover, div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed label.selected,
+          div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed label:hover,
+          div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed label.selected {
+            color: white;
+            background: #01a7df; }
+          div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed label.selected,
+          div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed label.selected {
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); }
+          div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed label span,
+          div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed label span {
+            vertical-align: middle; }
+          div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.fixed label input[type='radio'],
+          div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.fixed label input[type='radio'] {
+            display: none; }
+      div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform,
+      div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform {
+        display: flex;
+        align-items: stretch;
+        flex: 1 100%; }
+        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform > *,
+        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform > * {
+          padding: 0.5rem; }
+        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform input[type='text'],
+        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform input[type='text'] {
+          width: 100%;
+          border-radius: 0; }
+        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform div.currencyDisplay,
+        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform div.currencyDisplay {
+          background: linear-gradient(#fff, #e9e9e9);
+          border: 1px solid #ccc;
+          border-radius: 0.15em;
+          outline: none;
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+          border-right: 0; }
+        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform select[name='giftCurrency'],
+        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform select[name='giftCurrency'] {
+          min-width: 3em;
+          max-width: 6.25em;
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          border-left: none; }
+  div#mfaDonationWidgetContainer div.payInfoContainer {
+    display: flex;
+    flex-flow: row wrap; }
+    div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup {
+      flex: 1 50%; }
 
-body {
-  background: pink; }
+/*# sourceMappingURL=mfa_funraise_widget.css.map */

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!--build:remove -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <!-- endbuild -->
+
+    <title>Mercy For Animals</title>
+
+    <link async rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+        crossorigin="anonymous">
+
+    <style>
+        div#form-test-01 p.loadMessage {
+            color: #fff;
+            font-size: 1.25em;
+            margin: 2em;
+        }
+    </style>
+
+    <!--build:css css/main.css async -->
+    <link async rel="stylesheet" href="css/main.css">
+    <link async rel="stylesheet" href="css/animations.css">
+    <!-- endbuild -->
+
+</head>
+
+<body>
+
+    <header></header>
+
+    <div class="mainBackground">
+
+        <div id="form-test-01">
+            <p class="loadMessage">One moment...</p>
+        </div>
+
+        <script src="mfa_funraise_widget.js"></script>
+        <script>
+            var mainWidget = new MFA_Funraise_Widget({
+                element: 'div#form-test-01',
+                styleSheets: "https://donordigital.com/mfa-test/widget/1.0.0/mfa_funraise_widget.css",
+                textOverride: 'http://services.mwdagency.com/'
+            });
+            mainWidget.start();
+        </script>
+
+    </div>
+
+    <aside class="giftInfo"></aside>
+    <aside class="securitySeals"></aside>
+
+    <footer></footer>
+
+    <script defer src="https://core.spreedly.com/iframe/iframe-v1.min.js"></script>
+    <script defer src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+        crossorigin="anonymous"></script>
+
+    <!--build:js js/main.js defer  -->
+    <script defer src="js/shared-utils.js"></script>
+    <script defer src="js/business-logic-layer.js"></script>
+    <script defer src="js/transaction-system-layer.js"></script>
+    <script defer src="js/user-interface-layer.js"></script>
+    <!-- endbuild -->
+
+</body>
+
+</html>
