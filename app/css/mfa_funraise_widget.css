@@ -3,16 +3,29 @@ div#mfaDonationWidgetContainer {
   opacity: 0;
   max-width: 30em;
   margin: 3em auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: normal !important;
+  color: #999 !important;
+  text-align: left;
   transition: opacity 1s;
-  color: #333;
-  font-size: 16px; }
+  /* reset various elements */ }
   div#mfaDonationWidgetContainer.reveal {
     opacity: 1 !important; }
   div#mfaDonationWidgetContainer * {
     box-sizing: border-box;
     margin: 0;
-    padding: 0; }
+    padding: 0;
+    float: none;
+    position: static;
+    background: none;
+    width: auto;
+    height: auto;
+    min-width: auto;
+    min-height: auto;
+    text-align: inherit; }
   div#mfaDonationWidgetContainer p,
+  div#mfaDonationWidgetContainer label,
   div#mfaDonationWidgetContainer h1,
   div#mfaDonationWidgetContainer h2,
   div#mfaDonationWidgetContainer h3,
@@ -22,8 +35,10 @@ div#mfaDonationWidgetContainer {
   div#mfaDonationWidgetContainer input,
   div#mfaDonationWidgetContainer select,
   div#mfaDonationWidgetContainer textarea {
-    color: #333; }
+    color: inherit;
+    font-family: inherit; }
     div#mfaDonationWidgetContainer p span,
+    div#mfaDonationWidgetContainer label span,
     div#mfaDonationWidgetContainer h1 span,
     div#mfaDonationWidgetContainer h2 span,
     div#mfaDonationWidgetContainer h3 span,
@@ -33,7 +48,13 @@ div#mfaDonationWidgetContainer {
     div#mfaDonationWidgetContainer input span,
     div#mfaDonationWidgetContainer select span,
     div#mfaDonationWidgetContainer textarea span {
-      color: #333; }
+      color: inherit;
+      font-family: inherit; }
+  div#mfaDonationWidgetContainer input,
+  div#mfaDonationWidgetContainer select,
+  div#mfaDonationWidgetContainer textarea {
+    color: #333333;
+    font-weight: normal; }
   div#mfaDonationWidgetContainer button {
     cursor: pointer;
     padding: 0.5em;
@@ -51,15 +72,6 @@ div#mfaDonationWidgetContainer {
       animation-duration: 2s;
       animation-timing-function: ease-out;
       animation-iteration-count: infinite; }
-  div#mfaDonationWidgetContainer div.mainBackground {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    padding: 0.15em;
-    background: #efefef url("https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg") no-repeat;
-    background-position: 80% 50%;
-    background-size: cover; }
   div#mfaDonationWidgetContainer div.loadingDisplay {
     color: #f3f3f4;
     text-align: center;
@@ -78,6 +90,18 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer {
         width: 50%;
         text-align: center; }
+        div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer h3 {
+          font-size: 1em; }
+        div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay {
+          font-weight: 300;
+          color: #333333; }
+          div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay span.currencySymbol {
+            font-size: .9em;
+            vertical-align: 1em; }
+          div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay span.displayWholeAmount {
+            font-size: 2.5em; }
+          div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay span.displaySubAmount {
+            font-size: .9em; }
   div#mfaDonationWidgetContainer div.giftFormContainer {
     width: 100%;
     min-width: 17.5em;
@@ -130,7 +154,7 @@ div#mfaDonationWidgetContainer {
           border-color: #ff3814; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.goPreviousStep {
         display: none;
-        color: #707070;
+        color: #999;
         padding: 0 0.5em 0.5em 0;
         border: none;
         background: none;
@@ -160,7 +184,7 @@ div#mfaDonationWidgetContainer {
           width: 100%;
           padding: 0.25em;
           text-align: center;
-          color: #333;
+          color: #333333;
           min-height: 50px;
           background: linear-gradient(#fff, #e9e9e9);
           border: 1px solid #ccc;

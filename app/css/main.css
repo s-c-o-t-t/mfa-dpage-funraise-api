@@ -6,7 +6,7 @@
 body {
   font-family: 'MuseoSans', Helvetica, 'Helvetica Neue', Arial, sans-serif;
   font-size: 16px;
-  color: #707070;
+  color: #999;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%; }
 
@@ -110,7 +110,7 @@ div.giftFormContainer {
         border-color: #ff3814; }
     div.giftFormContainer form.mainGiftForm button.goPreviousStep {
       display: none;
-      color: #707070;
+      color: #999;
       padding: 0 0.5em 0.5em 0;
       border: none;
       background: none;
@@ -196,3 +196,5 @@ div.payInfoContainer {
   flex-flow: row wrap; }
   div.payInfoContainer div.inputGroup {
     flex: 1 50%; }
+
+/*# sourceMappingURL=main.css.map */
