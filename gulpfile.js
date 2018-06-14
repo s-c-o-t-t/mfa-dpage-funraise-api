@@ -1,6 +1,5 @@
 var gulp = require('gulp'),
 	changed = require('gulp-changed'),
-	sass = require('gulp-sass'),
 	useref = require('gulp-useref'),
 	uglify = require('gulp-uglify'),
 	gulpIf = require('gulp-if'),
@@ -8,18 +7,14 @@ var gulp = require('gulp'),
 	autoprefixer = require('autoprefixer'),
 	cssnano = require('cssnano'),
 	htmlmin = require('gulp-htmlmin'),
-	imagemin = require('gulp-imagemin'),
-	imageResize = require('gulp-image-resize'),
-	runSequence = require('run-sequence');
+	runSequence = require('run-sequence'),
+	browserify = require('browserify'),
+	source = require('vinyl-source-stream'),
+	buffer = require('vinyl-buffer'),
+	sourcemaps = require('gulp-sourcemaps'),
+	log = require('gulplog');
 
-gulp.task('compile-sass', function() {
-	return gulp
-		.src('app/sass/**/*.scss')
-		.pipe(sass())
-		.pipe(gulp.dest('app/css'));
-});
-
-gulp.task('optimize-css-js', function() {
+gulp.task('optimize-css-js', function () {
 	var cssPlugins = [
 		autoprefixer({
 			browsers: ['last 10 version'],
@@ -34,52 +29,7 @@ gulp.task('optimize-css-js', function() {
 		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('optimize-images', function() {
-	return (
-		gulp
-			.src('app/images/**/*.+(png|jpg|jpeg|gif|svg)')
-			/*.pipe(imageResize({
-            width: 1280,
-            quality: 1,
-            noProfile: true,
-            crop: false,
-            upscale: false
-        }))*/
-			.pipe(
-				imagemin(
-					[
-						imagemin.gifsicle({
-							interlaced: true,
-						}),
-						imagemin.jpegtran({
-							progressive: true,
-							verbose: true,
-						}),
-						imagemin.optipng({
-							interlaced: true,
-							optimizationLevel: 3,
-						}),
-						imagemin.svgo({
-							plugins: [
-								{
-									removeViewBox: true,
-								},
-								{
-									cleanupIDs: false,
-								},
-							],
-						}),
-					],
-					{
-						verbose: true,
-					}
-				)
-			)
-			.pipe(gulp.dest('dist/images'))
-	);
-});
-
-gulp.task('optimize-dist-html', function() {
+gulp.task('optimize-dist-html', function () {
 	return gulp
 		.src('dist/*.html')
 		.pipe(
@@ -91,7 +41,7 @@ gulp.task('optimize-dist-html', function() {
 		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('copy-other-files', function() {
+gulp.task('copy-other-files', function () {
 	const destination = 'dist/vendor';
 	return gulp
 		.src(['app/vendor/**'])
@@ -99,18 +49,32 @@ gulp.task('copy-other-files', function() {
 		.pipe(gulp.dest(destination));
 });
 
-gulp.task('build', function(callback) {
+gulp.task('browserify-it', function () {
+	// set up the browserify instance on a task basis
+	var b = browserify({
+		entries: './entry.js',
+		debug: true
+	});
+
+	return b.bundle()
+		.pipe(source('mfa_funraise_widget.js'))
+		.pipe(buffer())
+		.pipe(sourcemaps.init({
+			loadMaps: true
+		}))
+		// Add transformation tasks to the pipeline here.
+		.pipe(uglify())
+		.on('error', log.error)
+		.pipe(sourcemaps.write('./'))
+		.pipe(gulp.dest('./dist/js/'));
+});
+
+gulp.task('build', function (callback) {
 	runSequence(
-		'compile-sass',
+		'browserify-it',
 		'optimize-css-js',
 		'optimize-dist-html',
-		'optimize-images',
 		'copy-other-files',
 		callback
 	);
-});
-
-gulp.task('watcher', function() {
-	gulp.watch('app/sass/**/*.scss', ['compile-sass']);
-	gulp.watch(['app/*.html', 'app/css/*.css', 'app/js/*.js']);
 });
