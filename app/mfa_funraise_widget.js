@@ -61,11 +61,11 @@ MFA_Funraise_Widget.prototype.start = async function () {
             container.classList.add("reveal");
         }, 1);
 
+        // await thisWidget.linkExternalScript("https://core.spreedly.com/iframe/iframe-v1.min.js");
         await thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js");
         thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js");
         thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js");
 
-        await thisWidget.linkExternalScript("https://core.spreedly.com/iframe/iframe-v1.min.js");
         await thisWidget.linkExternalScript("https://code.jquery.com/jquery-3.3.1.min.js", {
             integrity: "sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=",
             crossorigin: "anonymous"

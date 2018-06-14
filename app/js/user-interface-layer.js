@@ -7,6 +7,7 @@ var paymentTokenizerId = 'ODBm2idmYFT3pBge5qxRBjQaWH9';
 var stepList = document.querySelectorAll('div.giftFormContainer section.step');
 var domMainBackButton = document.querySelector('button.goPreviousStep');
 
+/*
 Spreedly.on('ready', function () {
 	console.log('\n\nSPREEDLY READY', Spreedly);
 
@@ -33,6 +34,7 @@ Spreedly.on('errors', function (errors) {
 		console.log(error);
 	}
 });
+*/
 
 buildCurrencySelect();
 buildPayMethodSelect();
@@ -40,10 +42,10 @@ buildFrequencyButtons(window.mwdspace.payMethodList[0].frequencies);
 buildCardExpireYearSelect();
 
 showStep();
-Spreedly.init(paymentTokenizerId, {
-	numberEl: 'cardNumberTarget',
-	cvvEl: 'cardCvvTarget',
-});
+// Spreedly.init(paymentTokenizerId, {
+// 	numberEl: 'cardNumberTarget',
+// 	cvvEl: 'cardCvvTarget',
+// });
 
 $('input[type=radio]').change(function () {
 	$(this)

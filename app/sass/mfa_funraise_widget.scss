@@ -6,18 +6,31 @@ div#mfaDonationWidgetContainer {
     opacity: 0;
     max-width: 30em;
     margin: 3em auto;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: normal !important;
+    color: $colorMainText !important;
+    text-align: left;
     transition: opacity 1s;
-    color: #333;
-    font-size: 16px;
     &.reveal {
         opacity: 1 !important;
     }
+    /* reset various elements */
     * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        float: none;
+        position: static;
+        background: none;
+        width: auto;
+        height: auto;
+        min-width: auto;
+        min-height: auto;
+        text-align: inherit;
     }
     p,
+    label,
     h1,
     h2,
     h3,
@@ -27,10 +40,18 @@ div#mfaDonationWidgetContainer {
     input,
     select,
     textarea {
-        color: #333;
+        color: inherit;
+        font-family: inherit;
         span {
-            color: #333;
+            color: inherit;
+            font-family: inherit;
         }
+    }
+    input,
+    select,
+    textarea {
+        color: darken($colorMainText, 40%);
+        font-weight: normal;
     }
     button {
         cursor: pointer;
@@ -52,16 +73,6 @@ div#mfaDonationWidgetContainer {
             animation-iteration-count: infinite;
         }
     }
-    div.mainBackground {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        padding: 0.15em;
-        background: #efefef url('https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg') no-repeat;
-        background-position: 80% 50%;
-        background-size: cover;
-    }
     div.loadingDisplay {
         color: $colorFormBg;
         text-align: center;
@@ -82,6 +93,23 @@ div#mfaDonationWidgetContainer {
             div.giftDisplayContainer {
                 width: 50%;
                 text-align: center;
+                h3 {
+                    font-size: 1em;
+                }
+                div.amountDisplay {
+                    font-weight: 300;
+                    color: darken($colorMainText, 40%);
+                    span.currencySymbol {
+                        font-size: .9em;
+                        vertical-align: 1em;
+                    }
+                    span.displayWholeAmount {
+                        font-size: 2.5em;
+                    }
+                    span.displaySubAmount {
+                        font-size: .9em;
+                    }
+                }
             }
         }
     }
@@ -183,7 +211,7 @@ div#mfaDonationWidgetContainer {
                     width: 100%;
                     padding: 0.25em;
                     text-align: center;
-                    color: #333;
+                    color: darken($colorMainText, 40%);
                     min-height: 50px;
                     @include basicButton;
                     span {
