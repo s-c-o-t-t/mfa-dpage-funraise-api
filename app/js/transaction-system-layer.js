@@ -1,5 +1,7 @@
 console.log('transaction-system-layer.js v18.4.19');
 
+window.mwdspace = window.mwdspace || {};
+
 // https://platform.funraise.io/
 var apiConstants = {
 	baseUrl: 'http://localhost:8080/funraise/public/api/v2/',
@@ -13,8 +15,7 @@ window.mwdspace = window.mwdspace || {};
 window.mwdspace.donationInProgress = false;
 window.mwdspace.donationStartTime;
 
-window.mwdspace.currencyList = [
-	{
+window.mwdspace.currencyList = [{
 		code: 'USD',
 		name: 'U.S. Dollar',
 		symbol: '$',
@@ -41,21 +42,17 @@ window.mwdspace.currencyList = [
 	},
 ];
 
-window.mwdspace.payMethodList = [
-	{
+window.mwdspace.payMethodList = [{
 		code: 'card',
 		name: 'Card',
 		description: 'Donate With Card',
 		minimumAmount: 5.0,
 		maximumAmount: 20000.0,
-		subtypes: [
-			{
-				code: 'card',
-				name: 'Donate With Card',
-			},
-		],
-		frequencies: [
-			{
+		subtypes: [{
+			code: 'card',
+			name: 'Donate With Card',
+		}, ],
+		frequencies: [{
 				code: 'single',
 				name: 'One-Time',
 			},
@@ -71,12 +68,10 @@ window.mwdspace.payMethodList = [
 		description: 'Donate With Bitcoin',
 		minimumAmount: 5.0,
 		maximumAmount: 20000.0,
-		frequencies: [
-			{
-				code: 'single',
-				name: 'One-Time',
-			},
-		],
+		frequencies: [{
+			code: 'single',
+			name: 'One-Time',
+		}, ],
 	},
 ];
 
@@ -103,7 +98,7 @@ function startDonation(options, successFunction, failFunction) {
 	try {
 		sendXhrRequest(
 			donationOptions,
-			function(response) {
+			function (response) {
 				console.log('response INITIAL', typeof response, response);
 				if (!response.json || !response.json.id) {
 					console.error('startDonation(): Invalid response, no "id":');
@@ -147,7 +142,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 		return failFunction({});
 	}
 
-	setTimeout(function() {
+	setTimeout(function () {
 		console.log('completeDonation() RUNNING');
 
 		var targetUrl = apiConstants.baseUrl + 'donation/' + donateId;
@@ -160,7 +155,7 @@ function completeDonation(donateId, delayMilliseconds, successFunction, failFunc
 
 		sendXhrRequest(
 			donationOptions,
-			function(response) {
+			function (response) {
 				console.log('response POLL', typeof response, response);
 				if (response.status == 204) {
 					console.log('STATUS 204 RECEIVED, DONATION STILL PROCESSING');
