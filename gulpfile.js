@@ -1,20 +1,20 @@
-var gulp = require('gulp'),
-	changed = require('gulp-changed'),
-	useref = require('gulp-useref'),
-	uglify = require('gulp-uglify'),
-	gulpIf = require('gulp-if'),
-	postcss = require('gulp-postcss'),
-	autoprefixer = require('autoprefixer'),
-	cssnano = require('cssnano'),
-	htmlmin = require('gulp-htmlmin'),
-	runSequence = require('run-sequence'),
-	browserify = require('browserify'),
-	source = require('vinyl-source-stream'),
-	buffer = require('vinyl-buffer'),
-	sourcemaps = require('gulp-sourcemaps'),
-	log = require('gulplog');
+var gulp = require('gulp');
+var changed = require('gulp-changed');
+var rename = require('gulp-rename');
+var postcss = require('gulp-postcss');
+var autoprefixer = require('autoprefixer');
+var cssnano = require('cssnano');
+var htmlmin = require('gulp-htmlmin');
+var runSequence = require('run-sequence');
+var babel = require('gulp-babel');
 
-gulp.task('optimize-css-js', function () {
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var sourcemaps = require('gulp-sourcemaps');
+var concat = require('gulp-concat');
+
+gulp.task('optimize-css', function () {
 	var cssPlugins = [
 		autoprefixer({
 			browsers: ['last 10 version'],
@@ -22,16 +22,23 @@ gulp.task('optimize-css-js', function () {
 		cssnano(),
 	];
 	return gulp
-		.src('app/*.html')
-		.pipe(useref())
-		.pipe(gulpIf('*.css', postcss(cssPlugins)))
-		.pipe(gulpIf('*.js', uglify()))
+		.src('app/**/*.css')
+		.pipe(postcss(cssPlugins))
 		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('optimize-dist-html', function () {
+gulp.task('optimize-js', function () {
 	return gulp
-		.src('dist/*.html')
+		.src('app/**/*.js')
+		.pipe(babel({
+			presets: ['minify']
+		}))
+		.pipe(gulp.dest('dist'));
+});
+
+gulp.task('optimize-html', function () {
+	return gulp
+		.src('app/mwd-donate-widget.html')
 		.pipe(
 			htmlmin({
 				collapseWhitespace: true,
@@ -49,32 +56,49 @@ gulp.task('copy-other-files', function () {
 		.pipe(gulp.dest(destination));
 });
 
-gulp.task('browserify-it', function () {
-	// set up the browserify instance on a task basis
-	var b = browserify({
-		entries: './entry.js',
-		debug: true
-	});
+// gulp.task("babel-for-es5", function () {
+// 	return gulp.src("app/mwd-donate-widget.js")
+// 		.pipe(rename('es5-mwd-donate-widget.js'))
+// 		.pipe(babel({
+// 			presets: ["es2015"],
+// 			plugins: ["transform-regenerator"]
+// 		}))
+// 		.pipe(gulp.dest("app"));
+// });
 
-	return b.bundle()
-		.pipe(source('mfa_funraise_widget.js'))
+gulp.task('browserify-for-es5', function () {
+	// app.js is your main JS file with all your module inclusions
+	return browserify({
+			entries: 'app/mwd-donate-widget.js',
+			debug: true
+		})
+		.transform("babelify", {
+			presets: ["env"],
+			plugins: ["transform-regenerator"]
+		})
+		.bundle()
+		.pipe(source('mwd-donate-widget.js'))
 		.pipe(buffer())
-		.pipe(sourcemaps.init({
-			loadMaps: true
-		}))
-		// Add transformation tasks to the pipeline here.
-		.pipe(uglify())
-		.on('error', log.error)
+		.pipe(sourcemaps.init())
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest('./dist/js/'));
+		.pipe(rename('es5-mwd-donate-widget.js'))
+		.pipe(gulp.dest('app'));
+});
+
+
+gulp.task('add-babel-regenerator', function () {
+	return gulp.src(['node_modules/babel-polyfill/dist/polyfill.js', 'app/es5-mwd-donate-widget.js'])
+		.pipe(concat('es5-mwd-donate-widget.js'))
+		.pipe(gulp.dest('app'));
 });
 
 gulp.task('build', function (callback) {
 	runSequence(
-		'browserify-it',
-		'optimize-css-js',
-		'optimize-dist-html',
-		'copy-other-files',
+		'browserify-for-es5',
+		'add-babel-regenerator',
+		'optimize-js',
+		'optimize-css',
+		'optimize-html',
 		callback
 	);
 });

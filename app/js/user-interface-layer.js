@@ -121,20 +121,35 @@ function showStep(targetStepName) {
 	}
 	$('div.giftFormContainer div.loadingDisplay').hide();
 	var thisName;
-	stepList.forEach(function (step) {
-		thisName = step.getAttribute('data-step-name');
+	for (var i = 0; i < stepList.length; i++) {
 
+		thisName = stepList[i].getAttribute('data-step-name');
 		if (thisName == targetStepName) {
 			if (thisName == 'giftAmount') {
 				$(domMainBackButton).hide();
 			} else {
 				$(domMainBackButton).fadeIn(888);
 			}
-			$(step).fadeIn(666);
+			$(stepList[i]).fadeIn(666);
 		} else {
-			$(step).hide();
+			$(stepList[i]).hide();
 		}
-	});
+
+	}
+	// stepList.forEach(function (step) {
+	// 	thisName = step.getAttribute('data-step-name');
+
+	// 	if (thisName == targetStepName) {
+	// 		if (thisName == 'giftAmount') {
+	// 			$(domMainBackButton).hide();
+	// 		} else {
+	// 			$(domMainBackButton).fadeIn(888);
+	// 		}
+	// 		$(step).fadeIn(666);
+	// 	} else {
+	// 		$(step).hide();
+	// 	}
+	// });
 }
 
 function buildCurrencySelect() {
@@ -147,14 +162,25 @@ function buildCurrencySelect() {
 			throw new Error('Unable to identify the currency select dropdown');
 		}
 		var domThisOption;
-		window.mwdspace.currencyList.forEach(function (item) {
-			domThisOption = buildCurrencyOption(item);
+
+		for (var i = 0; i < window.mwdspace.currencyList.length; i++) {
+
+			domThisOption = buildCurrencyOption(window.mwdspace.currencyList[i]);
 			if (domThisOption) {
 				domCurrencySelect.appendChild(domThisOption);
 			} else {
-				console.warn('Unable to add currency:', item);
+				console.warn('Unable to add currency:', window.mwdspace.currencyList[i]);
 			}
-		});
+
+		}
+		// window.mwdspace.currencyList.forEach(function (item) {
+		// 	domThisOption = buildCurrencyOption(item);
+		// 	if (domThisOption) {
+		// 		domCurrencySelect.appendChild(domThisOption);
+		// 	} else {
+		// 		console.warn('Unable to add currency:', item);
+		// 	}
+		// });
 	} catch (err) {
 		console.error('Unable to build the currency select dropdown', err);
 	}
@@ -184,14 +210,24 @@ function buildPayMethodSelect() {
 			throw new Error('Unable to identify the payment method select dropdown');
 		}
 		var domThisOption;
-		window.mwdspace.payMethodList.forEach(function (item) {
-			domThisOption = buildPayMethodOption(item);
+
+		for (var i = 0; i < window.mwdspace.payMethodList.length; i++) {
+			domThisOption = buildPayMethodOption(window.mwdspace.payMethodList[i]);
 			if (domThisOption) {
 				domPayMethodSelect.appendChild(domThisOption);
 			} else {
-				console.warn('Unable to add payment method:', item);
+				console.warn('Unable to add payment method:', window.mwdspace.payMethodList[i]);
 			}
-		});
+		}
+
+		// window.mwdspace.payMethodList.forEach(function (item) {
+		// 	domThisOption = buildPayMethodOption(item);
+		// 	if (domThisOption) {
+		// 		domPayMethodSelect.appendChild(domThisOption);
+		// 	} else {
+		// 		console.warn('Unable to add payment method:', item);
+		// 	}
+		// });
 	} catch (err) {
 		console.error('Unable to build the payment method select dropdown', err);
 	}
@@ -221,20 +257,33 @@ function buildFrequencyButtons(frequencyList) {
 			throw new Error('Unable to identify the frequency select dropdown');
 		}
 		// remove any existing options
-		var exitingoptions = domFrequencyContainer.querySelectorAll('div.giftOption');
-		exitingoptions.forEach(function (item) {
-			item.remove();
-		});
+		var existingOptions = domFrequencyContainer.querySelectorAll('div.giftOption');
+		for (var i = 0; i < existingOptions.length; i++) {
+			existingOptions[i].remove();
+		}
+		// existingOptions.forEach(function (item) {
+		// 	item.remove();
+		// });
 
 		var domThisButton;
-		frequencyList.forEach(function (item) {
-			domThisButton = buildFrequencyButton(item);
+
+		for (var i = 0; i < frequencyList.length; i++) {
+			domThisButton = buildFrequencyButton(frequencyList[i]);
 			if (domThisButton) {
 				domFrequencyContainer.append(domThisButton);
 			} else {
-				console.warn('Unable to add frequency:', item);
+				console.warn('Unable to add frequency:', frequencyList[i]);
 			}
-		});
+		}
+
+		// frequencyList.forEach(function (item) {
+		// 	domThisButton = buildFrequencyButton(item);
+		// 	if (domThisButton) {
+		// 		domFrequencyContainer.append(domThisButton);
+		// 	} else {
+		// 		console.warn('Unable to add frequency:', item);
+		// 	}
+		// });
 	} catch (err) {
 		console.error('Unable to build the frequency buttons', err);
 	}
