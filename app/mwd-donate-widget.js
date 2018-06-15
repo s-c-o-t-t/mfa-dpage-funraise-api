@@ -54,16 +54,18 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function () {
 
     thisWidget.loadFile(thisWidget.mainHtmlUrl, async function (widgetHtml) {
 
+        console.log("LOADFILE TEST - widgetHtml", typeof widgetHtml, widgetHtml);
+
         var container = document.createElement("div");
         container.id = 'mfaDonationWidgetContainer';
         container.style.opacity = 0;
         thisWidget.targetElement.appendChild(container);
 
         container.innerHTML = widgetHtml;
+        console.log("LOADFILE TEST - container.innerHTML", typeof container.innerHTML, container.innerHTML);
 
         setTimeout(function () {
             container.className = "reveal";
-            // container.classList.add("reveal");
         }, 1);
 
         // await thisWidget.linkExternalScript("https://core.spreedly.com/iframe/iframe-v1.min.js");
@@ -71,10 +73,15 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function () {
         thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js");
         thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js");
 
-        await thisWidget.linkExternalScript("https://code.jquery.com/jquery-3.3.1.min.js", {
+        var isJqueryLoaded = await thisWidget.linkExternalScript("https://code.jquery.com/jquery-3.3.1.min.js", {
             integrity: "sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=",
             crossorigin: "anonymous"
         });
+        if (isJqueryLoaded) {
+            window.mwdspace.jquery = jQuery.noConflict();
+        } else {
+            window.mwdspace.jquery = $ || {};
+        }
         thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/user-interface-layer.js");
 
     });
@@ -88,9 +95,9 @@ window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalStylesheet = function 
     thisWidget.targetElement.appendChild(domStyleLink);
     domStyleLink.rel = "stylesheet";
     domStyleLink.type = "text/css";
-    domStyleLink.addEventListener('load', function (event) {
-        console.log("linkExternalStylesheet() loaded:", url);
-    });
+    // domStyleLink.addEventListener('load', function (event) {
+    //     console.log("linkExternalStylesheet() loaded:", url);
+    // });
     domStyleLink.addEventListener('error', function (event) {
         console.error("linkExternalStylesheet() ERROR EVENT", url, event);
     });
@@ -112,7 +119,7 @@ window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalScript = function (url
         }, 2000);
         domScript.addEventListener('load', function (event) {
             clearTimeout(timeout);
-            console.log("linkExternalScript() LOADED", url);
+            // console.log("linkExternalScript() LOADED", url);
             resolve(true);
         });
         domScript.addEventListener('error', function (event) {
@@ -139,15 +146,20 @@ window.mwdspace.MFA_Funraise_Widget.prototype.loadFile = function (input, callba
         console.warn("loadFile() given invalid url type:", typeof input, input);
         return null;
     }
-    console.log("loadFile()", input);
+    // console.log("loadFile()", input);
     var requestUrl = encodeURI(input);
     var xhr = new XMLHttpRequest();
 
     xhr.addEventListener('load', function (event) {
-        // console.log("loadFile() EVENT", requestUrl, event);
-        // console.log("event.response", event.target.response);
+        console.log(">> loadFile() event", typeof event);
+        console.log(">> loadFile() event.target", typeof event.target);
+        console.log(">> loadFile() event.target.response", typeof event.target.response);
+        console.log(event);
+
+        var fileContents = event.target.responseText || event.target.response || null;
+
         if (typeof callback == 'function') {
-            callback(event.target.response);
+            callback(fileContents);
         }
     });
     xhr.addEventListener('error', function (event) {
