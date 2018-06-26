@@ -1,0 +1,12 @@
+
+<div id="form-test-01">Loading...</div>
+<script src="http://services.mwdagency.com/donate-widget/1.0.0/mfa_funraise_widget.js"></script>
+<script>
+    window.mwdspace = window.mwdspace || {};
+    var mainWidget = new window.mwdspace.MFA_Funraise_Widget({
+        element: 'div#form-test-01',
+        loadingText: 'It is now ' + (new Date()
+            .toLocaleTimeString())
+    });
+    mainWidget.start();
+</script>

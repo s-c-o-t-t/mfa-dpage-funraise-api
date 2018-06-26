@@ -4,7 +4,7 @@ window.mwdspace = window.mwdspace || {};
 
 // https://platform.funraise.io/
 var apiConstants = {
-	baseUrl: 'http://localhost:8080/funraise/public/api/v2/',
+	baseUrl: 'http://scottcrowningshield.com/funraise/public/api/v2/',
 	organizationId: '1e78fec4-8fd0-4a3e-b82b-866c29012531',
 };
 
@@ -13,9 +13,9 @@ var requestInitialPollDelay = 1000;
 window.mwdspace = window.mwdspace || {};
 
 window.mwdspace.donationInProgress = false;
-window.mwdspace.donationStartTime;
+window.mwdspace.donationStartTime = false;
 
-window.mwdspace.currencyList = [{
+window.mwdspace.validCurrencyList = [{
 		code: 'USD',
 		name: 'U.S. Dollar',
 		symbol: '$',
@@ -23,7 +23,7 @@ window.mwdspace.currencyList = [{
 	{
 		code: 'CAD',
 		name: 'Canadian Dollar',
-		symbol: 'C$',
+		symbol: '$',
 	},
 	{
 		code: 'MXN',
@@ -42,7 +42,7 @@ window.mwdspace.currencyList = [{
 	},
 ];
 
-window.mwdspace.payMethodList = [{
+window.mwdspace.validPayMethodList = [{
 		code: 'card',
 		name: 'Card',
 		description: 'Donate With Card',
