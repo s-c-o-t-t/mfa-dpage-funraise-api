@@ -24,7 +24,7 @@
     }
 
     var scriptFilename = es5Only ? 'es5-mwd-donate-widget.js' : 'mwd-donate-widget.js';
-    var url = 'http://services.mwdagency.com/donate-widget/1.0.0/' + scriptFilename;
+    var url = window.location.protocol + '//services.mwdagency.com/donate-widget/1.0.0/' + scriptFilename;
 
     try {
         var inlineInclude = '<script src="' + encodeURI(url) + '"></script>';

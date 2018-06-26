@@ -5,7 +5,7 @@
 div#mfaDonationWidgetContainer {
     opacity: 0;
     max-width: 30em;
-    min-height: 31em;
+    min-height: 36em;
     margin: 3em auto;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     font-size: 16px !important;
@@ -129,10 +129,18 @@ div#mfaDonationWidgetContainer {
                 padding: 1.75rem;
             }
             h3 {
+                font-size: 0.9375em;
                 font-weight: normal;
+                &.separator {
+                    margin-top: 1.25em;
+                    color: darken($colorMainText, 50%);
+                }
             }
             select,
             input[type='text'],
+            input[type='email'],
+            input[type='tel'],
+            input[type='number'],
             div.cardTokenizerFrame {
                 width: 100%;
                 min-height: $standardInputHeight;
@@ -251,11 +259,27 @@ div#mfaDonationWidgetContainer {
             }
         }
     }
+    div.donorInfoContainer,
+    div.billingInfoContainer,
     div.payInfoContainer {
         display: flex;
         flex-flow: row wrap;
         div.inputGroup {
-            flex: 1 50%;
+            flex: 1 100%;
+            &.twoUp {
+                flex-basis: 50%;
+                &.big {
+                    flex-basis: 60%;
+                }
+                &.small {
+                    flex-basis: 40%;
+                }
+            }
+        }
+        select {
+            // [name^='payCardExpire']
+            -webkit-appearance: none;
+            appearance: none;
         }
     }
 }

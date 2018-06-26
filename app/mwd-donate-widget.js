@@ -15,8 +15,8 @@ window.mwdspace.MFA_Funraise_Widget = function (input) {
     thisWidget.isStarted = false;
 
     thisWidget.codeVersion = '1.0.0';
-    thisWidget.mainStylesUrl = "http://services.mwdagency.com/donate-widget/1.0.0/css/mwd-donate-widget.css";
-    thisWidget.mainHtmlUrl = "http://services.mwdagency.com/donate-widget/1.0.0/mwd-donate-widget.html";
+    thisWidget.mainStylesUrl = window.location.protocol + "//services.mwdagency.com/donate-widget/1.0.0/css/mwd-donate-widget.css";
+    thisWidget.mainHtmlUrl = window.location.protocol + "//services.mwdagency.com/donate-widget/1.0.0/mwd-donate-widget.html";
 
     console.log("window.mwdspace.MFA_Funraise_Widget", thisWidget.codeVersion);
 
@@ -54,24 +54,21 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function () {
 
     thisWidget.loadFile(thisWidget.mainHtmlUrl, async function (widgetHtml) {
 
-        console.log("LOADFILE TEST - widgetHtml", typeof widgetHtml, widgetHtml);
-
         var container = document.createElement("div");
         container.id = 'mfaDonationWidgetContainer';
         container.style.opacity = 0;
         thisWidget.targetElement.appendChild(container);
 
         container.innerHTML = widgetHtml;
-        console.log("LOADFILE TEST - container.innerHTML", typeof container.innerHTML, container.innerHTML);
 
         setTimeout(function () {
             container.className = "reveal";
         }, 1);
 
         // await thisWidget.linkExternalScript("https://core.spreedly.com/iframe/iframe-v1.min.js");
-        await thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js");
-        thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js");
-        thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js");
+        await thisWidget.linkExternalScript(window.location.protocol + "//services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js");
+        thisWidget.linkExternalScript(window.location.protocol + "//services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js");
+        thisWidget.linkExternalScript(window.location.protocol + "//services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js");
 
         var isJqueryLoaded = await thisWidget.linkExternalScript("https://code.jquery.com/jquery-3.3.1.min.js", {
             integrity: "sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=",
@@ -82,7 +79,7 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function () {
         } else {
             window.mwdspace.jquery = $ || {};
         }
-        thisWidget.linkExternalScript("http://services.mwdagency.com/donate-widget/1.0.0/js/user-interface-layer.js");
+        thisWidget.linkExternalScript(window.location.protocol + "//services.mwdagency.com/donate-widget/1.0.0/js/user-interface-layer.js");
 
     });
 

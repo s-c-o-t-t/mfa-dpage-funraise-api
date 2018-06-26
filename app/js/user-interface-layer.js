@@ -49,7 +49,8 @@ Spreedly.on('errors', function (errors) {
 
 buildCurrencySelect();
 buildPayMethodSelect();
-buildFrequencyButtons(window.mwdspace.payMethodList[0].frequencies);
+buildFrequencyButtons(window.mwdspace.validPayMethodList[0].frequencies);
+buildCardExpireMonthSelect();
 buildCardExpireYearSelect();
 
 showStep();
@@ -73,7 +74,7 @@ jq('input[type=radio]').change(function () {
 // GENERAL CLICK HANDLER
 document.addEventListener('click', function (event) {
 	console.log('click', event.target.tagName, event.target.className);
-	var clickTarget = jq(event.target).closest('button, .clickTarget');
+	var clickTarget = jq(event.target).closest('button, clickTarget');
 	if (clickTarget) {
 		if (clickTarget.hasClass('processDonation')) {
 			if (window.mwdspace.donationInProgress) {
@@ -113,15 +114,40 @@ document.addEventListener('click', function (event) {
 				}
 			);
 		} else if (clickTarget.hasClass('goNextStep')) {
-			showStep('payment');
+			showNextStep();
+		} else if (clickTarget.hasClass('goPreviousStep')) {
+			showPreviousStep();
 		}
 	}
 });
 
+function showNextStep() {
+	switch (mwdspace.currentStepName) {
+		case "giftAmount":
+			showStep('donorInfo');
+			break;
+		case "donorInfo":
+			showStep('payment');
+			break;
+	}
+}
+
+function showPreviousStep() {
+	switch (mwdspace.currentStepName) {
+		case "donorInfo":
+			showStep('giftAmount');
+			break;
+		case "payment":
+			showStep('donorInfo');
+			break;
+	}
+}
+
 function showStep(targetStepName) {
+	mwdspace.currentStepName = '';
 	targetStepName = ensureString(targetStepName);
 	if (!targetStepName) {
-		targetStepName = getSessionValue('currentStep');
+		targetStepName = getSessionValue('savedStepName');
 		if (!targetStepName) {
 			targetStepName = 'giftAmount';
 		}
@@ -132,36 +158,24 @@ function showStep(targetStepName) {
 
 		thisName = stepList[i].getAttribute('data-step-name');
 		if (thisName == targetStepName) {
-			if (thisName == 'giftAmount') {
+			if (i == 0) {
 				domMainBackButton.hide();
 			} else {
 				domMainBackButton.fadeIn(888);
 			}
 			jq(stepList[i]).fadeIn(666);
+			mwdspace.currentStepName = thisName;
+			setSessionValue('savedStepName', thisName);
 		} else {
 			jq(stepList[i]).hide();
 		}
 
 	}
-	// stepList.forEach(function (step) {
-	// 	thisName = step.getAttribute('data-step-name');
-
-	// 	if (thisName == targetStepName) {
-	// 		if (thisName == 'giftAmount') {
-	// 			domMainBackButton.hide();
-	// 		} else {
-	// 			domMainBackButton.fadeIn(888);
-	// 		}
-	// 		jq(step).fadeIn(666);
-	// 	} else {
-	// 		jq(step).hide();
-	// 	}
-	// });
 }
 
 function buildCurrencySelect() {
 	try {
-		if (!window.mwdspace.currencyList) {
+		if (!window.mwdspace.validCurrencyList) {
 			throw new Error('List of valid currencies not found');
 		}
 		var domCurrencySelect = jq('form.mainGiftForm select[name="giftCurrency"]');
@@ -170,13 +184,13 @@ function buildCurrencySelect() {
 		}
 		var domThisOption;
 
-		for (var i = 0; i < window.mwdspace.currencyList.length; i++) {
+		for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
 
-			domThisOption = buildCurrencyOption(window.mwdspace.currencyList[i]);
+			domThisOption = buildCurrencyOption(window.mwdspace.validCurrencyList[i]);
 			if (domThisOption) {
 				domCurrencySelect.append(domThisOption);
 			} else {
-				console.warn('Unable to add currency:', window.mwdspace.currencyList[i]);
+				console.warn('Unable to add currency:', window.mwdspace.validCurrencyList[i]);
 			}
 
 		}
@@ -201,7 +215,7 @@ function buildCurrencyOption(currency) {
 
 function buildPayMethodSelect() {
 	try {
-		if (!window.mwdspace.payMethodList) {
+		if (!window.mwdspace.validPayMethodList) {
 			throw new Error('List of valid payment methods not found');
 		}
 		var domPayMethodSelect = jq('form.mainGiftForm select[name="payMethod"]');
@@ -210,12 +224,12 @@ function buildPayMethodSelect() {
 		}
 		var domThisOption;
 
-		for (var i = 0; i < window.mwdspace.payMethodList.length; i++) {
-			domThisOption = buildPayMethodOption(window.mwdspace.payMethodList[i]);
+		for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
+			domThisOption = buildPayMethodOption(window.mwdspace.validPayMethodList[i]);
 			if (domThisOption) {
 				domPayMethodSelect.append(domThisOption);
 			} else {
-				console.warn('Unable to add payment method:', window.mwdspace.payMethodList[i]);
+				console.warn('Unable to add payment method:', window.mwdspace.validPayMethodList[i]);
 			}
 		}
 
@@ -233,7 +247,7 @@ function buildPayMethodOption(method) {
 			domOption.innerText = method.description || '';
 		}
 	} catch (err) {
-		console.error('Unable to build the option element for currency:', currency);
+		console.error('Unable to build the option element for method:', method);
 	}
 	return domOption;
 }
@@ -292,6 +306,53 @@ function buildFrequencyButton(frequency) {
 	return domButton;
 }
 
+function buildCardExpireMonthSelect() {
+	try {
+
+		var domCardExpireMonthSelect = jq(
+			'form.mainGiftForm select[name="payCardExpireMonth"]'
+		);
+		if (domCardExpireMonthSelect.length !== 1) {
+			throw new Error('Unable to identify the card expire month select dropdown');
+		}
+		// add placeholder value
+		var domThisOption = buildCardExpireMonthOption("Month");
+		domCardExpireMonthSelect.append(domThisOption);
+		// add months
+		for (var expireMonth = 1; expireMonth <= 12; expireMonth++) {
+			domThisOption = buildCardExpireMonthOption(expireMonth);
+			if (domThisOption) {
+				domCardExpireMonthSelect.append(domThisOption);
+			} else {
+				console.warn('Unable to add card expire month:', expireMonth);
+			}
+		}
+	} catch (err) {
+		console.error('Unable to build the card expire month select dropdown', err);
+	}
+}
+
+function buildCardExpireMonthOption(month, value) {
+	var domOption = null;
+
+	try {
+		if (typeof month != 'number' && typeof month != 'string' && !month) {
+			console.error('Invalid month given:', month);
+		} else {
+
+			if (typeof value == 'undefined') {
+				var value = month;
+			}
+			domOption = document.createElement('option');
+			domOption.setAttribute('value', value);
+			domOption.innerText = month;
+		}
+	} catch (err) {
+		console.error('Unable to build the option element for month:', month);
+	}
+	return domOption;
+}
+
 function buildCardExpireYearSelect() {
 	try {
 		// show only current year and beyond, but with a few days fudge factor
@@ -306,7 +367,10 @@ function buildCardExpireYearSelect() {
 		if (domCardExpireYearSelect.length !== 1) {
 			throw new Error('Unable to identify the card expire year select dropdown');
 		}
-		var domThisOption;
+		// add placeholder value
+		var domThisOption = buildCardExpireYearOption("Year");
+		domCardExpireYearSelect.append(domThisOption);
+		// add years
 		for (var expireYear = startYear; expireYear < startYear + yearsToShow; expireYear++) {
 			domThisOption = buildCardExpireYearOption(expireYear);
 			if (domThisOption) {
@@ -320,16 +384,23 @@ function buildCardExpireYearSelect() {
 	}
 }
 
-function buildCardExpireYearOption(year) {
+function buildCardExpireYearOption(year, value) {
 	var domOption = null;
 	try {
-		if (year) {
+		if (typeof year != 'number' && typeof year != 'string' && !year) {
+			console.error('Invalid year given:', year);
+		} else {
+
+			if (typeof value == 'undefined') {
+				var value = year;
+			}
+
 			domOption = document.createElement('option');
-			domOption.setAttribute('value', year.code);
+			domOption.setAttribute('value', value);
 			domOption.innerText = year;
 		}
 	} catch (err) {
-		console.error('Unable to build the option element for currency:', currency);
+		console.error('Unable to build the option element for year:', year);
 	}
 	return domOption;
 }

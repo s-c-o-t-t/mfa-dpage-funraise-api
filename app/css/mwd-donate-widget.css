@@ -2,7 +2,7 @@
 div#mfaDonationWidgetContainer {
   opacity: 0;
   max-width: 30em;
-  min-height: 31em;
+  min-height: 36em;
   margin: 3em auto;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-size: 16px !important;
@@ -117,9 +117,16 @@ div#mfaDonationWidgetContainer {
         display: none;
         padding: 1.75rem; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h3 {
+        font-size: 0.9375em;
         font-weight: normal; }
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h3.separator {
+          margin-top: 1.25em;
+          color: #1a1a1a; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm select,
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type='text'],
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type='email'],
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type='tel'],
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type='number'],
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
         width: 100%;
         min-height: 2.25rem;
@@ -235,10 +242,31 @@ div#mfaDonationWidgetContainer {
           border-top-left-radius: 0;
           border-bottom-left-radius: 0;
           border-left: none; }
+  div#mfaDonationWidgetContainer div.donorInfoContainer,
+  div#mfaDonationWidgetContainer div.billingInfoContainer,
   div#mfaDonationWidgetContainer div.payInfoContainer {
     display: flex;
     flex-flow: row wrap; }
+    div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup,
+    div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup,
     div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup {
-      flex: 1 50%; }
+      flex: 1 100%; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp {
+        flex-basis: 50%; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.big,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.big,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.big {
+          flex-basis: 60%; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.small,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.small,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.small {
+          flex-basis: 40%; }
+    div#mfaDonationWidgetContainer div.donorInfoContainer select,
+    div#mfaDonationWidgetContainer div.billingInfoContainer select,
+    div#mfaDonationWidgetContainer div.payInfoContainer select {
+      -webkit-appearance: none;
+      appearance: none; }
 
 /*# sourceMappingURL=mwd-donate-widget.css.map */
