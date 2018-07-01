@@ -1,5 +1,5 @@
-@import 'vars';
-@import 'mixins';
+@import "vars";
+@import "mixins";
 * {
 	box-sizing: border-box;
 	margin: 0;
@@ -7,7 +7,7 @@
 }
 
 body {
-	font-family: 'MuseoSans', Helvetica, 'Helvetica Neue', Arial, sans-serif;
+	font-family: "MuseoSans", Helvetica, "Helvetica Neue", Arial, sans-serif;
 	font-size: 16px;
 	color: $colorMainText;
 	text-rendering: optimizeLegibility;
@@ -41,7 +41,9 @@ div.mainBackground {
 	justify-content: center;
 	height: 100vh;
 	padding: 0.15em;
-	background: #efefef url('https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg') no-repeat;
+	background: #efefef
+		url("https://mfa.cachefly.net/mfa/images/uploads/2018/03/donate-background.jpg")
+		no-repeat;
 	background-position: 80% 50%;
 	background-size: cover;
 }
@@ -61,7 +63,7 @@ div.giftFormHeaderContainer {
 		padding: 0.75em 0.75em 1.5em 0.75em;
 		background: linear-gradient(#fff, darken($colorFormBg, 2%));
 		border-bottom: 1px solid darken($colorFormBg, 8%);
-		>div {
+		> div {
 			width: 25%;
 		}
 		div.giftDisplayContainer {
@@ -88,7 +90,7 @@ div.giftFormContainer {
 			font-weight: normal;
 		}
 		select,
-		input[type='text'],
+		input[type="text"],
 		div.cardTokenizerFrame {
 			width: 100%;
 			min-height: $standardInputHeight;
@@ -176,7 +178,7 @@ div.giftFrequencyContainer {
 				span {
 					vertical-align: middle;
 				}
-				input[type='radio'] {
+				input[type="radio"] {
 					display: none;
 				}
 			}
@@ -185,10 +187,10 @@ div.giftFrequencyContainer {
 			display: flex;
 			align-items: stretch;
 			flex: 1 100%;
-			>* {
+			> * {
 				padding: 0.5rem; //height: $standardInputHeight;
 			}
-			input[type='text'] {
+			input[type="text"] {
 				width: 100%;
 				border-radius: 0;
 			}
@@ -198,7 +200,7 @@ div.giftFrequencyContainer {
 				border-bottom-right-radius: 0;
 				border-right: 0;
 			}
-			select[name='giftCurrency'] {
+			select[name="giftCurrency"] {
 				min-width: 3em;
 				max-width: 6.25em;
 				border-top-left-radius: 0;
