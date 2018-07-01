@@ -1,3 +1,7 @@
-console.log('business-logic-layer.js v18.4.19');
+(function () {
 
-window.mwdspace = window.mwdspace || {};
+    console.log('business-logic-layer.js v18.4.19');
+
+    window.mwdspace = window.mwdspace || {};
+
+})();

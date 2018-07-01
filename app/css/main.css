@@ -4,7 +4,7 @@
   padding: 0; }
 
 body {
-  font-family: 'MuseoSans', Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-family: "MuseoSans", Helvetica, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   color: #999;
   text-rendering: optimizeLegibility;
@@ -73,7 +73,7 @@ div.giftFormContainer {
     div.giftFormContainer form.mainGiftForm h3 {
       font-weight: normal; }
     div.giftFormContainer form.mainGiftForm select,
-    div.giftFormContainer form.mainGiftForm input[type='text'],
+    div.giftFormContainer form.mainGiftForm input[type="text"],
     div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
       width: 100%;
       min-height: 2.25rem;
@@ -159,8 +159,8 @@ div.giftFrequencyContainer {
         div.giftAmountContainer div.giftOption.fixed label span,
         div.giftFrequencyContainer div.giftOption.fixed label span {
           vertical-align: middle; }
-        div.giftAmountContainer div.giftOption.fixed label input[type='radio'],
-        div.giftFrequencyContainer div.giftOption.fixed label input[type='radio'] {
+        div.giftAmountContainer div.giftOption.fixed label input[type="radio"],
+        div.giftFrequencyContainer div.giftOption.fixed label input[type="radio"] {
           display: none; }
     div.giftAmountContainer div.giftOption.freeform,
     div.giftFrequencyContainer div.giftOption.freeform {
@@ -170,8 +170,8 @@ div.giftFrequencyContainer {
       div.giftAmountContainer div.giftOption.freeform > *,
       div.giftFrequencyContainer div.giftOption.freeform > * {
         padding: 0.5rem; }
-      div.giftAmountContainer div.giftOption.freeform input[type='text'],
-      div.giftFrequencyContainer div.giftOption.freeform input[type='text'] {
+      div.giftAmountContainer div.giftOption.freeform input[type="text"],
+      div.giftFrequencyContainer div.giftOption.freeform input[type="text"] {
         width: 100%;
         border-radius: 0; }
       div.giftAmountContainer div.giftOption.freeform div.currencyDisplay,
@@ -183,8 +183,8 @@ div.giftFrequencyContainer {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         border-right: 0; }
-      div.giftAmountContainer div.giftOption.freeform select[name='giftCurrency'],
-      div.giftFrequencyContainer div.giftOption.freeform select[name='giftCurrency'] {
+      div.giftAmountContainer div.giftOption.freeform select[name="giftCurrency"],
+      div.giftFrequencyContainer div.giftOption.freeform select[name="giftCurrency"] {
         min-width: 3em;
         max-width: 6.25em;
         border-top-left-radius: 0;

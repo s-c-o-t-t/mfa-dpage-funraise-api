@@ -1,285 +1,347 @@
 /* v18.6.13a */
 
-@import 'vars';
-@import 'mixins';
+@import "vars";
+@import "mixins";
 div#mfaDonationWidgetContainer {
-    opacity: 0;
-    max-width: 30em;
-    min-height: 36em;
-    margin: 3em auto;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    font-size: 16px !important;
-    font-weight: normal !important;
-    color: $colorMainText !important;
-    text-align: left;
-    transition: opacity 1s;
-    &.reveal {
-        opacity: 1 !important;
-    }
-    /* reset various elements */
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        float: none;
-        position: static;
-        background: none;
-        width: auto;
-        height: auto;
-        min-width: auto;
-        min-height: auto;
-        text-align: inherit;
-    }
-    p,
-    label,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    input,
-    select,
-    textarea {
-        color: inherit;
-        font-family: inherit;
-        span {
-            color: inherit;
-            font-family: inherit;
-        }
-    }
-    input,
-    select,
-    textarea {
-        color: darken($colorMainText, 40%);
-        font-weight: normal;
-    }
-    button {
-        cursor: pointer;
-        padding: 0.5em;
-        font-size: 1.25em;
-        text-align: center;
-        border-radius: $standardRadius;
-        outline: none;
-        transition: color 0.33s, background-color 0.5s, border 0.5s;
-        &:active {
-            position: relative;
-            top: 1px;
-            opacity: 0.5;
-        }
-        &.blocked {
-            animation-name: buttonInAction;
-            animation-duration: 2s;
-            animation-timing-function: ease-out;
-            animation-iteration-count: infinite;
-        }
-    }
-    div.loadingDisplay {
-        color: $colorFormBg;
-        text-align: center;
-        font-size: 2em;
-    }
-    div.giftFormHeaderContainer {
-        display: none;
-        div.giftFormHeader {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding: 0.75em 0.75em 1.5em 0.75em;
-            background: linear-gradient(#fff, darken($colorFormBg, 2%));
-            border-bottom: 1px solid darken($colorFormBg, 8%);
-            >div {
-                width: 25%;
-            }
-            div.giftDisplayContainer {
-                width: 50%;
-                text-align: center;
-                h3 {
-                    font-size: 1em;
-                }
-                div.amountDisplay {
-                    font-weight: 300;
-                    color: darken($colorMainText, 40%);
-                    span.currencySymbol {
-                        font-size: .9em;
-                        vertical-align: 1em;
-                    }
-                    span.displayWholeAmount {
-                        font-size: 2.5em;
-                    }
-                    span.displaySubAmount {
-                        font-size: .9em;
-                    }
-                }
-            }
-        }
-    }
-    div.giftFormContainer {
-        width: 100%;
-        min-width: 17.5em;
-        max-width: 25em;
-        form.mainGiftForm {
-            background-color: #f5f5f5;
-            background: linear-gradient(#fff, $colorFormBg, $colorFormBg, $colorFormBg);
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-            border-radius: $standardRadius;
-            overflow: hidden;
-            section.step {
-                display: none;
-                padding: 1.75rem;
-            }
-            h3 {
-                font-size: 0.9375em;
-                font-weight: normal;
-                &.separator {
-                    margin-top: 1.25em;
-                    color: darken($colorMainText, 50%);
-                }
-            }
-            select,
-            input[type='text'],
-            input[type='email'],
-            input[type='tel'],
-            input[type='number'],
-            div.cardTokenizerFrame {
-                width: 100%;
-                min-height: $standardInputHeight;
-                padding: 0.5rem;
-                font-size: 1.25rem;
-                background: #fff;
-                border: 1px solid #ccc;
-                border-radius: $standardRadius;
-                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-            }
-            div.cardTokenizerFrame {
-                height: $standardInputHeight;
-            }
-            button {
-                &.main {
-                    display: flex;
-                    align-items: stretch;
-                    justify-content: space-between;
-                    margin-top: 1rem;
-                    width: 100%;
-                    padding: 1em;
-                    text-align: left;
-                    font-weight: bold;
-                    font-size: 1em;
-                    color: #fff;
-                    background-color: $colorMercyBlue;
-                    border: 1px solid $colorMercyBlue;
-                    i.fa {
-                        position: relative;
-                        font-size: 1.25em;
-                        left: 0;
-                        transition: left 0.66s;
-                    }
-                    &.goNextStep {
-                        &:hover,
-                        &:active {
-                            i.fa {
-                                left: 0.33em;
-                            }
-                        }
-                    }
-                    &.error {
-                        background: tomato;
-                        border-color: darken(tomato, 10%);
-                    }
-                }
-                &.goPreviousStep {
-                    display: none;
-                    color: $colorMainText;
-                    padding: 0 0.5em 0.5em 0;
-                    border: none;
-                    background: none;
-                    left: 0;
-                    transition: left 0.66s;
-                    &:hover {
-                        position: relative;
-                        left: -0.15em;
-                        color: #000;
-                    }
-                }
-            }
-        }
-    }
-    div.giftAmountContainer,
-    div.giftFrequencyContainer {
-        display: flex;
-        flex-flow: row wrap;
-        align-items: center;
-        margin: 0.5em 0;
-        div.giftOption {
-            padding: 0.125em;
-            &.fixed {
-                flex: 1;
-                label {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 100%;
-                    padding: 0.25em;
-                    text-align: center;
-                    color: darken($colorMainText, 40%);
-                    min-height: 50px;
-                    @include basicButton;
-                    span {
-                        vertical-align: middle;
-                    }
-                    input[type='radio'] {
-                        display: none;
-                    }
-                }
-            }
-            &.freeform {
-                display: flex;
-                align-items: stretch;
-                flex: 1 100%;
-                >* {
-                    padding: 0.5rem; //height: $standardInputHeight;
-                }
-                input[type='text'] {
-                    width: 100%;
-                    border-radius: 0;
-                }
-                div.currencyDisplay {
-                    @include basicButtonLook;
-                    border-top-right-radius: 0;
-                    border-bottom-right-radius: 0;
-                    border-right: 0;
-                }
-                select[name='giftCurrency'] {
-                    min-width: 3em;
-                    max-width: 6.25em;
-                    border-top-left-radius: 0;
-                    border-bottom-left-radius: 0;
-                    border-left: none;
-                }
-            }
-        }
-    }
-    div.donorInfoContainer,
-    div.billingInfoContainer,
-    div.payInfoContainer {
-        display: flex;
-        flex-flow: row wrap;
-        div.inputGroup {
-            flex: 1 100%;
-            &.twoUp {
-                flex-basis: 50%;
-                &.big {
-                    flex-basis: 60%;
-                }
-                &.small {
-                    flex-basis: 40%;
-                }
-            }
-        }
-        select {
-            // [name^='payCardExpire']
-            -webkit-appearance: none;
-            appearance: none;
-        }
-    }
+	opacity: 0;
+	max-width: 30em;
+	min-height: 36em;
+	margin: 3em auto;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-size: 16px !important;
+	font-weight: normal !important;
+	color: $colorMainText !important;
+	text-align: left;
+	transition: opacity 1s;
+	&.reveal {
+		opacity: 1 !important;
+	}
+	/* reset various elements */
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+		float: none;
+		position: static;
+		background: none;
+		width: auto;
+		height: auto;
+		min-width: auto;
+		min-height: auto;
+		text-align: inherit;
+	}
+	p,
+	label,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	input,
+	select,
+	textarea {
+		color: inherit;
+		font-family: inherit;
+		span {
+			color: inherit;
+			font-family: inherit;
+		}
+	}
+	input,
+	select,
+	textarea {
+		color: darken($colorMainText, 40%);
+		font-weight: normal;
+	}
+	button {
+		cursor: pointer;
+		padding: 0.5em;
+		font-size: 1.25em;
+		text-align: center;
+		border-radius: $standardRadius;
+		outline: none;
+		transition: color 0.33s, background-color 0.5s, border 0.5s;
+		&:active {
+			position: relative;
+			top: 1px;
+			opacity: 0.5;
+		}
+		&.blocked {
+			animation-name: buttonInAction;
+			animation-duration: 2s;
+			animation-timing-function: ease-out;
+			animation-iteration-count: infinite;
+		}
+	}
+	div.loadingDisplay {
+		color: $colorFormBg;
+		text-align: center;
+		font-size: 2em;
+	}
+	div.giftFormHeaderContainer {
+		display: none;
+		div.giftFormHeader {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			padding: 0.75em 0.75em 1.5em 0.75em;
+			background: linear-gradient(#fff, darken($colorFormBg, 2%));
+			border-bottom: 1px solid darken($colorFormBg, 8%);
+			> div {
+				width: 25%;
+			}
+			div.giftDisplayContainer {
+				width: 50%;
+				text-align: center;
+				h3 {
+					font-size: 1em;
+				}
+				div.amountDisplay {
+					font-weight: 300;
+					color: darken($colorMainText, 40%);
+					span.currencySymbol {
+						font-size: 0.9em;
+						vertical-align: 1em;
+					}
+					span.displayWholeAmount {
+						font-size: 2.5em;
+					}
+					span.displaySubAmount {
+						font-size: 0.9em;
+					}
+				}
+			}
+		}
+	}
+	div.giftFormContainer {
+		width: 100%;
+		min-width: 17.5em;
+		max-width: 25em;
+		form.mainGiftForm {
+			background-color: #f5f5f5;
+			background: linear-gradient(#fff, $colorFormBg, $colorFormBg, $colorFormBg);
+			box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+			border-radius: $standardRadius;
+			overflow: hidden;
+			section.step {
+				display: none;
+				padding: 1.75rem;
+			}
+			h3 {
+				font-size: 0.9375em;
+				font-weight: normal;
+				&.separator {
+					margin-top: 1.25em;
+					color: darken($colorMainText, 50%);
+				}
+			}
+			select,
+			input[type="text"],
+			input[type="email"],
+			input[type="tel"],
+			input[type="number"],
+			div.cardTokenizerFrame {
+				width: 100%;
+				min-height: $standardInputHeight;
+				padding: 0.33rem;
+				font-size: 1.25rem;
+				background: #fff;
+				border: 1px solid #ccc;
+				border-radius: $standardRadius;
+				box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+			}
+			div.cardTokenizerFrame {
+				height: $standardInputHeight;
+			}
+			button {
+				&.main {
+					display: flex;
+					align-items: stretch;
+					justify-content: space-between;
+					margin-top: 1rem;
+					width: 100%;
+					padding: 1em;
+					text-align: left;
+					font-weight: bold;
+					font-size: 1em;
+					color: #fff;
+					background-color: $colorMercyBlue;
+					border: 1px solid $colorMercyBlue;
+					i.fa {
+						position: relative;
+						font-size: 1.25em;
+						left: 0;
+						transition: left 0.66s;
+					}
+					&.goNextStep {
+						&:hover,
+						&:active {
+							i.fa {
+								left: 0.33em;
+							}
+						}
+					}
+					&.error {
+						background: tomato;
+						border-color: darken(tomato, 10%);
+					}
+				}
+				&.goPreviousStep {
+					display: none;
+					color: $colorMainText;
+					padding: 0 0.5em 0.5em 0;
+					border: none;
+					background: none;
+					left: 0;
+					transition: left 0.66s;
+					&:hover {
+						position: relative;
+						left: -0.15em;
+						color: #000;
+					}
+				}
+			}
+		}
+	}
+	div.giftAmountContainer,
+	div.giftFrequencyContainer {
+		display: flex;
+		flex-flow: row wrap;
+		align-items: center;
+		margin: 0.5em 0;
+		div.giftOption {
+			padding: 0.125em;
+			&.fixed {
+				flex: 1;
+				label {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 100%;
+					padding: 0.25em;
+					text-align: center;
+					color: darken($colorMainText, 40%);
+					min-height: 50px;
+					@include basicButton;
+					span {
+						vertical-align: middle;
+					}
+					input[type="radio"] {
+						display: none;
+					}
+				}
+			}
+			&.freeform {
+				display: flex;
+				align-items: stretch;
+				flex: 1 100%;
+				> * {
+					padding: 0.5rem; //height: $standardInputHeight;
+				}
+				input[type="text"] {
+					width: 100%;
+					border-radius: 0;
+				}
+				div.currencyDisplay {
+					@include basicButtonLook;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+					border-right: 0;
+				}
+				select[name="giftCurrency"] {
+					min-width: 3em;
+					max-width: 6.25em;
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+					border-left: none;
+				}
+			}
+		}
+	}
+	div.donorInfoContainer,
+	div.billingInfoContainer,
+	div.payInfoContainer {
+		display: flex;
+		flex-flow: row wrap;
+		div.inputGroup {
+			flex: 1 100%;
+			&.infoBox {
+				display: flex;
+				margin-top: 0.5em;
+				margin-bottom: 0.5em;
+				padding: 0.33em;
+				border: 1px solid darken($colorFormBg, 20%);
+				div.infoIcon {
+					position: relative;
+					margin-left: auto;
+					span.infoText {
+						display: none;
+						position: absolute;
+						top: -0.25em;
+						right: -0.25em;
+						width: 10em;
+						padding: 0.25em;
+						font-size: 0.8em;
+						color: whitesmoke;
+						background-color: #333;
+						border: 1px solid lighten(#333, 8%);
+						border-radius: 0.25em;
+						&:hover {
+							display: block;
+						}
+					}
+					&:hover {
+						span.infoText {
+							display: block;
+						}
+					}
+				}
+			}
+			&.twoUp {
+				flex-basis: 50%;
+				&.big {
+					flex-basis: 60%;
+				}
+				&.small {
+					flex-basis: 40%;
+				}
+				&.infoBox {
+					margin-left: 0.5em;
+					margin-right: 0.5em;
+				}
+			}
+		}
+		select {
+			-webkit-appearance: none;
+			appearance: none;
+		}
+	}
+}
+
+input.fancyCheckbox {
+	display: none;
+	& + label.fancyCheckbox:before {
+		content: "";
+		display: inline-block;
+		margin-left: 0;
+		margin-right: 0.5em;
+		width: 0.9em;
+		height: 0.9em;
+		background: #fff;
+		border: 1px solid darken($colorFormBg, 25%);
+		border-radius: 0;
+		transition: 0.2s;
+	}
+	&:checked + label.fancyCheckbox:before {
+		transform: rotate(40deg);
+		width: 0.45em;
+		margin-left: 0.25em;
+		margin-right: 0.7em;
+		border-top: none;
+		border-left: none;
+		background: transparent;
+		border-right: 2px solid $colorMercyBlue;
+		border-bottom: 2px solid $colorMercyBlue;
+	}
 }

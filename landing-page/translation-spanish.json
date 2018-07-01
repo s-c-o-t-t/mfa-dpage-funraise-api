@@ -1,53 +1,56 @@
 {
-    "header": {
-        "amountText": "Tu donación"
-    },
-    "button": {
-        "goDonorInfo": "Tus datos",
-        "goPaymentInfo": "Información sobre el pago",
-        "mainSubmit": "Envía la donación"
-    },
-    "gift": {
-        "mainLabel": "Selecciona la cantidad a donar",
-        "otherAmountPlaceholder": "o entra una cantidad diferente",
-        "payMethod": {
-            "card": "Dona con una tarjeta",
-            "bitcoin": "Dona con Bitcoin"
-        },
-        "frequency": {
-            "single": "Una vez",
-            "monthly": "Mensualmente"
-        },
-        "error": {
-            "invalidAmount": "Se requiere una cantidad"
-        }
-    },
-    "donor": {
-        "firstnamePlaceholder": "Nombres",
-        "lastnamePlaceholder": "Apellidos",
-        "emailPlaceholder": "Correo electrónico",
-        "phonePlaceholder": "Número telefónico (opcional)",
-        "streetPlaceholder": "Calle y número",
-        "cityPlaceholder": "Ciudad",
-        "statePlaceholder": "Estado",
-        "postCodePlaceholder": "Código postal",
-        "billingLabel": "Dirección donde recibes la correspondencia",
-        "error": {
-            "invalidFields": "Por favor complete las informaciónes"
-        }
-    },
-    "payment": {
-        "cardNumberPlaceholder": "Tarjeta",
-        "cvvPlaceholder": "CVV",
-        "cvvHint": "El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
-        "cardExpireMonthPlaceholder": "Mes",
-        "cardExpireYearPlaceholder": "Año",
-        "error": {
-            "invalidCardNumber": "Se requiere el número de tarjeta",
-            "invalidCvv": "Se requiere el código de CVV",
-            "invalidMonth": "Por favor seleccione el mes",
-            "invalidYear": "Por favor seleccione el año",
-            "captchaNotice": "Please follow the Captcha instructions to continue"
-        }
-    }
+	"header": {
+		"amountText": "Tu donación"
+	},
+	"button": {
+		"goDonorInfo": "Tus datos",
+		"goPaymentInfo": "Información sobre el pago",
+		"mainSubmit": "Envía la donación"
+	},
+	"gift": {
+		"mainLabel": "Selecciona la cantidad a donar",
+		"otherAmountPlaceholder": "o entra una cantidad diferente",
+		"payMethod": {
+			"card": "Dona con una tarjeta",
+			"bitcoin": "Dona con Bitcoin"
+		},
+		"frequency": {
+			"single": "Una vez",
+			"monthly": "Mensualmente"
+		},
+		"error": {
+			"invalidAmount": "Se requiere una cantidad"
+		}
+	},
+	"donor": {
+		"firstnamePlaceholder": "Nombres",
+		"lastnamePlaceholder": "Apellidos",
+		"emailPlaceholder": "Correo electrónico",
+		"phonePlaceholder": "Número telefónico (opcional)",
+		"streetPlaceholder": "Calle y número",
+		"cityPlaceholder": "Ciudad",
+		"statePlaceholder": "Estado",
+		"postCodePlaceholder": "Código postal",
+		"billingLabel": "Dirección donde recibes la correspondencia",
+		"error": {
+			"invalidFields": "Por favor complete las informaciónes"
+		}
+	},
+	"payment": {
+		"cardNumberPlaceholder": "Tarjeta",
+		"cvvPlaceholder": "CVV",
+		"cvvHint":
+			"El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
+		"cardExpireMonthPlaceholder": "Mes",
+		"cardExpireYearPlaceholder": "Año",
+		"addPercentageLabel": "This is addPercentageLabel",
+		"addPercentageInfoText": "This is addPercentageInfoText",
+		"error": {
+			"invalidCardNumber": "Se requiere el número de tarjeta",
+			"invalidCvv": "Se requiere el código de CVV",
+			"invalidMonth": "Por favor seleccione el mes",
+			"invalidYear": "Por favor seleccione el año",
+			"captchaNotice": "Please follow the Captcha instructions to continue"
+		}
+	}
 }
