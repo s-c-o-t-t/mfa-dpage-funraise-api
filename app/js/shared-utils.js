@@ -4,10 +4,9 @@
 	window.mwdspace = window.mwdspace || {};
 
 	window.mwdspace.sharedUtils = window.mwdspace.sharedUtils || {};
-
 	var sharedUtils = window.mwdspace.sharedUtils;
 
-	window.mwdspace.sharedUtils.safeJsonParse = function(input) {
+	sharedUtils.safeJsonParse = function(input) {
 		try {
 			return JSON.parse(input);
 		} catch (e) {
@@ -17,7 +16,7 @@
 		return null;
 	};
 
-	window.mwdspace.sharedUtils.safeJsonString = function(input) {
+	sharedUtils.safeJsonString = function(input) {
 		var sJson = null;
 		try {
 			sJson = JSON.stringify(input);
@@ -28,18 +27,18 @@
 		return sJson;
 	};
 
-	window.mwdspace.sharedUtils.stringEquals = function(input1, input2) {
+	sharedUtils.stringEquals = function(input1, input2) {
 		return sharedUtils.ensureString(input1) == sharedUtils.ensureString(input2);
 	};
 
-	window.mwdspace.sharedUtils.stringEqualsIgnore = function(input1, input2) {
+	sharedUtils.stringEqualsIgnore = function(input1, input2) {
 		return (
 			sharedUtils.ensureString(input1).toLowerCase() ==
 			sharedUtils.ensureString(input2).toLowerCase()
 		);
 	};
 
-	window.mwdspace.sharedUtils.ensureString = function(input) {
+	sharedUtils.ensureString = function(input) {
 		if (typeof input != "undefined" && input !== null) {
 			try {
 				return String(input);
@@ -50,7 +49,7 @@
 		return "";
 	};
 
-	window.mwdspace.sharedUtils.isEmpty = function(input) {
+	sharedUtils.isEmpty = function(input) {
 		if (typeof input == "undefined") {
 			return true;
 		}
@@ -80,7 +79,7 @@
 		return false;
 	};
 
-	window.mwdspace.sharedUtils.setSessionValue = function(name, value) {
+	sharedUtils.setSessionValue = function(name, value) {
 		if (typeof value == "undefined") {
 			var value = "";
 		}
@@ -99,7 +98,7 @@
 		}
 	};
 
-	window.mwdspace.sharedUtils.getSessionValue = function(name) {
+	sharedUtils.getSessionValue = function(name) {
 		var value = null;
 		try {
 			value = sessionStorage.getItem(name);
@@ -111,7 +110,7 @@
 		return value;
 	};
 
-	window.mwdspace.sharedUtils.removeSessionValue = function(name) {
+	sharedUtils.removeSessionValue = function(name) {
 		try {
 			value = sessionStorage.removeItem(name);
 		} catch (e) {
@@ -122,7 +121,7 @@
 		return value;
 	};
 
-	window.mwdspace.sharedUtils.setLocalValue = function(name, value) {
+	sharedUtils.setLocalValue = function(name, value) {
 		if (typeof value == "undefined") {
 			var value = "";
 		}
@@ -141,7 +140,7 @@
 		}
 	};
 
-	window.mwdspace.sharedUtils.getLocalValue = function(name) {
+	sharedUtils.getLocalValue = function(name) {
 		var value = null;
 		try {
 			value = localStorage.getItem(name);
@@ -153,7 +152,7 @@
 		return value;
 	};
 
-	window.mwdspace.sharedUtils.removeLocalValue = function(name) {
+	sharedUtils.removeLocalValue = function(name) {
 		try {
 			value = localStorage.removeItem(name);
 		} catch (e) {
@@ -164,7 +163,7 @@
 		return value;
 	};
 
-	window.mwdspace.sharedUtils.createCookie = function(name, value, days) {
+	sharedUtils.createCookie = function(name, value, days) {
 		var expires = "";
 		if (days) {
 			var date = new Date();
@@ -174,7 +173,7 @@
 		document.cookie = name + "=" + value + expires + "; path=/";
 	};
 
-	window.mwdspace.sharedUtils.readCookie = function(name) {
+	sharedUtils.readCookie = function(name) {
 		var nameEQ = name + "=";
 		var ca = document.cookie.split(";");
 		for (var i = 0; i < ca.length; i++) {
@@ -187,7 +186,7 @@
 		return false;
 	};
 
-	window.mwdspace.sharedUtils.getUrlParameter = function(input, ignoreCase) {
+	sharedUtils.getUrlParameter = function(input, ignoreCase) {
 		if (typeof ignoreCase == "undefined") {
 			var ignoreCase = true;
 		}
@@ -209,7 +208,7 @@
 		return "";
 	};
 
-	window.mwdspace.sharedUtils.makeUrlParameterList = function() {
+	sharedUtils.makeUrlParameterList = function() {
 		window.mwdspace.urlParameters = {};
 		var rawPairs = window.location.search.split(/[\?&]/);
 		var thisPair, thisKey;

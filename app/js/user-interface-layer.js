@@ -1,5 +1,5 @@
 (function() {
-	console.log("user-interface-layer.js v18.6.26a");
+	console.log("user-interface-layer.js v18.7.2");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -19,48 +19,90 @@
 
 	// DOM OBJECTS
 	var stepList = jq("div.giftFormContainer section.step");
-	var domMainBackButton = jq("button.goPreviousStep");
+	var domMainBackButton = jq("div.giftFormContainer button.goPreviousStep");
+	var domRegionSelect = jq('div.giftFormContainer select[name="donorRegion"]');
+	var domRegionInput = jq('div.giftFormContainer input[name="donorRegion"]');
 
-	/*
-	Spreedly.on('ready', function () {
-		console.log('\n\nSPREEDLY READY', Spreedly);
+	if (typeof Spreedly == "object") {
+		Spreedly.on("ready", function() {
+			console.log("\n\nSPREEDLY READY", Spreedly);
 
-		//format card number
-		Spreedly.setPlaceholder('number', 'Card');
-		Spreedly.setFieldType('number', 'text');
-		Spreedly.setNumberFormat('prettyFormat');
-		Spreedly.setLabel('number', 'Payment card number');
+			//format card number
+			Spreedly.setPlaceholder("number", "Card");
+			Spreedly.setFieldType("number", "text");
+			Spreedly.setNumberFormat("prettyFormat");
+			Spreedly.setLabel("number", "Payment card number");
 
-		//format cvv
-		Spreedly.setPlaceholder('cvv', 'cvv');
-		Spreedly.setLabel('cvv', 'Payment card 3-digit verification code');
+			//format cvv
+			Spreedly.setPlaceholder("cvv", "cvv");
+			Spreedly.setLabel("cvv", "Payment card 3-digit verification code");
 
-		// Spreedly.setValue('number', '4111111111111111');
-		// Spreedly.setValue('cvv', '123');
-	});
-	Spreedly.on('paymentMethod', function (result) {
-		console.log('\n\nSPREEDLY PAYMENT TOKENIZED', result);
-	});
-	Spreedly.on('errors', function (errors) {
-		console.log('\n\nSPREEDLY REPORTS ERRORS:');
-		for (var i = 0; i < errors.length; i++) {
-			var error = errors[i];
-			console.log(error);
-		}
-	});
-	*/
+			Spreedly.setValue("number", "4111111111111111");
+			Spreedly.setValue("cvv", "123");
+		});
+		Spreedly.on("paymentMethod", function(result) {
+			console.log("\n\nSPREEDLY PAYMENT TOKENIZED", result);
+		});
+		Spreedly.on("errors", function(errors) {
+			console.log("\n\nSPREEDLY REPORTS ERRORS:");
+			for (var i = 0; i < errors.length; i++) {
+				var error = errors[i];
+				console.log(error);
+			}
+		});
+	} else {
+		console.warn("Skipping Spreedly setup");
+	}
 
 	buildCurrencySelect();
 	buildPayMethodSelect();
 	buildFrequencyButtons(window.mwdspace.validPayMethodList[0].frequencies);
+	buildCountrySelect();
 	buildCardExpireMonthSelect();
 	buildCardExpireYearSelect();
 
+	jq('select[name="donorMatchCompany"]').select2({
+		minimumInputLength: 3,
+		delay: 250,
+		placeholder: "Enter your company name",
+		ajax: {
+			url: "https://platform.funraise.io/api/v1/ddcompanies",
+			data: function(params) {
+				var query = {
+					q: params.term,
+				};
+				return query;
+			},
+			processResults: function(data) {
+				var returnObject = {
+					results: [],
+				};
+
+				if (typeof data == "object" && data.length) {
+					for (var i = 0; i < data.length; i++) {
+						if (data[i].name) {
+							returnObject.results.push({
+								id: i,
+								text: data[i].name,
+							});
+						}
+					}
+				}
+				return returnObject;
+			},
+		},
+	});
+	setInterval(function() {
+		jq(".select2-container").css("width", "100%");
+	}, 999);
+
 	showStep();
-	// Spreedly.init(paymentTokenizerId, {
-	// 	numberEl: 'cardNumberTarget',
-	// 	cvvEl: 'cardCvvTarget',
-	// });
+	if (typeof Spreedly == "object") {
+		Spreedly.init(paymentTokenizerId, {
+			numberEl: "cardNumberTarget",
+			cvvEl: "cardCvvTarget",
+		});
+	}
 
 	jq("input[type=radio]").change(function() {
 		jq(this)
@@ -78,7 +120,7 @@
 
 	// GENERAL CLICK HANDLER
 	document.addEventListener("click", function(event) {
-		console.log("click", event.target.tagName, event.target.className);
+		// console.log("click", event.target.tagName, event.target.className);
 		var clickTarget = jq(event.target).closest("button, clickTarget");
 		if (clickTarget) {
 			if (clickTarget.hasClass("processDonation")) {
@@ -95,19 +137,30 @@
 				var data = {
 					amount: 6.66,
 				};
-				// Spreedly.tokenizeCreditCard({
+				if (typeof Spreedly == "object") {
+					var tokenOptions = {
+						// Required
+						first_name: jq(
+							'div.giftFormContainer input[name="donorFirstname"]'
+						).val(),
+						last_name: jq(
+							'div.giftFormContainer input[name="donorLastname"]'
+						).val(),
+						month: jq(
+							'div.giftFormContainer select[name="payCardExpireMonth"]'
+						).val(),
+						year: jq(
+							'div.giftFormContainer select[name="payCardExpireYear"]'
+						).val(),
 
-				// 	// Required
-				// 	"first_name": document.getElementById("first-name").value,
-				// 	"last_name": document.getElementById("last-name").value,
-				// 	"month": document.getElementById("month").value,
-				// 	"year": document.getElementById("year").value,
-
-				// 	// Optional
-				// 	"email": document.getElementById("email").value,
-				// 	"zip": document.getElementById("zip").value
-				//   });
-				startDonation(
+						// Optional
+						email: jq('div.giftFormContainer input[name="donorEmail"]').val(),
+						zip: jq('div.giftFormContainer input[name="donorPostCode"]').val(),
+					};
+					console.log("tokenOptions", tokenOptions);
+					Spreedly.tokenizeCreditCard(tokenOptions);
+				}
+				window.mwdspace.transactionLayer.startDonation(
 					data,
 					function(donationInfo) {
 						console.log("SUCCESS FUNCTION", donationInfo);
@@ -186,28 +239,41 @@
 		}
 	}
 
-	function buildCurrencySelect() {
+	function buildCurrencySelect(options) {
+		if (typeof options == "undefined") {
+			var options = {};
+		}
+		if (typeof options != "object") {
+			options = {};
+			console.warn("buildCurrencySelect(): ignoring invalid option object", options);
+		}
+		var defaultCurrency = typeof options.default == "string" ? options.default : "USD";
 		try {
 			if (!window.mwdspace.validCurrencyList) {
 				throw new Error("List of valid currencies not found");
 			}
-			var domCurrencySelect = jq('form.mainGiftForm select[name="giftCurrency"]');
+			var domCurrencySelect = jq('div.giftFormContainer select[name="giftCurrency"]');
 			if (domCurrencySelect.length !== 1) {
 				throw new Error("Unable to identify the currency select dropdown");
 			}
-			var domThisOption;
+			var domThisOption, thisCurrency, okToAdd;
 
 			for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
-				domThisOption = buildCurrencyOption(window.mwdspace.validCurrencyList[i]);
-				if (domThisOption) {
-					domCurrencySelect.append(domThisOption);
-				} else {
-					console.warn(
-						"Unable to add currency:",
-						window.mwdspace.validCurrencyList[i]
-					);
+				okToAdd = true;
+				thisCurrency = window.mwdspace.validCurrencyList[i];
+				if (options.filterList) {
+					okToAdd = findListMatch(options.filterList, thisCurrency.code);
+				}
+				if (okToAdd) {
+					domThisOption = buildCurrencyOption(thisCurrency);
+					if (domThisOption) {
+						domCurrencySelect.append(domThisOption);
+					} else {
+						console.warn("Unable to add currency:", thisCurrency);
+					}
 				}
 			}
+			domCurrencySelect.val(defaultCurrency).trigger("change");
 		} catch (err) {
 			console.error("Unable to build the currency select dropdown", err);
 		}
@@ -232,7 +298,7 @@
 			if (!window.mwdspace.validPayMethodList) {
 				throw new Error("List of valid payment methods not found");
 			}
-			var domPayMethodSelect = jq('form.mainGiftForm select[name="payMethod"]');
+			var domPayMethodSelect = jq('div.giftFormContainer select[name="payMethod"]');
 			if (domPayMethodSelect.length !== 1) {
 				throw new Error("Unable to identify the payment method select dropdown");
 			}
@@ -273,7 +339,7 @@
 			if (!frequencyList || frequencyList.length < 1) {
 				throw new Error("Invalid list of frequencies given");
 			}
-			var domFrequencyContainer = jq("form.mainGiftForm div.giftFrequencyContainer");
+			var domFrequencyContainer = jq("div.giftFormContainer div.giftFrequencyContainer");
 			if (domFrequencyContainer.length !== 1) {
 				throw new Error("Unable to identify the frequency select dropdown");
 			}
@@ -322,10 +388,155 @@
 		return domButton;
 	}
 
+	function prepareRegionInput() {
+		if (typeof options == "undefined") {
+			var options = {};
+		}
+		if (typeof options != "object") {
+			options = {};
+			console.warn("prepareRegionInput(): ignoring invalid option object", options);
+		}
+
+		try {
+			var userCountry = jq('div.giftFormContainer select[name="donorCountry"]').val();
+			var thisCountry;
+			for (var i = 0; i < window.mwdspace.validCountryList.length; i++) {
+				thisCountry = window.mwdspace.validCountryList[i];
+				if (userCountry == thisCountry.code || userCountry == thisCountry.name) {
+					if (thisCountry.regions && buildRegionSelect(thisCountry.regions)) {
+						return true;
+					}
+				}
+			}
+		} catch (err) {
+			console.error("Unable to prepare the region input method", err);
+		}
+		showRegionInput();
+	}
+
+	function showRegionInput() {
+		domRegionInput.val("").show();
+		domRegionSelect.hide();
+	}
+
+	function buildRegionSelect(regions) {
+		domRegionInput.hide();
+		domRegionSelect.show();
+
+		if (typeof regions == "undefined") {
+			console.warn("buildRegionSelect(): no regions object", regions);
+			return false;
+		}
+		if (typeof regions != "object" || regions.length < 1) {
+			console.warn("buildRegionSelect(): invalid regions object", regions);
+			return false;
+		}
+
+		try {
+			if (domRegionSelect.length !== 1) {
+				console.error("Unable to identify the region select dropdown");
+				return false;
+			}
+			var domThisOption, thisRegion;
+
+			var regionCtr = 0;
+
+			domRegionSelect.empty();
+			domThisOption = buildRegionOption("State/Region...");
+			domRegionSelect.append(domThisOption);
+
+			for (var i = 0; i < regions.length; i++) {
+				thisRegion = regions[i];
+				domThisOption = buildRegionOption(thisRegion.name);
+				if (domThisOption) {
+					domRegionSelect.append(domThisOption);
+					regionCtr++;
+				} else {
+					console.warn("Unable to add region:", thisRegion);
+				}
+			}
+			if (regionCtr > 0) {
+				return true;
+			}
+		} catch (err) {
+			console.error("Unable to build the region select dropdown", err);
+		}
+		return false;
+	}
+
+	function buildRegionOption(regionName) {
+		try {
+			if (typeof regionName == "string" && regionName.trim()) {
+				var domOption = null;
+				domOption = document.createElement("option");
+				domOption.innerText = regionName;
+				return domOption;
+			}
+		} catch (err) {
+			console.error("Unable to build the option element for region:", region);
+		}
+		return null;
+	}
+
+	function buildCountrySelect(options) {
+		if (typeof options == "undefined") {
+			var options = {};
+		}
+		if (typeof options != "object") {
+			options = {};
+			console.warn("buildCountrySelect(): ignoring invalid option object", options);
+		}
+		var defaultCountry = typeof options.default == "string" ? options.default : "US";
+		try {
+			if (!window.mwdspace.validCountryList) {
+				throw new Error("List of valid countries not found");
+			}
+			var domCountrySelect = jq('div.giftFormContainer select[name="donorCountry"]');
+			domCountrySelect.on("change", prepareRegionInput);
+			if (domCountrySelect.length !== 1) {
+				throw new Error("Unable to identify the country select dropdown");
+			}
+			var domThisOption, thisCountry, okToAdd;
+
+			for (var i = 0; i < window.mwdspace.validCountryList.length; i++) {
+				okToAdd = true;
+				thisCountry = window.mwdspace.validCountryList[i];
+				if (options.filterList) {
+					okToAdd = findListMatch(options.filterList, thisCountry.code);
+				}
+				if (okToAdd) {
+					domThisOption = buildCountryOption(thisCountry);
+					if (domThisOption) {
+						domCountrySelect.append(domThisOption);
+					} else {
+						console.warn("Unable to add country:", thisCountry);
+					}
+				}
+			}
+			domCountrySelect.val(defaultCountry).trigger("change");
+		} catch (err) {
+			console.error("Unable to build the country select dropdown", err);
+		}
+	}
+
+	function buildCountryOption(country) {
+		var domOption = null;
+		try {
+			if (country.code) {
+				domOption = document.createElement("option");
+				domOption.setAttribute("value", country.code);
+				domOption.innerText = country.name;
+			}
+		} catch (err) {
+			console.error("Unable to build the option element for country:", country);
+		}
+		return domOption;
+	}
+
 	function buildCardExpireMonthSelect() {
 		try {
 			var domCardExpireMonthSelect = jq(
-				'form.mainGiftForm select[name="payCardExpireMonth"]'
+				'div.giftFormContainer select[name="payCardExpireMonth"]'
 			);
 			if (domCardExpireMonthSelect.length !== 1) {
 				throw new Error("Unable to identify the card expire month select dropdown");
@@ -381,7 +592,7 @@
 			var yearsToShow = 15;
 
 			var domCardExpireYearSelect = jq(
-				'form.mainGiftForm select[name="payCardExpireYear"]'
+				'div.giftFormContainer select[name="payCardExpireYear"]'
 			);
 			if (domCardExpireYearSelect.length !== 1) {
 				throw new Error("Unable to identify the card expire year select dropdown");
@@ -425,6 +636,10 @@
 			console.error("Unable to build the option element for year:", year);
 		}
 		return domOption;
+	}
+
+	function findListMatch(theList, matchString) {
+		for (var i = 0; i < theList.length; i++) {}
 	}
 
 	function scrollAll(theElement) {
