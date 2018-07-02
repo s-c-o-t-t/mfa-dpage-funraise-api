@@ -144,8 +144,8 @@ div#mfaDonationWidgetContainer {
 			div.cardTokenizerFrame {
 				width: 100%;
 				min-height: $standardInputHeight;
-				padding: 0.33rem;
-				font-size: 1.25rem;
+				padding: 0.44rem;
+				font-size: 1rem;
 				background: #fff;
 				border: 1px solid #ccc;
 				border-radius: $standardRadius;
@@ -237,7 +237,7 @@ div#mfaDonationWidgetContainer {
 				align-items: stretch;
 				flex: 1 100%;
 				> * {
-					padding: 0.5rem; //height: $standardInputHeight;
+					padding: 0.5rem;
 				}
 				input[type="text"] {
 					width: 100%;
@@ -248,6 +248,9 @@ div#mfaDonationWidgetContainer {
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
 					border-right: 0;
+				}
+				input[name="giftAmountFreeForm"] {
+					font-size: 0.8em;
 				}
 				select[name="giftCurrency"] {
 					min-width: 3em;
@@ -276,24 +279,35 @@ div#mfaDonationWidgetContainer {
 					position: relative;
 					margin-left: auto;
 					span.infoText {
-						display: none;
 						position: absolute;
-						top: -0.25em;
-						right: -0.25em;
-						width: 10em;
-						padding: 0.25em;
+						display: none;
+						align-items: center;
+						justify-content: center;
+						bottom: 1em;
+						opacity: 0.5;
+						right: 0;
+						min-width: 15em;
+						min-height: 5em;
+						max-width: 20em;
+						padding: 0.75em;
 						font-size: 0.8em;
-						color: whitesmoke;
-						background-color: #333;
-						border: 1px solid lighten(#333, 8%);
+						color: darken($colorMainText, 10%);
+						background-color: lighten($colorFormBg, 10%);
+						border: 1.5px solid darken($colorMainText, 10%);
 						border-radius: 0.25em;
+						box-shadow: 0 0 0.25em transparentize($colorMainText, 0.25);
+						transition: bottom 0.3s, opacity 0.1s;
 						&:hover {
-							display: block;
+							display: flex;
+							bottom: 0;
+							opacity: 1;
 						}
 					}
 					&:hover {
 						span.infoText {
-							display: block;
+							display: flex;
+							bottom: 0;
+							opacity: 1;
 						}
 					}
 				}

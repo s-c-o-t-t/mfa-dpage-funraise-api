@@ -1,4 +1,4 @@
-console.log("mwd-donate-widget.js v18.7.1d");
+console.log("mwd-donate-widget.js v18.7.2");
 
 window.mwdspace = window.mwdspace || {};
 
@@ -50,25 +50,22 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function() {
 
 	thisWidget.targetElement.innerHTML = "";
 
-	var stylesUrl = thisWidget.options.styleSheets || thisWidget.mainStylesUrl;
-	thisWidget.linkExternalStylesheet(stylesUrl);
-	thisWidget.linkExternalStylesheet(
-		"https://use.fontawesome.com/releases/v5.1.0/css/all.css",
-		{
-			integrity:
-				"sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt",
-			crossorigin: "anonymous",
-		}
+	var promiseFontStyles = thisWidget.linkExternalStylesheet(
+		"https://use.fontawesome.com/releases/v5.1.0/css/all.css"
 	);
+	var stylesUrl = thisWidget.options.styleSheets || thisWidget.mainStylesUrl;
+	var promiseMainStyles = thisWidget.linkExternalStylesheet(stylesUrl);
+	thisWidget.linkExternalStylesheet(
+		"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css"
+	);
+	await Promise.all([promiseFontStyles, promiseMainStyles]);
 
+	var widgetHtml, sharedUtilResult;
 	var promiseMainHtml = thisWidget.loadFile(thisWidget.mainHtmlUrl);
-
 	var promiseSharedUtils = thisWidget.linkExternalScript(
 		window.location.protocol +
 			"//services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js"
 	);
-
-	var widgetHtml, sharedUtilResult;
 	[widgetHtml, sharedUtilResult] = await Promise.all([promiseMainHtml, promiseSharedUtils]);
 	if (!widgetHtml) {
 		console.error("MFA_Funraise_Widget.start() - unable to load base HTML");
@@ -82,6 +79,10 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function() {
 	thisWidget.targetElement.appendChild(container);
 
 	container.innerHTML = widgetHtml;
+
+	setTimeout(function() {
+		container.className = "reveal";
+	}, 1);
 
 	if (thisWidget.options.textOverride) {
 		var overrideObject = {};
@@ -112,33 +113,43 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function() {
 		thisWidget.processTextOverride(overrideObject);
 	}
 
-	setTimeout(function() {
-		container.className = "reveal";
-	}, 1);
+	var promiseSpreedlyIframe = thisWidget.linkExternalScript(
+		"https://core.spreedly.com/iframe/iframe-v1.min.js"
+	);
+	var promiseJquery = thisWidget.linkExternalScript(
+		"https://code.jquery.com/jquery-3.3.1.min.js"
+	);
+	var isJqueryLoaded, resultSpreedlyIframe;
+	[isJqueryLoaded, resultSpreedlyIframe] = await Promise.all([
+		promiseSpreedlyIframe,
+		promiseJquery,
+	]);
 
-	// await thisWidget.linkExternalScript("https://core.spreedly.com/iframe/iframe-v1.min.js");
-	thisWidget.linkExternalScript(
+	var promiseSpecialSelectCode = thisWidget.linkExternalScript(
+		"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"
+	);
+
+	var promiseBusinessLayer = thisWidget.linkExternalScript(
 		window.location.protocol +
 			"//services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js"
 	);
-	thisWidget.linkExternalScript(
+	var promiseTransactionLayer = thisWidget.linkExternalScript(
 		window.location.protocol +
 			"//services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js"
 	);
 
-	var isJqueryLoaded = await thisWidget.linkExternalScript(
-		"https://code.jquery.com/jquery-3.3.1.min.js",
-		{
-			integrity: "sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=",
-			crossorigin: "anonymous",
-		}
-	);
+	await Promise.all([
+		promiseBusinessLayer,
+		promiseTransactionLayer,
+		promiseSpecialSelectCode,
+	]);
 	if (isJqueryLoaded) {
 		window.mwdspace.jquery = jQuery.noConflict();
 	} else {
 		window.mwdspace.jquery = $ || {};
 	}
-	thisWidget.linkExternalScript(
+
+	await thisWidget.linkExternalScript(
 		window.location.protocol +
 			"//services.mwdagency.com/donate-widget/1.0.0/js/user-interface-layer.js"
 	);
@@ -146,27 +157,37 @@ window.mwdspace.MFA_Funraise_Widget.prototype.start = async function() {
 
 window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalStylesheet = function(url) {
 	var thisWidget = this;
-	// console.log("linkExternalStylesheet()", url);
-	var domStyleLink = document.createElement("link");
-	thisWidget.targetElement.appendChild(domStyleLink);
-	domStyleLink.rel = "stylesheet";
-	domStyleLink.type = "text/css";
-	// domStyleLink.addEventListener('load', function (event) {
-	//     console.log("linkExternalStylesheet() loaded:", url);
-	// });
-	domStyleLink.addEventListener("error", function(event) {
-		console.error("linkExternalStylesheet() ERROR EVENT", url, event);
+	return new Promise(function(resolve) {
+		console.log("linkExternalStylesheet() start:", url);
+		var domStyleLink = document.createElement("link");
+		thisWidget.targetElement.appendChild(domStyleLink);
+		domStyleLink.rel = "stylesheet";
+		domStyleLink.type = "text/css";
+		var timeout = setTimeout(function() {
+			console.log("linkExternalStylesheet() No result after 2s", url);
+			resolve(false);
+		}, 2000);
+		domStyleLink.addEventListener("load", function(event) {
+			clearTimeout(timeout);
+			console.log("linkExternalStylesheet() LOADED:", url);
+			resolve(true);
+		});
+		domStyleLink.addEventListener("error", function(event) {
+			console.error("linkExternalStylesheet() ERROR EVENT", url, event);
+			resolve(false);
+		});
+		domStyleLink.addEventListener("abort", function(event) {
+			console.warn("linkExternalStylesheet() ABORT EVENT", url, event);
+			resolve(false);
+		});
+		domStyleLink.href = encodeURI(url);
 	});
-	domStyleLink.addEventListener("abort", function(event) {
-		console.warn("linkExternalStylesheet() ABORT EVENT", url, event);
-	});
-	domStyleLink.href = encodeURI(url);
 };
 
 window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalScript = function(url) {
 	var thisWidget = this;
-	return new Promise(function(resolve, reject) {
-		// console.log("linkExternalScript()", url);
+	return new Promise(function(resolve) {
+		console.log("linkExternalScript() start:", url);
 		var domScript = document.createElement("script");
 		thisWidget.targetElement.appendChild(domScript);
 		var timeout = setTimeout(function() {
@@ -175,7 +196,7 @@ window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalScript = function(url)
 		}, 2000);
 		domScript.addEventListener("load", function(event) {
 			clearTimeout(timeout);
-			// console.log("linkExternalScript() LOADED", url);
+			console.log("linkExternalScript() LOADED:", url);
 			resolve(true);
 		});
 		domScript.addEventListener("error", function(event) {
@@ -192,23 +213,23 @@ window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalScript = function(url)
 	});
 };
 
-window.mwdspace.MFA_Funraise_Widget.prototype.loadFile = async function(input) {
+window.mwdspace.MFA_Funraise_Widget.prototype.loadFile = function(input) {
 	var thisWidget = this;
-	return new Promise(async (resolve, reject) => {
+	return new Promise(function(resolve) {
 		if (typeof input == "undefined") {
 			console.warn("loadFile() given empty url");
-			reject(null);
+			resolve(null);
 		}
 		if (typeof input != "string") {
 			console.warn("loadFile() given invalid url type:", typeof input, input);
-			reject(null);
+			resolve(null);
 		}
-		// console.log("loadFile()", input);
+		console.log("loadFile() start:", input);
 		var requestUrl = encodeURI(input);
 		var xhr = new XMLHttpRequest();
 
 		xhr.addEventListener("load", function(event) {
-			console.log(">> loadFile() complete", input);
+			console.log(">> loadFile() LOADED:", input);
 			// console.log(">> loadFile() event.target", typeof event.target);
 			// console.log(">> loadFile() event.target.response", typeof event.target.response);
 			// console.log(event);
@@ -218,11 +239,11 @@ window.mwdspace.MFA_Funraise_Widget.prototype.loadFile = async function(input) {
 		});
 		xhr.addEventListener("error", function(event) {
 			console.error("loadFile() ERROR EVENT", requestUrl, event);
-			reject(null);
+			resolve(null);
 		});
 		xhr.addEventListener("abort", function(event) {
 			console.warn("loadFile() ABORT EVENT", requestUrl, event);
-			reject(null);
+			resolve(null);
 		});
 
 		xhr.open("get", requestUrl, true);
