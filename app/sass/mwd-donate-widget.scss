@@ -1,4 +1,4 @@
-/* v18.6.13a */
+/* v18.7.3 */
 
 @import "vars";
 @import "mixins";
@@ -72,6 +72,13 @@ div#mfaDonationWidgetContainer {
 			animation-duration: 2s;
 			animation-timing-function: ease-out;
 			animation-iteration-count: infinite;
+		}
+		&.showInvalid {
+			position: relative;
+			animation-name: shakeInvalid;
+			animation-duration: 0.2s;
+			animation-timing-function: ease-out;
+			animation-iteration-count: 2;
 		}
 	}
 	div.loadingDisplay {
@@ -357,5 +364,37 @@ input.fancyCheckbox {
 		background: transparent;
 		border-right: 2px solid $colorMercyBlue;
 		border-bottom: 2px solid $colorMercyBlue;
+	}
+}
+
+/* ANIMATIONS */
+
+/* Button Processing */
+@keyframes buttonInAction {
+	0% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 0.8;
+		background-color: darken($colorMercyBlue, 10%);
+	}
+	100% {
+		opacity: 0.5;
+	}
+}
+
+/* Shake left/right to indicate no */
+@keyframes shakeInvalid {
+	0% {
+		left: 0;
+	}
+	25% {
+		left: -0.33em;
+	}
+	75% {
+		left: 0.33em;
+	}
+	100% {
+		left: 0;
 	}
 }

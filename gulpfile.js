@@ -1,57 +1,59 @@
-var gulp = require('gulp');
-var changed = require('gulp-changed');
-var rename = require('gulp-rename');
-var postcss = require('gulp-postcss');
-var autoprefixer = require('autoprefixer');
-var cssnano = require('cssnano');
-var htmlmin = require('gulp-htmlmin');
-var runSequence = require('run-sequence');
-var babel = require('gulp-babel');
+var gulp = require("gulp");
+var changed = require("gulp-changed");
+var rename = require("gulp-rename");
+var postcss = require("gulp-postcss");
+var autoprefixer = require("autoprefixer");
+var cssnano = require("cssnano");
+var htmlmin = require("gulp-htmlmin");
+var runSequence = require("run-sequence");
+var babel = require("gulp-babel");
 
-var browserify = require('browserify');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
-var sourcemaps = require('gulp-sourcemaps');
-var concat = require('gulp-concat');
+var browserify = require("browserify");
+var source = require("vinyl-source-stream");
+var buffer = require("vinyl-buffer");
+var sourcemaps = require("gulp-sourcemaps");
+var concat = require("gulp-concat");
 
-gulp.task('optimize-css', function () {
+gulp.task("optimize-css", function() {
 	var cssPlugins = [
 		autoprefixer({
-			browsers: ['last 10 version'],
+			browsers: ["last 10 version"],
 		}),
 		cssnano(),
 	];
 	return gulp
-		.src('app/**/*.css')
+		.src("app/**/*.css")
 		.pipe(postcss(cssPlugins))
-		.pipe(gulp.dest('dist'));
+		.pipe(gulp.dest("dist"));
 });
 
-gulp.task('optimize-js', function () {
+gulp.task("optimize-js", function() {
 	return gulp
-		.src('app/**/*.js')
-		.pipe(babel({
-			presets: ['minify']
-		}))
-		.pipe(gulp.dest('dist'));
+		.src("app/**/*.js")
+		.pipe(
+			babel({
+				presets: ["minify"],
+			})
+		)
+		.pipe(gulp.dest("dist"));
 });
 
-gulp.task('optimize-html', function () {
+gulp.task("optimize-html", function() {
 	return gulp
-		.src('app/mwd-donate-widget.html')
+		.src("app/mwd-donate-widget.html")
 		.pipe(
 			htmlmin({
 				collapseWhitespace: true,
 				removeComments: true,
 			})
 		)
-		.pipe(gulp.dest('dist'));
+		.pipe(gulp.dest("dist"));
 });
 
-gulp.task('copy-other-files', function () {
-	const destination = 'dist/vendor';
+gulp.task("copy-other-files", function() {
+	const destination = "dist/vendor";
 	return gulp
-		.src(['app/vendor/**'])
+		.src(["app/vendor/**"])
 		.pipe(changed(destination))
 		.pipe(gulp.dest(destination));
 });
@@ -66,39 +68,42 @@ gulp.task('copy-other-files', function () {
 // 		.pipe(gulp.dest("app"));
 // });
 
-gulp.task('browserify-for-es5', function () {
+gulp.task("browserify-for-es5", function() {
 	// app.js is your main JS file with all your module inclusions
 	return browserify({
-			entries: 'app/mwd-donate-widget.js',
-			debug: true
-		})
+		entries: "app/js/mwd-donate-widget.js",
+		debug: true,
+	})
 		.transform("babelify", {
 			presets: ["env"],
-			plugins: ["transform-regenerator"]
+			plugins: ["transform-regenerator"],
 		})
 		.bundle()
-		.pipe(source('mwd-donate-widget.js'))
+		.pipe(source("mwd-donate-widget.js"))
 		.pipe(buffer())
 		.pipe(sourcemaps.init())
-		.pipe(sourcemaps.write('./'))
-		.pipe(rename('es5-mwd-donate-widget.js'))
-		.pipe(gulp.dest('app'));
+		.pipe(sourcemaps.write("./"))
+		.pipe(rename("es5-mwd-donate-widget.js"))
+		.pipe(gulp.dest("app/js"));
 });
 
-
-gulp.task('add-babel-regenerator', function () {
-	return gulp.src(['node_modules/babel-polyfill/dist/polyfill.js', 'app/es5-mwd-donate-widget.js'])
-		.pipe(concat('es5-mwd-donate-widget.js'))
-		.pipe(gulp.dest('app'));
+gulp.task("add-babel-regenerator", function() {
+	return gulp
+		.src([
+			"node_modules/babel-polyfill/dist/polyfill.js",
+			"app/js/es5-mwd-donate-widget.js",
+		])
+		.pipe(concat("es5-mwd-donate-widget.js"))
+		.pipe(gulp.dest("app/js"));
 });
 
-gulp.task('build', function (callback) {
+gulp.task("build", function(callback) {
 	runSequence(
-		'browserify-for-es5',
-		'add-babel-regenerator',
-		'optimize-js',
-		'optimize-css',
-		'optimize-html',
+		"browserify-for-es5",
+		"add-babel-regenerator",
+		"optimize-js",
+		"optimize-css",
+		"optimize-html",
 		callback
 	);
 });

@@ -1,27 +1,187 @@
-(function() {
-	console.log("user-interface-layer.js v18.7.2");
+console.log("mwd-donate-widget.js v18.7.2");
 
-	window.mwdspace = window.mwdspace || {};
+window.mwdspace = window.mwdspace || {};
 
-	if (typeof window.mwdspace.jquery !== "function") {
-		console.error("jQuery (window.mwdspace.jquery) not found");
-		exit();
+window.mwdspace.MFA_Funraise_Widget = function(input) {
+	var thisWidget = this;
+	if (typeof input == "object") {
+		thisWidget.options = input;
+	} else {
+		thisWidget.options = {};
 	}
 
-	var jq = window.mwdspace.jquery;
+	thisWidget.targetElement = {};
+	thisWidget.isStarted = false;
 
-	console.log("Using jQuery version", jq.fn.jquery);
+	thisWidget.codeVersion = "1.0.0";
+	thisWidget.mainStylesUrl =
+		window.location.protocol +
+		"//services.mwdagency.com/donate-widget/1.0.0/css/mwd-donate-widget.css";
+	thisWidget.mainHtmlUrl =
+		window.location.protocol +
+		"//services.mwdagency.com/donate-widget/1.0.0/mwd-donate-widget.html";
+
+	console.log("window.mwdspace.MFA_Funraise_Widget", thisWidget.codeVersion);
+
+	if (!thisWidget.options.loadingText) {
+		thisWidget.options.loadingText = "One moment...";
+	}
+
+	if (!thisWidget.options.element) {
+		console.warn("Invalid options - No target element:", thisWidget.options);
+		return false;
+	}
+	var target = document.querySelectorAll(thisWidget.options.element);
+	if (!target) {
+		console.warn("Specified target element not found:", thisWidget.options.element);
+		return false;
+	}
+	thisWidget.targetElement = target[0];
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.start = async function() {
+	var thisWidget = this;
+	if (thisWidget.isStarted) {
+		console.warn("window.mwdspace.MFA_Funraise_Widget already started");
+		return;
+	}
+	thisWidget.isStarted = true;
+	console.log("window.mwdspace.MFA_Funraise_Widget start()", thisWidget.options);
+
+	thisWidget.targetElement.innerHTML = "";
+
+	var promiseFontStyles = thisWidget.linkExternalStylesheet(
+		"https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+	);
+	var stylesUrl = thisWidget.options.styleSheets || thisWidget.mainStylesUrl;
+	var promiseMainStyles = thisWidget.linkExternalStylesheet(stylesUrl);
+	thisWidget.linkExternalStylesheet(
+		"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css"
+	);
+	await Promise.all([promiseFontStyles, promiseMainStyles]);
+
+	var widgetHtml, sharedUtilResult;
+	var promiseMainHtml = thisWidget.loadFile(thisWidget.mainHtmlUrl);
+	var promiseSharedUtils = thisWidget.linkExternalScript(
+		window.location.protocol +
+			"//services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js"
+	);
+	[widgetHtml, sharedUtilResult] = await Promise.all([promiseMainHtml, promiseSharedUtils]);
+	if (!widgetHtml) {
+		console.error("MFA_Funraise_Widget.start() - unable to load base HTML");
+		return;
+	}
+
+	console.warn("");
+	var container = document.createElement("div");
+	container.id = "mfaDonationWidgetContainer";
+	container.style.opacity = 0;
+	thisWidget.targetElement.appendChild(container);
+
+	container.innerHTML = widgetHtml;
+
+	setTimeout(function() {
+		container.className = "reveal";
+	}, 1);
+
+	if (thisWidget.options.textOverride) {
+		var overrideObject = {};
+
+		if (typeof thisWidget.options.textOverride == "string") {
+			try {
+				var overrideFileContents = await thisWidget.loadFile(
+					thisWidget.options.textOverride
+				);
+				if (!overrideFileContents) {
+					console.error(
+						"MFA_Funraise_Widget.start() - unable to load text override data from file:",
+						thisWidget.options.textOverride
+					);
+					return;
+				}
+
+				overrideObject = window.mwdspace.sharedUtils.safeJsonParse(
+					overrideFileContents
+				);
+			} catch (err) {
+				console.log("Caught error: ", err.message);
+			}
+		} else {
+			overrideObject = thisWidget.options.textOverride;
+		}
+
+		thisWidget.processTextOverride(overrideObject);
+	}
+
+	var promiseSpreedlyIframe = thisWidget.linkExternalScript(
+		"https://core.spreedly.com/iframe/iframe-v1.min.js"
+	);
+	var promiseJquery = thisWidget.linkExternalScript(
+		"https://code.jquery.com/jquery-3.3.1.min.js"
+	);
+	var isJqueryLoaded, resultSpreedlyIframe;
+	[isJqueryLoaded, resultSpreedlyIframe] = await Promise.all([
+		promiseSpreedlyIframe,
+		promiseJquery,
+	]);
+
+	var promiseSpecialSelectCode = thisWidget.linkExternalScript(
+		"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"
+	);
+
+	var promiseBusinessLayer = thisWidget.linkExternalScript(
+		window.location.protocol +
+			"//services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js"
+	);
+	var promiseTransactionLayer = thisWidget.linkExternalScript(
+		window.location.protocol +
+			"//services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js"
+	);
+
+	await Promise.all([
+		promiseBusinessLayer,
+		promiseTransactionLayer,
+		promiseSpecialSelectCode,
+	]);
+	if (isJqueryLoaded) {
+		thisWidget.jquery = jQuery.noConflict();
+	} else {
+		thisWidget.jquery = $ || {};
+	}
+
+	thisWidget.run();
+
+	// await thisWidget.linkExternalScript(
+	// 	window.location.protocol +
+	// 		"//services.mwdagency.com/donate-widget/1.0.0/js/user-interface-layer.js"
+	// );
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.run = function() {
+	var thisWidget = this;
+	
+	if (typeof thisWidget.jquery !== "function") {
+		console.error("jQuery (thisWidget.jquery) not found");
+		exit();
+	}
+	var jq = thisWidget.jquery;
+	console.log("MFA_Funraise_Widget using jQuery version", jq.fn.jquery);
+
+	window.mwdspace.userInputData = {};
+	var userInputData = window.mwdspace.userInputData;
+	thisWidget.defaultGiftList = [25, 50, 75, 100];
 
 	// GLOBALS
-	var paymentTokenizerId = "ODBm2idmYFT3pBge5qxRBjQaWH9";
+	var paymentTokenizerId =
+		thisWidget.options.paymentTokenizerId || "ODBm2idmYFT3pBge5qxRBjQaWH9";
 
-	window.mwdspace.defaultGiftList = [25, 50, 75, 100];
-
-	// DOM OBJECTS
-	var stepList = jq("div.giftFormContainer section.step");
-	var domMainBackButton = jq("div.giftFormContainer button.goPreviousStep");
-	var domRegionSelect = jq('div.giftFormContainer select[name="donorRegion"]');
-	var domRegionInput = jq('div.giftFormContainer input[name="donorRegion"]');
+	// JQUERY OBJECTS
+	var jqStepList = jq("div.giftFormContainer section.step");
+	var jqMainBackButton = jq("div.giftFormContainer button.goPreviousStep");
+	var jqRegionSelect = jq('div.giftFormContainer select[name="donorRegion"]');
+	var jqRegionInput = jq('div.giftFormContainer input[name="donorRegion"]');
+	var jqGiftAmountFields = jq("div.giftFormContainer div.giftOption input");
+	var jqCurrencySelect = jq('div.giftFormContainer select[name="giftCurrency"]');
 
 	if (typeof Spreedly == "object") {
 		Spreedly.on("ready", function() {
@@ -56,45 +216,11 @@
 
 	buildCurrencySelect();
 	buildPayMethodSelect();
-	buildFrequencyButtons(window.mwdspace.validPayMethodList[0].frequencies);
+	buildFrequencyButtons();
 	buildCountrySelect();
 	buildCardExpireMonthSelect();
 	buildCardExpireYearSelect();
-
-	jq('select[name="donorMatchCompany"]').select2({
-		minimumInputLength: 3,
-		delay: 250,
-		placeholder: "Enter your company name",
-		ajax: {
-			url: "https://platform.funraise.io/api/v1/ddcompanies",
-			data: function(params) {
-				var query = {
-					q: params.term,
-				};
-				return query;
-			},
-			processResults: function(data) {
-				var returnObject = {
-					results: [],
-				};
-
-				if (typeof data == "object" && data.length) {
-					for (var i = 0; i < data.length; i++) {
-						if (data[i].name) {
-							returnObject.results.push({
-								id: i,
-								text: data[i].name,
-							});
-						}
-					}
-				}
-				return returnObject;
-			},
-		},
-	});
-	setInterval(function() {
-		jq(".select2-container").css("width", "100%");
-	}, 999);
+	setupCompanyMatchSelect();
 
 	showStep();
 	if (typeof Spreedly == "object") {
@@ -104,19 +230,7 @@
 		});
 	}
 
-	jq("input[type=radio]").change(function() {
-		jq(this)
-			.closest("section")
-			.find("input[type=radio]")
-			.closest("label")
-			.removeClass("selected");
-		jq(this)
-			.closest("label")
-			.addClass("selected");
-		jq("div.giftFormHeaderContainer").slideDown(666, function() {
-			scrollAll(jq("div.giftFormContainer"));
-		});
-	});
+	setupInputWatchers();
 
 	// GENERAL CLICK HANDLER
 	document.addEventListener("click", function(event) {
@@ -179,7 +293,14 @@
 					}
 				);
 			} else if (clickTarget.hasClass("goNextStep")) {
-				showNextStep();
+				if (clickTarget.hasClass("invalid")) {
+					clickTarget.addClass("showInvalid");
+					setTimeout(function() {
+						clickTarget.removeClass("showInvalid");
+					}, 3333);
+				} else {
+					showNextStep();
+				}
 			} else if (clickTarget.hasClass("goPreviousStep")) {
 				showPreviousStep();
 			}
@@ -219,24 +340,117 @@
 		}
 		jq("div.giftFormContainer div.loadingDisplay").hide();
 		var thisName;
-		for (var i = 0; i < stepList.length; i++) {
-			thisName = stepList[i].getAttribute("data-step-name");
+		for (var i = 0; i < jqStepList.length; i++) {
+			thisName = jqStepList[i].getAttribute("data-step-name");
 			if (thisName == targetStepName) {
 				if (i == 0) {
-					domMainBackButton.hide();
+					jqMainBackButton.hide();
 				} else {
 					jq("div.giftFormHeaderContainer").show();
-					domMainBackButton.fadeIn(888);
+					jqMainBackButton.fadeIn(888);
 				}
-				jq(stepList[i]).fadeIn(666, function() {
+				jq(jqStepList[i]).fadeIn(666, function() {
 					scrollAll(jq("div.giftFormContainer"));
 				});
 				mwdspace.currentStepName = thisName;
 				window.mwdspace.sharedUtils.setSessionValue("savedStepName", thisName);
 			} else {
-				jq(stepList[i]).hide();
+				jq(jqStepList[i]).hide();
 			}
 		}
+	}
+
+	function setupInputWatchers() {
+		jqGiftAmountFields.on("change focus keyup", function(event) {
+			console.log("jqGiftAmountFields", event.type);
+			jqGiftAmountFields.removeClass("selected");
+			var thisInput = jq(event.target);
+			thisInput.addClass("selected");
+			var newAmount = parseFloat(thisInput.val()) || 0.0;
+			recordGiftAmount(newAmount);
+			if (event.type == "change") {
+				jq("div.giftFormHeaderContainer").slideDown(666, function() {
+					scrollAll(jq("div.giftFormContainer"));
+				});
+			}
+		});
+		jqCurrencySelect
+			.on("change", function() {
+				displayCurrencySymbol();
+			})
+			.trigger("change");
+	}
+
+	function recordGiftAmount(input) {
+		console.log(">>> recordGiftAmount()");
+		if (typeof input == "undefined") {
+			var input = 0;
+		}
+		userInputData.amount = 0.0;
+		try {
+			input = parseFloat(input);
+			userInputData.amount = input || 0;
+			var displayAmount = userInputData.amount.toFixed(2).split(".");
+			console.log("displayAmount", displayAmount);
+			jq("div.giftFormContainer div.amountDisplay span.displayWholeAmount").text(
+				displayAmount[0]
+			);
+			jq("div.giftFormContainer div.amountDisplay span.displaySubAmount").text(
+				"." + displayAmount[1]
+			);
+		} catch (err) {
+			console.log("recordGiftAmount() caught error: ", err.message);
+		}
+	}
+
+	function displayCurrencySymbol() {
+		var currencyCode = jqCurrencySelect.val();
+		var currencySymbol = "???";
+		var thisItem;
+		for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
+			thisItem = window.mwdspace.validCurrencyList[i];
+			if (thisItem.code == currencyCode && thisItem.symbol) {
+				currencySymbol = thisItem.symbol;
+				break;
+			}
+		}
+		jq("div.giftFormContainer span.currencySymbol").html(currencySymbol);
+	}
+
+	// GIFT AMOUNT STEP
+	function validateDataGiftAmount() {
+		try {
+			if (isNaN(userInputData.amount) || userInputData.amount <= 0) {
+				return false;
+			}
+			if (!validatePaymentType(input.paymentType)) {
+				return false;
+			}
+			if (!validateFrequency(input.frequency)) {
+				return false;
+			}
+
+			return true;
+		} catch (err) {
+			console.log("validateDataGiftAmount() caught error: ", err.message);
+		}
+		return false;
+	}
+
+	function validatePaymentType(input) {
+		if (typeof input != "string") {
+			return false;
+		}
+
+		return true;
+	}
+
+	function validateFrequency(input) {
+		if (typeof input != "string") {
+			return false;
+		}
+
+		return true;
 	}
 
 	function buildCurrencySelect(options) {
@@ -252,7 +466,7 @@
 			if (!window.mwdspace.validCurrencyList) {
 				throw new Error("List of valid currencies not found");
 			}
-			var domCurrencySelect = jq('div.giftFormContainer select[name="giftCurrency"]');
+			var domCurrencySelect = jqCurrencySelect;
 			if (domCurrencySelect.length !== 1) {
 				throw new Error("Unable to identify the currency select dropdown");
 			}
@@ -334,9 +548,12 @@
 		return domOption;
 	}
 
-	function buildFrequencyButtons(frequencyList) {
+	function buildFrequencyButtons() {
 		try {
-			if (!frequencyList || frequencyList.length < 1) {
+			if (
+				!window.mwdspace.validFrequencyList ||
+				window.mwdspace.validFrequencyList.length < 1
+			) {
 				throw new Error("Invalid list of frequencies given");
 			}
 			var domFrequencyContainer = jq("div.giftFormContainer div.giftFrequencyContainer");
@@ -348,12 +565,15 @@
 
 			var domThisButton;
 
-			for (var i = 0; i < frequencyList.length; i++) {
-				domThisButton = buildFrequencyButton(frequencyList[i]);
+			for (var i = 0; i < window.mwdspace.validFrequencyList.length; i++) {
+				domThisButton = buildFrequencyButton(window.mwdspace.validFrequencyList[i]);
 				if (domThisButton) {
 					domFrequencyContainer.append(domThisButton);
 				} else {
-					console.warn("Unable to add frequency:", frequencyList[i]);
+					console.warn(
+						"Unable to add frequency:",
+						window.mwdspace.validFrequencyList[i]
+					);
 				}
 			}
 		} catch (err) {
@@ -415,13 +635,13 @@
 	}
 
 	function showRegionInput() {
-		domRegionInput.val("").show();
-		domRegionSelect.hide();
+		jqRegionInput.val("").show();
+		jqRegionSelect.hide();
 	}
 
 	function buildRegionSelect(regions) {
-		domRegionInput.hide();
-		domRegionSelect.show();
+		jqRegionInput.hide();
+		jqRegionSelect.show();
 
 		if (typeof regions == "undefined") {
 			console.warn("buildRegionSelect(): no regions object", regions);
@@ -433,7 +653,7 @@
 		}
 
 		try {
-			if (domRegionSelect.length !== 1) {
+			if (jqRegionSelect.length !== 1) {
 				console.error("Unable to identify the region select dropdown");
 				return false;
 			}
@@ -441,15 +661,15 @@
 
 			var regionCtr = 0;
 
-			domRegionSelect.empty();
+			jqRegionSelect.empty();
 			domThisOption = buildRegionOption("State/Region...");
-			domRegionSelect.append(domThisOption);
+			jqRegionSelect.append(domThisOption);
 
 			for (var i = 0; i < regions.length; i++) {
 				thisRegion = regions[i];
 				domThisOption = buildRegionOption(thisRegion.name);
 				if (domThisOption) {
-					domRegionSelect.append(domThisOption);
+					jqRegionSelect.append(domThisOption);
 					regionCtr++;
 				} else {
 					console.warn("Unable to add region:", thisRegion);
@@ -638,6 +858,43 @@
 		return domOption;
 	}
 
+	function setupCompanyMatchSelect() {
+		jq('select[name="donorMatchCompany"]').select2({
+			minimumInputLength: 3,
+			delay: 400,
+			placeholder: "Enter your company name",
+			ajax: {
+				url: "https://platform.funraise.io/api/v1/ddcompanies",
+				data: function(params) {
+					var query = {
+						q: params.term,
+					};
+					return query;
+				},
+				processResults: function(data) {
+					var returnObject = {
+						results: [],
+					};
+
+					if (typeof data == "object" && data.length) {
+						for (var i = 0; i < data.length; i++) {
+							if (data[i].name) {
+								returnObject.results.push({
+									id: i,
+									text: data[i].name,
+								});
+							}
+						}
+					}
+					return returnObject;
+				},
+			},
+		});
+		setInterval(function() {
+			jq(".select2-container").css("width", "100%");
+		}, 999);
+	}
+
 	function findListMatch(theList, matchString) {
 		for (var i = 0; i < theList.length; i++) {}
 	}
@@ -690,4 +947,162 @@
 			);
 		}
 	}
-})();
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalStylesheet = function(url) {
+	var thisWidget = this;
+	return new Promise(function(resolve) {
+		// console.log("linkExternalStylesheet() start:", url);
+		var domStyleLink = document.createElement("link");
+		thisWidget.targetElement.appendChild(domStyleLink);
+		domStyleLink.rel = "stylesheet";
+		domStyleLink.type = "text/css";
+		var timeout = setTimeout(function() {
+			console.log("linkExternalStylesheet() No result after 2s", url);
+			resolve(false);
+		}, 2000);
+		domStyleLink.addEventListener("load", function(event) {
+			clearTimeout(timeout);
+			// console.log("linkExternalStylesheet() LOADED:", url);
+			resolve(true);
+		});
+		domStyleLink.addEventListener("error", function(event) {
+			console.error("linkExternalStylesheet() ERROR EVENT", url, event);
+			resolve(false);
+		});
+		domStyleLink.addEventListener("abort", function(event) {
+			console.warn("linkExternalStylesheet() ABORT EVENT", url, event);
+			resolve(false);
+		});
+		domStyleLink.href = encodeURI(url);
+	});
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalScript = function(url) {
+	var thisWidget = this;
+	return new Promise(function(resolve) {
+		// console.log("linkExternalScript() start:", url);
+		var domScript = document.createElement("script");
+		thisWidget.targetElement.appendChild(domScript);
+		var timeout = setTimeout(function() {
+			console.log("linkExternalScript() No result after 2s", url);
+			resolve(false);
+		}, 2000);
+		domScript.addEventListener("load", function(event) {
+			clearTimeout(timeout);
+			// console.log("linkExternalScript() LOADED:", url);
+			resolve(true);
+		});
+		domScript.addEventListener("error", function(event) {
+			clearTimeout(timeout);
+			console.error("linkExternalScript() ERROR", url, event);
+			resolve(false);
+		});
+		domScript.addEventListener("abort", function(event) {
+			clearTimeout(timeout);
+			console.warn("linkExternalScript() ABORTED", url, event);
+			resolve(false);
+		});
+		domScript.src = encodeURI(url);
+	});
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.loadFile = function(input) {
+	var thisWidget = this;
+	return new Promise(function(resolve) {
+		if (typeof input == "undefined") {
+			console.warn("loadFile() given empty url");
+			resolve(null);
+		}
+		if (typeof input != "string") {
+			console.warn("loadFile() given invalid url type:", typeof input, input);
+			resolve(null);
+		}
+		// console.log("loadFile() start:", input);
+		var requestUrl = encodeURI(input);
+		var xhr = new XMLHttpRequest();
+
+		xhr.addEventListener("load", function(event) {
+			// console.log(">> loadFile() LOADED:", input);
+
+			var fileContents = event.target.responseText || event.target.response || null;
+			resolve(fileContents);
+		});
+		xhr.addEventListener("error", function(event) {
+			console.error("loadFile() ERROR EVENT", requestUrl, event);
+			resolve(null);
+		});
+		xhr.addEventListener("abort", function(event) {
+			console.warn("loadFile() ABORT EVENT", requestUrl, event);
+			resolve(null);
+		});
+
+		xhr.open("get", requestUrl, true);
+		// xhr.setRequestHeader('Accept', acceptContentType);
+		xhr.send();
+	});
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.processTextOverride = function(input) {
+	var thisWidget = this;
+	if (typeof input == "undefined") {
+		var input = {};
+	}
+	if (typeof input != "object" || !input) {
+		console.log(
+			"MFA_Funraise_Widget.processTextOverride() given invalid object",
+			typeof input
+		);
+		return false;
+	}
+	console.warn("processTextOverride() input", input);
+	var changeList = [];
+	var thisSelector;
+	for (var key in input) {
+		if (typeof input[key] == "object") {
+			for (var subkey in input[key]) {
+				thisSelector = key + "." + subkey;
+				thisWidget.setElementText(thisSelector, input[key][subkey]);
+			}
+		}
+	}
+};
+
+window.mwdspace.MFA_Funraise_Widget.prototype.setElementText = function(labelId, value) {
+	// console.warn("REPLACE", labelId, value);
+	var thisWidget = this;
+	if (typeof labelId == "undefined") {
+		var labelId = "";
+	}
+	if (!labelId) {
+		console.warn("setElementText() given empty labelId");
+		return;
+	}
+	var selector = '[data-label-id="' + labelId + '"]';
+	var elementList = document.querySelectorAll(selector);
+	var thisTag;
+	if (elementList) {
+		for (var i = 0; i < elementList.length; i++) {
+			thisTag = String(elementList[i].tagName).toLowerCase();
+			// console.warn(" >>", labelId, "=", thisTag);
+			switch (thisTag) {
+				case "input":
+					elementList[i].setAttribute("placeholder", value);
+					break;
+				case "label":
+				case "span":
+				case "h1":
+				case "h2":
+				case "h3":
+				case "h4":
+				case "h5":
+				case "h6":
+				case "p":
+					elementList[i].innerHTML = value;
+					break;
+				default:
+					console.warn("setElementText(): Ignoring tag", labelId, thisTag);
+			}
+		}
+	}
+};
