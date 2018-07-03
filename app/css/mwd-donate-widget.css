@@ -1,4 +1,4 @@
-/* v18.6.13a */
+/* v18.7.3 */
 div#mfaDonationWidgetContainer {
   opacity: 0;
   max-width: 30em;
@@ -73,6 +73,12 @@ div#mfaDonationWidgetContainer {
       animation-duration: 2s;
       animation-timing-function: ease-out;
       animation-iteration-count: infinite; }
+    div#mfaDonationWidgetContainer button.showInvalid {
+      position: relative;
+      animation-name: shakeInvalid;
+      animation-duration: 0.2s;
+      animation-timing-function: ease-out;
+      animation-iteration-count: 2; }
   div#mfaDonationWidgetContainer div.loadingDisplay {
     color: #f3f3f4;
     text-align: center;
@@ -346,5 +352,26 @@ input.fancyCheckbox {
     background: transparent;
     border-right: 2px solid #01a7df;
     border-bottom: 2px solid #01a7df; }
+
+/* ANIMATIONS */
+/* Button Processing */
+@keyframes buttonInAction {
+  0% {
+    opacity: 0.5; }
+  50% {
+    opacity: 0.8;
+    background-color: #0181ac; }
+  100% {
+    opacity: 0.5; } }
+/* Shake left/right to indicate no */
+@keyframes shakeInvalid {
+  0% {
+    left: 0; }
+  25% {
+    left: -0.33em; }
+  75% {
+    left: 0.33em; }
+  100% {
+    left: 0; } }
 
 /*# sourceMappingURL=mwd-donate-widget.css.map */

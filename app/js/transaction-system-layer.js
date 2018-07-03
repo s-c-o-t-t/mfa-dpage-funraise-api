@@ -24,26 +24,31 @@
 			code: "USD",
 			name: "U.S. Dollar",
 			symbol: "$",
+			locale: "en-US",
 		},
 		{
 			code: "CAD",
 			name: "Canadian Dollar",
 			symbol: "$",
+			locale: "en-CA",
 		},
 		{
 			code: "MXN",
 			name: "Mexican Peso",
-			symbol: "MEX",
+			symbol: "MX$ ",
+			locale: "es-MX",
 		},
 		{
 			code: "BRL",
 			name: "Brazilian Real",
 			symbol: "R$",
+			locale: "pt-BR",
 		},
 		{
 			code: "INR",
 			name: "Indian Rupee",
-			symbol: "&#8360;", // &#8360; &#8377;
+			symbol: "₹ ",
+			locale: "en-IN",
 		},
 	];
 
@@ -54,22 +59,6 @@
 			description: "Donate With Card",
 			minimumAmount: 5.0,
 			maximumAmount: 20000.0,
-			subtypes: [
-				{
-					code: "card",
-					name: "Donate With Card",
-				},
-			],
-			frequencies: [
-				{
-					code: "single",
-					name: "One-Time",
-				},
-				{
-					code: "monthly",
-					name: "Monthly",
-				},
-			],
 		},
 		{
 			code: "bitcoin",
@@ -77,12 +66,17 @@
 			description: "Donate With Bitcoin",
 			minimumAmount: 5.0,
 			maximumAmount: 50000.0,
-			frequencies: [
-				{
-					code: "single",
-					name: "One-Time",
-				},
-			],
+		},
+	];
+
+	window.mwdspace.validFrequencyList = [
+		{
+			code: "single",
+			name: "One-Time",
+		},
+		{
+			code: "monthly",
+			name: "Monthly",
 		},
 	];
 
