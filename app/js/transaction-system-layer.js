@@ -9,7 +9,7 @@
 
 	// https://platform.funraise.io/
 	var apiConstants = {
-		baseUrl: "http://scottcrowningshield.com/funraise/public/api/v2/",
+		baseUrl: "https://test.funraise.io/public/api/v2/",
 		organizationId: "1e78fec4-8fd0-4a3e-b82b-866c29012531",
 	};
 
@@ -760,15 +760,66 @@
 		{ name: "Åland Islands", code: "AX" },
 	];
 
-	transactionLayer.startDonation = function(options, successFunction, failFunction) {
+	transactionLayer.validateSendData = function(sendData) {
+		var userData = window.mwdspace.userInputData;
+
+		var rejectMessages = [];
+
+		function addReject(name, message) {
+			rejectMessages.push({ name: name, message: message });
+		}
+
+		try {
+			if (typeof sendData.organizationId != "string" || !sendData.organizationId.trim()) {
+				addReject("organizationId", "Empty or not a string");
+			}
+
+			if (typeof sendData.formId != "number" || !sendData.formId <= 0) {
+				addReject("formId", "Empty or not a number above zero");
+			}
+
+			// sendData.paymentType
+			// sendData.amount
+			// sendData.baseAmount
+
+			// sendData.firstName = userData.firstName;
+			// sendData.lastName = userData.lastName;
+			// sendData.address = userData.street;
+			// sendData.state = userData.region;
+			// sendData.postalCode
+			// sendData.country
+			// sendData.email
+			// sendData.phone
+
+			// sendData.sourceUrl
+			// sendData.pageId
+
+			if (
+				typeof sendData.donateDouble != "undefined" &&
+				typeof sendData.donateDouble != "boolean"
+			) {
+				addReject("donateDouble", "Not a boolean");
+			}
+			if (sendData.donateDouble) {
+				// sendData.company
+				// sendData.employeeEmail
+			}
+
+			return true;
+		} catch (err) {
+			console.log("buildTransactionSendData() caught error: ", err.message);
+		}
+		return false;
+	};
+
+	transactionLayer.startDonation = function(sendData, successFunction, failFunction) {
 		console.log(">>>> startDonation()");
-		if (typeof options == "undefined") {
-			var options = {};
+		if (typeof sendData == "undefined") {
+			var sendData = {};
 		}
 		window.mwdspace.donationInProgress = true;
 
-		var sendData = options.data || {};
-		sendData.organizationId = apiConstants.organizationId;
+		// sendData.organizationId = apiConstants.organizationId;
 		sendData.sourceUrl =
 			sendData.sourceUrl || window.location.hostname + window.location.pathname;
 		sendData.referrer = sendData.referrer || document.referrer || "";

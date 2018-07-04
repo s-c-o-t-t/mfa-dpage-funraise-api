@@ -92,15 +92,18 @@ div#mfaDonationWidgetContainer {
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			padding: 0.75em 0.75em 1.5em 0.75em;
+			padding: 0.75em;
 			background: linear-gradient(#fff, darken($colorFormBg, 2%));
 			border-bottom: 1px solid darken($colorFormBg, 8%);
 			> div {
 				width: 25%;
 			}
+			div.introContentContainer {
+				display: none;
+			}
 			div.giftDisplayContainer {
-				width: 50%;
 				text-align: center;
+				min-width: 45%;
 				h3 {
 					font-size: 1em;
 				}
@@ -222,11 +225,12 @@ div#mfaDonationWidgetContainer {
 		flex-flow: row wrap;
 		align-items: center;
 		margin: 0.5em 0;
-		div.giftOption {
+		div.fancyRadioButton {
+			flex: 1;
 			padding: 0.125em;
-			&.fixed {
-				flex: 1;
-				label {
+			input[type="radio"] {
+				display: none;
+				+ label {
 					display: flex;
 					align-items: center;
 					justify-content: center;
@@ -239,11 +243,16 @@ div#mfaDonationWidgetContainer {
 					span {
 						vertical-align: middle;
 					}
-					input[type="radio"] {
-						display: none;
-					}
+				}
+				&:checked + label {
+					color: white;
+					background: $colorMercyBlue;
+					box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 				}
 			}
+		}
+		div.giftOption {
+			padding: 0.125em;
 			&.freeform {
 				display: flex;
 				align-items: stretch;
@@ -399,10 +408,10 @@ input.fancyCheckbox {
 		left: 0;
 	}
 	25% {
-		left: -0.33em;
+		left: -0.44em;
 	}
 	75% {
-		left: 0.33em;
+		left: 0.44em;
 	}
 	100% {
 		left: 0;
