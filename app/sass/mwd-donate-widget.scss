@@ -5,7 +5,7 @@
 div#mfaDonationWidgetContainer {
 	opacity: 0;
 	max-width: 30em;
-	min-height: 36em;
+	min-height: 42em;
 	margin: 3em auto;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 	font-size: 16px !important;
@@ -115,7 +115,7 @@ div#mfaDonationWidgetContainer {
 						font-size: 2.5em;
 					}
 					span.displaySubAmount {
-						font-size: 0.9em;
+						font-size: 1.1em;
 					}
 				}
 			}
@@ -148,7 +148,7 @@ div#mfaDonationWidgetContainer {
 			input[type="email"],
 			input[type="tel"],
 			input[type="number"],
-			div.cardTokenizerFrame {
+			div.inputAppearance {
 				width: 100%;
 				min-height: $standardInputHeight;
 				padding: 0.44rem;
@@ -158,9 +158,14 @@ div#mfaDonationWidgetContainer {
 				border-radius: $standardRadius;
 				box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 			}
+			div.specialSelectorContainer {
+				padding: 0;
+				border: none;
+			}
 			div.cardTokenizerFrame {
 				height: $standardInputHeight;
 			}
+
 			button {
 				&.main {
 					display: flex;
@@ -278,6 +283,7 @@ div#mfaDonationWidgetContainer {
 			flex: 1 100%;
 			&.infoBox {
 				display: flex;
+				flex-wrap: wrap;
 				margin-top: 0.5em;
 				margin-bottom: 0.5em;
 				padding: 0.33em;
@@ -317,6 +323,10 @@ div#mfaDonationWidgetContainer {
 							opacity: 1;
 						}
 					}
+				}
+				&.collapsable {
+					margin-top: 0.5em;
+					display: none;
 				}
 			}
 			&.twoUp {

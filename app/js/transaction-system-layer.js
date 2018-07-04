@@ -1,3 +1,4 @@
+"use strict";
 (function() {
 	console.log("transaction-system-layer.js v18.4.19");
 
@@ -24,31 +25,26 @@
 			code: "USD",
 			name: "U.S. Dollar",
 			symbol: "$",
-			locale: "en-US",
 		},
 		{
 			code: "CAD",
 			name: "Canadian Dollar",
 			symbol: "$",
-			locale: "en-CA",
 		},
 		{
 			code: "MXN",
 			name: "Mexican Peso",
 			symbol: "MX$ ",
-			locale: "es-MX",
 		},
 		{
 			code: "BRL",
 			name: "Brazilian Real",
 			symbol: "R$",
-			locale: "pt-BR",
 		},
 		{
 			code: "INR",
 			name: "Indian Rupee",
 			symbol: "₹ ",
-			locale: "en-IN",
 		},
 	];
 

@@ -29,8 +29,11 @@
 		"phonePlaceholder": "Número telefónico (opcional)",
 		"streetPlaceholder": "Calle y número",
 		"cityPlaceholder": "Ciudad",
-		"statePlaceholder": "Estado",
+		"regionPlaceholder": "Estado",
 		"postCodePlaceholder": "Código postal",
+		"companyMatchLabel": "Needs transation (Company Match)",
+		"matchCompanyPlaceholder": "Needs translation (Enter your company)",
+		"matchEmailPlaceholder": "Needs translation (Your work email)",
 		"billingLabel": "Dirección donde recibes la correspondencia",
 		"error": {
 			"invalidFields": "Por favor complete las informaciónes"
@@ -38,13 +41,13 @@
 	},
 	"payment": {
 		"cardNumberPlaceholder": "Tarjeta",
-		"cvvPlaceholder": "CVV",
+		"cvvPlaceholder": "CVV (test transalation)",
 		"cvvHint":
 			"El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
 		"cardExpireMonthPlaceholder": "Mes",
 		"cardExpireYearPlaceholder": "Año",
-		"addPercentageLabel": "This is addPercentageLabel",
-		"addPercentageInfoText": "This is addPercentageInfoText",
+		"addPercentageLabel": "Needs translation (Add 3% to cover processing fees)",
+		"addPercentageInfoText": "Needs translation",
 		"error": {
 			"invalidCardNumber": "Se requiere el número de tarjeta",
 			"invalidCvv": "Se requiere el código de CVV",

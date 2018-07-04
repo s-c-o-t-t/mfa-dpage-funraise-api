@@ -1,3 +1,4 @@
+"use strict";
 (function() {
 	console.log("shared-utils.js v18.7.1b");
 
