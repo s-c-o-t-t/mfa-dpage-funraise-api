@@ -7,10 +7,11 @@
         <div class="giftFormHeaderContainer">
             <div class="giftFormHeader">
                 <div>
-                    <button class="goPreviousStep subtle" title="Go to the previous step" type="button">
+                    <button class="goPreviousStep subtle" type="button">
                         <i class="fa fa-arrow-left"></i>
                     </button>
                 </div>
+                <div data-label-id="header.introContent" class="introContentContainer"></div>
                 <div class="giftDisplayContainer">
                     <h3 data-label-id="header.amountText">Your donation</h3>
                     <div class="amountDisplay">
@@ -28,35 +29,34 @@
             <section class="step" data-step-name="giftAmount">
                 <h3 data-label-id="gift.mainLabel">Select donation amount</h3>
                 <div class="giftAmountContainer">
-                    <div class="giftOption fixed">
-                        <label class="giftOption">
-                            <input type="radio" name="giftAmountFixed" value="25">
+                    <div class="giftOption fixed fancyRadioButton">
+                        <input id="giftAmountFixed0" type="radio" name="giftAmountFixed" value="25">
+                        <label class="giftOption" for="giftAmountFixed0">
                             <span class="currencySymbol">?</span>
                             <span class="displayAmount">25</span>
                         </label>
                     </div>
-                    <div class="giftOption fixed">
-                        <label class="giftOption">
-                            <input type="radio" name="giftAmountFixed" value="50">
+                    <div class="giftOption fixed fancyRadioButton">
+                        <input id="giftAmountFixed1" type="radio" name="giftAmountFixed" value="50">
+                        <label class="giftOption" for="giftAmountFixed1">
                             <span class="currencySymbol">?</span>
                             <span class="displayAmount">50</span>
                         </label>
                     </div>
-                    <div class="giftOption fixed">
-                        <label class="giftOption">
-                            <input type="radio" name="giftAmountFixed" value="75">
+                    <div class="giftOption fixed fancyRadioButton">
+                        <input id="giftAmountFixed2" type="radio" name="giftAmountFixed" value="75">
+                        <label class="giftOption" for="giftAmountFixed2">
                             <span class="currencySymbol">?</span>
                             <span class="displayAmount">75</span>
                         </label>
                     </div>
-                    <div class="giftOption fixed">
-                        <label class="giftOption">
-                            <input type="radio" name="giftAmountFixed" value="100">
+                    <div class="giftOption fixed fancyRadioButton">
+                        <input id="giftAmountFixed3" type="radio" name="giftAmountFixed" value="100">
+                        <label class="giftOption" for="giftAmountFixed3">
                             <span class="currencySymbol">?</span>
                             <span class="displayAmount">100</span>
                         </label>
                     </div>
-                    <!-- <div class="inputGroup"> -->
                     <div class="giftOption freeform">
                         <div class="currencyDisplay">
                             <span class="currencySymbol">?</span>
@@ -82,7 +82,7 @@
                 <div class="giftFrequencyContainer"></div>
 
                 <div class="stepButtonContainer">
-                    <button class="goNextStep main invalid" title="Go to the next step" type="button">
+                    <button class="goNextStep main" type="button">
                         <span data-label-id="button.goDonorInfo">Enter Your Information</span>
                         <i class="fa fa-angle-right"></i>
                     </button>
@@ -144,7 +144,7 @@
                 </div>
 
                 <div class="stepButtonContainer">
-                    <button class="goNextStep main invalid" title="Go to the next step" type="button">
+                    <button class="goNextStep main" type="button">
                         <span data-label-id="button.goPaymentInfo">Enter Payment Information</span>
                         <i class="fa fa-angle-right"></i>
                     </button>
@@ -186,9 +186,9 @@
                 <i class="fab fa-cc-discover"></i>
                 <i class="fab fa-bitcoin"></i>
                 <div class="stepButtonContainer">
-                    <button class="processDonation main invalid" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class=" fa fa-spinner fa-spin"></i>'
+                    <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class=" fa fa-spinner fa-spin"></i>'
                         data-success='<span><i class="fab fa-bitcoin"></i> Done!</span><i class="fa fa-thumbs-up"></i>' data-error='<span><i class="fas fa-exclamation-triangle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
-                        title="Send your donation now" type="button">
+                        type="button">
                         <span data-label-id="button.mainSubmit">Submit Donation</span>
                         <i class="fa fa-check"></i>
                     </button>

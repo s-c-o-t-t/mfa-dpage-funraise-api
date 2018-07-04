@@ -1,6 +1,7 @@
 {
 	"header": {
-		"amountText": "Tu donación"
+		"amountText": "Tu donación",
+		"introContent": "LAST CHANCE! ACT&nbsp;<strong>NOW!</strong>"
 	},
 	"button": {
 		"goDonorInfo": "Tus datos",
