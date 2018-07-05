@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.4.19");
+	console.log("transaction-system-layer.js v18.7.5b");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -10,11 +10,10 @@
 	// https://platform.funraise.io/
 	var apiConstants = {
 		baseUrl: "https://test.funraise.io/public/api/v2/",
-		organizationId: "1e78fec4-8fd0-4a3e-b82b-866c29012531",
 	};
 
-	var requestTimeoutSeconds = 20;
-	var requestInitialPollDelay = 1000;
+	var requestTimeoutSeconds = 5;
+	var requestInitialPollDelay = 1500;
 	window.mwdspace = window.mwdspace || {};
 
 	window.mwdspace.donationInProgress = false;
@@ -761,53 +760,98 @@
 	];
 
 	transactionLayer.validateSendData = function(sendData) {
-		var userData = window.mwdspace.userInputData;
+		var returnObject = {
+			valid: true,
+			rejectMessages: [],
+		};
 
-		var rejectMessages = [];
-
-		function addReject(name, message) {
-			rejectMessages.push({ name: name, message: message });
+		function addReject(propertyName, value, message) {
+			returnObject.valid = false;
+			returnObject.rejectMessages.push({
+				propertyName: propertyName,
+				value: value,
+				message: message,
+			});
+		}
+		function requireStringNonEmpty(key) {
+			var value = sendData[key] || null;
+			if (typeof value != "string" || !value.trim()) {
+				addReject(key, value, "empty or not a string");
+			}
+		}
+		function requireNumberNonZero(key) {
+			var value = sendData[key] || null;
+			if (typeof value != "number" || !value <= 0) {
+				addReject(key, value, "empty or not a number above zero");
+			}
+		}
+		function requireBoolean(key) {
+			var value = sendData[key] || null;
+			if (typeof value != "undefined" && typeof value != "boolean") {
+				addReject(key, value, "not a boolean");
+			}
 		}
 
 		try {
-			if (typeof sendData.organizationId != "string" || !sendData.organizationId.trim()) {
-				addReject("organizationId", "Empty or not a string");
+			requireStringNonEmpty("organizationId");
+			requireNumberNonZero("formId");
+
+			//donor info
+			requireStringNonEmpty("firstName");
+			requireStringNonEmpty("lastName");
+			requireStringNonEmpty("email");
+			requireStringNonEmpty("address");
+			requireStringNonEmpty("city");
+			requireStringNonEmpty("state");
+			requireStringNonEmpty("postalCode");
+			requireStringNonEmpty("country");
+
+			// payment & currency
+			requireNumberNonZero("amount");
+			requireNumberNonZero("baseAmount");
+			if (!transactionLayer.validateCurrencyCode(sendData.currency)) {
+				addReject("currency", sendData.currency, "invalid currency code");
 			}
 
-			if (typeof sendData.formId != "number" || !sendData.formId <= 0) {
-				addReject("formId", "Empty or not a number above zero");
+			if (!transactionLayer.validatePayMethod(sendData.paymentType)) {
+				addReject("paymentType", sendData.paymentType, "invalid payment type");
 			}
 
-			// sendData.paymentType
-			// sendData.amount
-			// sendData.baseAmount
-
-			// sendData.firstName = userData.firstName;
-			// sendData.lastName = userData.lastName;
-			// sendData.address = userData.street;
-			// sendData.state = userData.region;
-			// sendData.postalCode
-			// sendData.country
-			// sendData.email
-			// sendData.phone
-
-			// sendData.sourceUrl
-			// sendData.pageId
-
-			if (
-				typeof sendData.donateDouble != "undefined" &&
-				typeof sendData.donateDouble != "boolean"
-			) {
-				addReject("donateDouble", "Not a boolean");
+			// card payment values
+			if (sendData.paymentType == "card") {
+				requireStringNonEmpty("paymentToken"); // Spreedly token
+				requireNumberNonZero("month"); //expire month
+				requireNumberNonZero("year"); //expire year
 			}
+
+			// company match
+			requireBoolean("donateDouble");
 			if (sendData.donateDouble) {
-				// sendData.company
-				// sendData.employeeEmail
+				requireStringNonEmpty("company");
+				requireStringNonEmpty("employeeEmail");
 			}
 
 			return true;
 		} catch (err) {
 			console.log("buildTransactionSendData() caught error: ", err.message);
+		}
+		return false;
+	};
+
+	transactionLayer.validateCurrencyCode = function(currencyCode) {
+		for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
+			if (currencyCode == window.mwdspace.validCurrencyList[i].code) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	transactionLayer.validatePayMethod = function(payMethodCode) {
+		for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
+			if (payMethodCode == window.mwdspace.validPayMethodList[i].code) {
+				return true;
+			}
 		}
 		return false;
 	};
@@ -872,12 +916,15 @@
 		if (typeof delayMilliseconds == "undefined") {
 			var delayMilliseconds = 0;
 		}
+
 		if (!donateId) {
 			console.error("completeDonation(): Empty id given");
 			failFunction({});
 		}
 		if (delayMilliseconds <= 0) {
-			delayMilliseconds = 1000;
+			delayMilliseconds = 1500;
+		} else if (delayMilliseconds > 5000) {
+			delayMilliseconds = 5000;
 		}
 		console.log(
 			">>>> completeDonation() (",
@@ -890,6 +937,21 @@
 			new Date().getTime() - window.mwdspace.donationStartTime.getTime();
 		console.log("elapsedMilliseconds", elapsedMilliseconds);
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
+			// console.warn("TESTING TIMEOUT OVERRIDE WITH FAKE DATA");
+			// return successFunction({
+			// 	payment_id: "1111",
+			// 	donation_id: 15697,
+			// 	checkout_url: null,
+			// 	img_data: null,
+			// 	exp: 1706745600000,
+			// 	type: null,
+			// 	alt_amount: null,
+			// 	transaction_id: "68",
+			// 	status: "Complete",
+			// 	invoice_status: null,
+			// 	id: 15697,
+			// 	errors: "Succeeded!",
+			// });
 			console.error(
 				"completeDonation(): request timeout reached, calling fail function."
 			);
@@ -915,7 +977,7 @@
 						console.log("STATUS 204 RECEIVED, DONATION STILL PROCESSING");
 						return completeDonation(
 							donateId,
-							(delayMilliseconds *= 1.25),
+							(delayMilliseconds *= 1.15),
 							successFunction,
 							failFunction
 						);
@@ -951,6 +1013,51 @@
 		var verboseMode = options.verbose === true ? true : false;
 
 		var sendData = options.sendData || {};
+		// sendData = {
+		// 	amount: 45,
+		// 	currency: "USD",
+		// 	paymentType: "card",
+		// 	frequency: "o",
+		// 	first_name: "First",
+		// 	last_name: "Last",
+		// 	email: "first.last@example.com",
+		// 	phone: "5555555555",
+		// 	Address: "123Street",
+		// 	city: "LongBeach",
+		// 	state: "CA",
+		// 	postalCode: "90802",
+		// 	country: "UnitedStates",
+		// 	comment: "",
+		// 	anonymous: true,
+		// 	isDedication: true,
+		// 	dedicationType: "inHonorof",
+		// 	dedicationName: "Person",
+		// 	dedicationEmail: "person@example.com",
+		// 	dedicationMessage: "dedicationmessage",
+		// 	match: true,
+		// 	company: "Funraise",
+		// 	employeeEmail: "funraise@example.com",
+		// 	month: "3",
+		// 	year: "2021",
+		// 	bank_name: "",
+		// 	bank_routing_number: "",
+		// 	bank_account_number: "",
+		// 	bank_account_type: "checking",
+		// 	bank_account_holder_type: "personal",
+		// 	tipAmount: "0.00",
+		// 	tipPercent: "0.00",
+		// 	baseAmount: "45.00",
+		// 	tags: null,
+		// 	donateDouble: true,
+		// 	sourceUrl: "https://example.funraise.info/",
+		// 	referrer: "https://example.funraise.io/campaign-sites",
+		// 	formId: "309",
+		// 	organizationId: "1e78fec4-8fd0-4a3e-b82b-866c29012531",
+		// 	pageId: "063baa2e-cb84-4a03-9762-ffd8c2d03202",
+		// 	recurring: false,
+		// 	formAllocationId: "689",
+		// 	paymentToken: "1HI7mQMBL58UpYJZCTBreQGd419",
+		// };
 		if (sendData && typeof sendData != "string") {
 			sendData = window.mwdspace.sharedUtils.safeJsonString(sendData);
 		}
@@ -964,56 +1071,23 @@
 			xhr.addEventListener("progress", requestProgress);
 		}
 
-		//var requestUrlArgString = options.urlArgString;
-		if (verboseMode) {
-			console.log(">>> sendXhrRequest() sending to", requestUrl);
-		}
 		xhr.open(requestMethod, requestUrl, true);
 		xhr.setRequestHeader("Content-Type", sendContentType);
 		xhr.setRequestHeader("Accept", acceptContentType);
 
-		xhr.send(sendData);
-		if (verboseMode) {
-			console.log(">>> sendXhrRequest() sent with data", sendData);
-		}
+		console.log("***************************");
+		console.log("requestMethod", requestMethod);
+		console.log("requestUrl", requestUrl);
+		console.log("sendContentType", sendContentType);
+		console.log("acceptContentType", acceptContentType);
+		console.log("sendData", typeof sendData);
+		console.log(sendData);
+		console.log("***************************");
 
-		// if (options.formData) {
-		// 	var jFormData = options.formData;
-		// 	console.log('jFormData entries:');
-		// 	jFormData.forEach(function(item) {
-		// 		console.log(item);
-		// 	});
-		// 	xhr.open(requestMethod, requestUrl, true);
-		// 	xhr.send(jFormData);
-		// } else if (options.formToSubmit) {
-		// 	var jFormData = new FormData(options.formToSubmit);
-		// 	if (verboseMode) {
-		// 		console.log('formToSubmit -> jFormData', jFormData);
-		// 	}
-		// 	xhr.open(requestMethod, requestUrl, true);
-		// 	xhr.send(jFormData);
-		// } else if (requestMethod == 'POST') {
-		// 	if (verboseMode) {
-		// 		console.log(
-		// 			'>>> sendXhrRequest() sending POST to',
-		// 			requestUrl,
-		// 			'with requestUrlArgString=',
-		// 			requestUrlArgString
-		// 		);
-		// 	}
-		// 	xhr.open(requestMethod, requestUrl, true);
-		// 	xhr.send(requestUrlArgString);
-		// } else {
-		// 	if (requestUrlArgString) {
-		// 		requestUrl += requestUrlArgString;
-		// 	}
-
-		// 	if (verboseMode) {
-		// 		console.log('>>> sendXhrRequest() sending to', requestUrl);
-		// 	}
-		// 	xhr.open(requestMethod, requestUrl, true);
-		// 	xhr.send();
+		// if (verboseMode) {
+		// 	console.log(">>> sendXhrRequest() sending with data", requestUrl, sendData);
 		// }
+		xhr.send(sendData);
 
 		function requestComplete() {
 			if (this.status >= 200 && this.status <= 299) {

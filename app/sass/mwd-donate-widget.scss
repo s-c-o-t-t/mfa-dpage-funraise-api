@@ -81,6 +81,10 @@ div#mfaDonationWidgetContainer {
 			animation-iteration-count: 2;
 		}
 	}
+	.clickTarget {
+		cursor: pointer;
+		text-decoration: underline;
+	}
 	div.loadingDisplay {
 		color: $colorFormBg;
 		text-align: center;
@@ -138,7 +142,7 @@ div#mfaDonationWidgetContainer {
 				display: none;
 				padding: 1.75rem;
 			}
-			h3 {
+			h4 {
 				font-size: 0.9375em;
 				font-weight: normal;
 				&.separator {
@@ -305,9 +309,8 @@ div#mfaDonationWidgetContainer {
 						display: none;
 						align-items: center;
 						justify-content: center;
-						bottom: 1em;
-						opacity: 0.5;
-						right: 0;
+						bottom: -1em;
+						right: -1em;
 						min-width: 15em;
 						min-height: 5em;
 						max-width: 20em;
@@ -318,7 +321,6 @@ div#mfaDonationWidgetContainer {
 						border: 1.5px solid darken($colorMainText, 10%);
 						border-radius: 0.25em;
 						box-shadow: 0 0 0.25em transparentize($colorMainText, 0.25);
-						transition: bottom 0.3s, opacity 0.1s;
 						&:hover {
 							display: flex;
 							bottom: 0;
@@ -328,8 +330,6 @@ div#mfaDonationWidgetContainer {
 					&:hover {
 						span.infoText {
 							display: flex;
-							bottom: 0;
-							opacity: 1;
 						}
 					}
 				}
@@ -355,6 +355,33 @@ div#mfaDonationWidgetContainer {
 		select {
 			-webkit-appearance: none;
 			appearance: none;
+		}
+	}
+	div.generalContainer {
+		text-align: center;
+		h1 {
+			font-size: 3em;
+			color: $colorMercyBlue;
+			margin-top: 0;
+			margin-bottom: 0.5em;
+			&.error {
+				color: tomato;
+			}
+		}
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			color: #333;
+			margin-top: 0.5em;
+			margin-bottom: 0;
+		}
+		h2 {
+			font-size: 2em;
+		}
+		h3 {
+			font-size: 1.25em;
 		}
 	}
 }

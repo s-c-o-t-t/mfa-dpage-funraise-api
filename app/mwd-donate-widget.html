@@ -1,6 +1,6 @@
 <div class="giftFormContainer">
     <div class="loadingDisplay">
-        <i class=" fa fa-spinner fa-spin"></i>
+        <i class="fa fa-spinner fa-spin"></i>
     </div>
     <form class="mainGiftForm" novalidate="novalidate" role="form">
 
@@ -27,7 +27,7 @@
         <div class="stepContainer">
             <!-- GIFT AMOUNT -->
             <section class="step" data-step-name="giftAmount">
-                <h3 data-label-id="gift.mainLabel">Select donation amount</h3>
+                <h4 data-label-id="gift.mainLabel">Select donation amount</h4>
                 <div class="giftAmountContainer">
                     <div class="giftOption fixed fancyRadioButton">
                         <input id="giftAmountFixed0" type="radio" name="giftAmountFixed" value="25">
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <h3 class="separator" data-label-id="donor.billingLabel">Billing Address</h3>
+                <h4 class="separator" data-label-id="donor.billingLabel">Billing Address</h4>
                 <div class="billingInfoContainer">
                     <div class="inputGroup">
                         <input name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address" data-validation="/\w{5,}/">
@@ -186,7 +186,7 @@
                 <i class="fab fa-cc-discover"></i>
                 <i class="fab fa-bitcoin"></i>
                 <div class="stepButtonContainer">
-                    <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class=" fa fa-spinner fa-spin"></i>'
+                    <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class="fa fa-spinner fa-spin"></i>'
                         data-success='<span><i class="fab fa-bitcoin"></i> Done!</span><i class="fa fa-thumbs-up"></i>' data-error='<span><i class="fas fa-exclamation-triangle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
                         type="button">
                         <span data-label-id="button.mainSubmit">Submit Donation</span>
@@ -197,6 +197,56 @@
                     </div>
                 </div>
             </section>
+
+            <!-- PROCESSING ********************************************* -->
+            <section class="step" data-step-name="processing">
+                <div class="generalContainer">
+                    <h1>
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h1>
+                    <h2 data-label-id="processing.message">Yay! Your donation is processing...</h2>
+                </div>
+            </section>
+
+            <!-- BITCOIN ********************************************* -->
+            <section class="step" data-step-name="processing">
+                <div class="generalContainer">
+                    <h1>
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h1>
+                    <h2 data-label-id="processing.message">Yay! Your donation is processing...</h2>
+                </div>
+            </section>
+
+            <!-- SUCCESS ********************************************* -->
+            <section class="step" data-step-name="processSuccess">
+                <div class="generalContainer">
+                    <h2>
+                        <span data-label-id="transactionSuccess.headline">Success!</span>
+                    </h2>
+                    <h2>
+                        <span data-label-id="transactionSuccess.message">Thank you for your support</span>
+                        <i class="fas fa-smile-beam"></i>
+                    </h2>
+                </div>
+            </section>
+
+            <!-- FAIL ********************************************* -->
+            <section class="step" data-step-name="processError">
+                <div class="generalContainer">
+                    <h1 class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </h1>
+                    <h3>
+                        <span data-label-id="transactionError.message">Oh no! There was an error:
+                            <span class="errorDescription"></span>
+                        </span>
+                    </h3>
+                    <p data-label-id="transactionError.tryAgainText" class="clickTarget errorRestart">Please try again</p>
+
+                </div>
+            </section>
+
         </div>
 
         <div class="giftFormUserMessages">

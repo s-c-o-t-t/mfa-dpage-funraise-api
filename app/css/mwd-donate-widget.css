@@ -79,6 +79,9 @@ div#mfaDonationWidgetContainer {
       animation-duration: 0.2s;
       animation-timing-function: ease-out;
       animation-iteration-count: 2; }
+  div#mfaDonationWidgetContainer .clickTarget {
+    cursor: pointer;
+    text-decoration: underline; }
   div#mfaDonationWidgetContainer div.loadingDisplay {
     color: #f3f3f4;
     text-align: center;
@@ -124,10 +127,10 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm section.step {
         display: none;
         padding: 1.75rem; }
-      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h3 {
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h4 {
         font-size: 0.9375em;
         font-weight: normal; }
-        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h3.separator {
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h4.separator {
           margin-top: 1.25em;
           color: #1a1a1a; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm select,
@@ -292,9 +295,8 @@ div#mfaDonationWidgetContainer {
             display: none;
             align-items: center;
             justify-content: center;
-            bottom: 1em;
-            opacity: 0.5;
-            right: 0;
+            bottom: -1em;
+            right: -1em;
             min-width: 15em;
             min-height: 5em;
             max-width: 20em;
@@ -304,8 +306,7 @@ div#mfaDonationWidgetContainer {
             background-color: white;
             border: 1.5px solid gray;
             border-radius: 0.25em;
-            box-shadow: 0 0 0.25em rgba(153, 153, 153, 0.75);
-            transition: bottom 0.3s, opacity 0.1s; }
+            box-shadow: 0 0 0.25em rgba(153, 153, 153, 0.75); }
             div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText:hover,
             div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText:hover,
             div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText:hover {
@@ -315,9 +316,7 @@ div#mfaDonationWidgetContainer {
           div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox div.infoIcon:hover span.infoText,
           div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox div.infoIcon:hover span.infoText,
           div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox div.infoIcon:hover span.infoText {
-            display: flex;
-            bottom: 0;
-            opacity: 1; }
+            display: flex; }
         div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox.collapsable,
         div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox.collapsable,
         div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox.collapsable {
@@ -345,6 +344,27 @@ div#mfaDonationWidgetContainer {
     div#mfaDonationWidgetContainer div.payInfoContainer select {
       -webkit-appearance: none;
       appearance: none; }
+  div#mfaDonationWidgetContainer div.generalContainer {
+    text-align: center; }
+    div#mfaDonationWidgetContainer div.generalContainer h1 {
+      font-size: 3em;
+      color: #01a7df;
+      margin-top: 0;
+      margin-bottom: 0.5em; }
+      div#mfaDonationWidgetContainer div.generalContainer h1.error {
+        color: tomato; }
+    div#mfaDonationWidgetContainer div.generalContainer h2,
+    div#mfaDonationWidgetContainer div.generalContainer h3,
+    div#mfaDonationWidgetContainer div.generalContainer h4,
+    div#mfaDonationWidgetContainer div.generalContainer h5,
+    div#mfaDonationWidgetContainer div.generalContainer h6 {
+      color: #333;
+      margin-top: 0.5em;
+      margin-bottom: 0; }
+    div#mfaDonationWidgetContainer div.generalContainer h2 {
+      font-size: 2em; }
+    div#mfaDonationWidgetContainer div.generalContainer h3 {
+      font-size: 1.25em; }
 
 input.fancyCheckbox {
   display: none; }
