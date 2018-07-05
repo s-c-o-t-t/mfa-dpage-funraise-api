@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("shared-utils.js v18.7.1b");
+	console.log("shared-utils.js v18.7.5a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -113,13 +113,14 @@
 
 	sharedUtils.removeSessionValue = function(name) {
 		try {
-			value = sessionStorage.removeItem(name);
+			sessionStorage.removeItem(name);
+			return true;
 		} catch (e) {
 			// use cookie when session storage isn't available
 			console.warn("removeLocalValue(): Unable to use session storage.");
 			sharedUtils.createCookie(name, "", -1);
 		}
-		return value;
+		return false;
 	};
 
 	sharedUtils.setLocalValue = function(name, value) {
@@ -155,13 +156,14 @@
 
 	sharedUtils.removeLocalValue = function(name) {
 		try {
-			value = localStorage.removeItem(name);
+			localStorage.removeItem(name);
+			return true;
 		} catch (e) {
 			// use cookie when local storage isn't available
 			console.warn("removeLocalValue(): Unable to use local storage.");
 			sharedUtils.createCookie(name, "", -1);
 		}
-		return value;
+		return false;
 	};
 
 	sharedUtils.createCookie = function(name, value, days) {

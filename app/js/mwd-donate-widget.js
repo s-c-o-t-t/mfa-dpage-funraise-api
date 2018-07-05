@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.4");
+	console.log("mwd-donate-widget.js v18.7.5b");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -13,6 +13,7 @@
 		}
 
 		thisWidget.isStarted = false;
+		thisWidget.isLoaded = false;
 		thisWidget.codeVersion = "1.0.0";
 
 		thisWidget.targetElement = {};
@@ -43,7 +44,7 @@
 			thisWidget.options.organizationId = "fcb4d538-ca92-4212-86cc-06d8ac929c4d";
 		}
 		if (!thisWidget.options.formId || isNaN(thisWidget.options.formId)) {
-			thisWidget.options.organizationId = 4394;
+			thisWidget.options.formId = 4394;
 		}
 
 		var target = document.querySelectorAll(thisWidget.options.element);
@@ -184,21 +185,19 @@
 		setupInputWatchers();
 		setupSpreedly(); //async, but waiting not required
 
+		setTimeout(function() {
+			thisWidget.isLoaded = true;
+		}, 999);
+
 		// GENERAL CLICK HANDLER
 		document.addEventListener("click", function(event) {
 			// console.log("click", event.target.tagName, event.target.className);
-			var clickTarget = jq(event.target).closest("button, clickTarget");
+			var clickTarget = jq(event.target).closest("button, .clickTarget");
 			if (clickTarget) {
 				if (clickTarget.hasClass("processDonation")) {
 					if (window.mwdspace.donationInProgress) {
 						alert("There's already a donation processing.");
 						return false;
-					}
-					var buttonHtml = event.target.getAttribute("data-working");
-					if (buttonHtml) {
-						jq(event.target)
-							.addClass("blocked")
-							.html(buttonHtml);
 					}
 					window.mwdspace.transactionSendData = buildTransactionSendData();
 					if (
@@ -206,6 +205,11 @@
 							window.mwdspace.transactionSendData
 						)
 					) {
+						showStep("processing");
+						var buttonHtml = clickTarget.attr("data-working");
+						if (buttonHtml) {
+							clickTarget.addClass("blocked").html(buttonHtml);
+						}
 						if (typeof Spreedly == "object") {
 							var tokenOptions = {
 								// Required
@@ -242,6 +246,8 @@
 					}
 				} else if (clickTarget.hasClass("goPreviousStep")) {
 					showPreviousStep();
+				} else if (clickTarget.hasClass("errorRestart")) {
+					showStep("giftAmount");
 				}
 			}
 		});
@@ -295,7 +301,7 @@
 			for (var i = 0; i < jqStepList.length; i++) {
 				thisName = jqStepList[i].getAttribute("data-step-name");
 				if (thisName == targetStepName) {
-					if (i == 0) {
+					if (i == 0 || targetStepName == "processSuccess") {
 						jqMainBackButton.hide();
 					} else {
 						jq("div.giftFormHeaderContainer").show();
@@ -305,7 +311,9 @@
 						scrollAll(jqContainer);
 					});
 					mwdspace.currentStepName = thisName;
-					window.mwdspace.sharedUtils.setSessionValue("savedStepName", thisName);
+					if (targetStepName == "processSuccess") {
+						window.mwdspace.sharedUtils.removeSessionValue("savedStepName");
+					}
 				} else {
 					jq(jqStepList[i]).hide();
 				}
@@ -319,15 +327,19 @@
 				userInputData.amount < userInputData.minimumAmount ||
 				userInputData.amount < 1
 			) {
+				console.warn("amount is invalid", userInputData.amount);
 				isValid = false;
 			}
 			if (typeof userInputData.currency != "string") {
+				console.warn("currency is invalid", userInputData.currency);
 				isValid = false;
 			}
 			if (typeof userInputData.payMethod != "string") {
+				console.warn("payMethod is invalid", userInputData.payMethod);
 				isValid = false;
 			}
 			if (typeof userInputData.frequency != "string") {
+				console.warn("frequency is invalid", userInputData.frequency);
 				isValid = false;
 			}
 			return isValid;
@@ -345,6 +357,9 @@
 			// AMOUNT - also show header display
 			jqGiftAmountFields.on("change focus keyup", function(event) {
 				jqGiftAmountFields.removeClass("selected");
+				if (jq(this).attr("name") != "giftAmountFixed") {
+					jqGiftAmountFields.prop("checked", false);
+				}
 				jq(this).addClass("selected");
 				var newAmount = parseFloat(jq(this).val()) || 0.0;
 				updateGiftAmount(newAmount);
@@ -518,20 +533,42 @@
 			var userData = window.mwdspace.userInputData;
 			var sendData = {};
 
+			sendData = {
+				amount: 99.99,
+				currency: "USD",
+				paymentType: "card",
+				firstName: "First",
+				lastName: "Last",
+				email: "first.last@example.com",
+				address: "123 Street",
+				city: "Long Beach",
+				state: "CA",
+				postalCode: "90802",
+				country: "United States",
+				month: 12,
+				year: 2022,
+				baseAmount: 99.0,
+				formId: 4394,
+				organizationId: "fcb4d538-ca92-4212-86cc-06d8ac929c4d",
+				paymentToken: "1HI7mQMBL58UpYJZCTBreQGd419",
+			};
+
 			try {
 				sendData.organizationId = thisWidget.options.organizationId;
 				sendData.formId = thisWidget.options.formId;
 
-				sendData.paymentType = userData.payMethod || "TEST VALUE";
-				sendData.currency = userData.currency || "TEST VALUE";
-				sendData.paymentType = userData.frequency || "TEST VALUE";
+				if (userData.organizationId) sendData.organizationId = userData.organizationId;
+				if (userData.formId) sendData.formId = userData.formId;
+				if (userData.paymentToken) sendData.paymentToken = userData.paymentToken;
 
-				if (userData.payMethod == "card") {
-					sendData.cardType = userData.cardType || "TEST VALUE";
-					sendData.lastFour = userData.cardLastFour || "TEST VALUE";
-					sendData.month = userData.cardExpireMonth || "TEST VALUE";
-					sendData.year = userData.cardExpireYear || "TEST VALUE";
-				}
+				if (userData.firstName) sendData.firstName = userData.firstName;
+				if (userData.lastName) sendData.lastName = userData.lastName;
+				if (userData.email) sendData.email = userData.email;
+				if (userData.streetAddress) sendData.address = userData.streetAddress;
+				if (userData.city) sendData.city = userData.city;
+				if (userData.region) sendData.state = userData.region;
+				if (userData.postCode) sendData.postalCode = userData.postCode;
+				if (userData.country) sendData.country = userData.country;
 
 				if (typeof userData.amount == "number") {
 					var totalAmount = userData.amount;
@@ -542,24 +579,24 @@
 					sendData.baseAmount = userData.amount;
 				}
 
-				sendData.firstName = userData.firstName || "TEST VALUE";
-				sendData.lastName = userData.lastName || "TEST VALUE";
-				sendData.address = userData.street || "TEST VALUE";
-				sendData.state = userData.region || "TEST VALUE";
-				sendData.postalCode = userData.xxx || "TEST VALUE";
-				sendData.country = userData.xxx || "TEST VALUE";
-				sendData.email = userData.xxx || "TEST VALUE";
-				sendData.phone = userData.xxx || "TEST VALUE";
+				if (userData.currency) sendData.currency = userData.currency;
+				if (userData.payMethod) sendData.paymentType = userData.payMethod;
+				if (userData.cardExpireMonth) sendData.month = userData.cardExpireMonth;
+				if (userData.cardExpireYear) sendData.year = userData.cardExpireYear;
+
+				// if (userData.payMethod == "card") {
+				// 	sendData.cardType = userData.cardType || "TEST VALUE";
+				// 	sendData.lastFour = userData.cardLastFour || "TEST VALUE";
+				// 	sendData.month = userData.cardExpireMonth || "TEST VALUE";
+				// 	sendData.year = userData.cardExpireYear || "TEST VALUE";
+				// }
 
 				if (userData.isCompanyMatch === true) {
 					sendData.donateDouble = true;
-					sendData.company = userData.companyMatchName || "TEST VALUE";
-					sendData.employeeEmail = userData.companyMatchEmail || "TEST VALUE";
+					if (userData.companyMatchName) sendData.company = userData.companyMatchName;
+					if (userData.companyMatchEmail)
+						sendData.employeeEmail = userData.companyMatchEmail;
 				}
-
-				sendData.sourceUrl = userData.xxx || "TEST VALUE";
-				sendData.referrer = userData.xxx || "TEST VALUE";
-				sendData.pageId = userData.xxx || "TEST VALUE";
 
 				return sendData;
 			} catch (err) {
@@ -1123,6 +1160,7 @@
 							console.log("SUCCESS FUNCTION", donationInfo);
 							var buttonHtml = mainSubmitButton.attr("data-success");
 							mainSubmitButton.removeClass("blocked").html(buttonHtml);
+							showStep("processSuccess");
 						},
 						function(donationInfo) {
 							console.log("FAIL FUNCTION", donationInfo);
@@ -1131,6 +1169,7 @@
 								.removeClass("blocked")
 								.addClass("error")
 								.html(buttonHtml);
+							showStep("processError");
 						}
 					);
 				});
@@ -1174,6 +1213,11 @@
 		}
 
 		function scrollAll(theElement) {
+			if (!thisWidget.isLoaded) {
+				// don't scroll until after initial load completes
+				return;
+			}
+
 			theElement = jq(theElement);
 
 			var originalScrollTop = jq(window).scrollTop();
