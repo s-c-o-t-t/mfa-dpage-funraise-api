@@ -81,6 +81,11 @@ div#mfaDonationWidgetContainer {
 			animation-iteration-count: 2;
 		}
 	}
+	.urlWrap {
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		word-break: break-word;
+	}
 	.clickTarget {
 		cursor: pointer;
 		text-decoration: underline;
@@ -161,7 +166,7 @@ div#mfaDonationWidgetContainer {
 				padding: 0.44rem;
 				font-size: 1rem;
 				background: #fff;
-				border: 1px solid #ccc;
+				border: 1px solid $colorElementBorder;
 				border-radius: $standardRadius;
 				box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 			}
@@ -171,6 +176,10 @@ div#mfaDonationWidgetContainer {
 			}
 			div.cardTokenizerFrame {
 				height: $standardInputHeight;
+				overflow: hidden;
+				iframe {
+					width: 100%;
+				}
 			}
 
 			button {
@@ -202,8 +211,8 @@ div#mfaDonationWidgetContainer {
 						}
 					}
 					&.error {
-						background: tomato;
-						border-color: darken(tomato, 10%);
+						background: $colorError;
+						border-color: darken($colorError, 10%);
 					}
 				}
 				&.goPreviousStep {
@@ -242,7 +251,7 @@ div#mfaDonationWidgetContainer {
 					padding: 0.25em;
 					text-align: center;
 					color: darken($colorMainText, 40%);
-					min-height: 50px;
+					min-height: 3.1rem;
 					@include basicButton;
 					span {
 						vertical-align: middle;
@@ -300,7 +309,7 @@ div#mfaDonationWidgetContainer {
 				margin-top: 0.5em;
 				margin-bottom: 0.5em;
 				padding: 0.33em;
-				border: 1px solid darken($colorFormBg, 20%);
+				border: 1px solid $colorElementBorder;
 				div.infoIcon {
 					position: relative;
 					margin-left: auto;
@@ -318,7 +327,7 @@ div#mfaDonationWidgetContainer {
 						font-size: 0.8em;
 						color: darken($colorMainText, 10%);
 						background-color: lighten($colorFormBg, 10%);
-						border: 1.5px solid darken($colorMainText, 10%);
+						border: 1px solid darken($colorElementBorder, 5%);
 						border-radius: 0.25em;
 						box-shadow: 0 0 0.25em transparentize($colorMainText, 0.25);
 						&:hover {
@@ -346,6 +355,12 @@ div#mfaDonationWidgetContainer {
 				&.small {
 					flex-basis: 40%;
 				}
+				&.bigger {
+					flex-basis: 67%;
+				}
+				&.smaller {
+					flex-basis: 33%;
+				}
 				&.infoBox {
 					margin-left: 0.5em;
 					margin-right: 0.5em;
@@ -365,7 +380,7 @@ div#mfaDonationWidgetContainer {
 			margin-top: 0;
 			margin-bottom: 0.5em;
 			&.error {
-				color: tomato;
+				color: $colorError;
 			}
 		}
 		h2,
@@ -382,6 +397,40 @@ div#mfaDonationWidgetContainer {
 		}
 		h3 {
 			font-size: 1.25em;
+		}
+	}
+	div.bitcoinContainer {
+		.bitcoinLogo {
+			color: $colorBitcoin;
+		}
+		div.spacingContainer {
+			margin-top: 0.75em;
+			margin-bottom: 0.75em;
+		}
+		div.bitcoinStatusDisplay {
+			font-size: 0.9em;
+			color: $colorSuccess;
+			&.warning {
+				color: $colorWarning;
+			}
+			&.error {
+				color: $colorError;
+			}
+		}
+		img.scanCode {
+			display: block;
+			margin: 0.75em auto;
+			border: 1px solid $colorElementBorder;
+		}
+		div.inputAppearance {
+			font-weight: bold;
+			span.bitcoinWalletLink {
+				font-size: 0.75em;
+			}
+		}
+		a {
+			color: inherit;
+			text-decoration: underline;
 		}
 	}
 }

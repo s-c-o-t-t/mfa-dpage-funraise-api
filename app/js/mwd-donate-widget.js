@@ -165,6 +165,9 @@
 		var jqRegionInput = jqContainer.find('input[name="donorRegion"]');
 		var jqGiftAmountFields = jqContainer.find("div.giftOption input");
 		var jqCurrencySelect = jqContainer.find('select[name="giftCurrency"]');
+		var jqBitcoinTimeRemaining = jqContainer.find(
+			"div.bitcoinContainer span.bitcoinTimeRemaining"
+		);
 
 		thisWidget.promises.labelOverrideLoad = thisWidget.prepareLabelOverride();
 		buildCurrencySelect();
@@ -1160,7 +1163,17 @@
 							console.log("SUCCESS FUNCTION", donationInfo);
 							var buttonHtml = mainSubmitButton.attr("data-success");
 							mainSubmitButton.removeClass("blocked").html(buttonHtml);
-							showStep("processSuccess");
+							if (donationInfo.type == "card") {
+								showStep("processSuccess");
+							} else if (donationInfo.type == "bitcoin") {
+								prepAndShowBitcoinStep(donationInfo);
+							} else {
+								console.warn(
+									"Unrecognized type property in server response",
+									donationInfo
+								);
+								prepAndShowErrorStep("Unrecognized response from the sever");
+							}
 						},
 						function(donationInfo) {
 							console.log("FAIL FUNCTION", donationInfo);
@@ -1169,7 +1182,13 @@
 								.removeClass("blocked")
 								.addClass("error")
 								.html(buttonHtml);
-							showStep("processError");
+							console.warn(
+								"Donation received fail response from server",
+								donationInfo
+							);
+							prepAndShowErrorStep(
+								"The server was unable to process the transaction"
+							);
 						}
 					);
 				});
@@ -1212,9 +1231,87 @@
 			for (var i = 0; i < theList.length; i++) {}
 		}
 
+		function prepAndShowBitcoinStep(input) {
+			if (typeof input != "object") {
+				console.warn("prepAndShowBitcoinStep() given invalid input", input);
+				prepAndShowErrorStep("Unable to display Bitcoin invoice screen");
+				return;
+			}
+			var jqStep = jqContainer.find('section[data-step-name="bitcoinInvoice"]');
+
+			updateBitcoinTimeRemaining(input.exp);
+			setInterval(function() {
+				updateBitcoinTimeRemaining(input.exp);
+			}, 1000);
+			jqStep.find("span.bitcoinStatus").html(input.invoice_status);
+			jqStep
+				.find("img.scanCode")
+				.attr("src", "data:image/png;charset=utf-8;base64," + input.img_data);
+			jqStep.find("span.bitcoinAmount").html(input.alt_amount);
+			jqStep.find("span.bitcoinWalletLink").html(input.checkout_url);
+			jqStep.find("a.bitcoinWalletLink").attr("href", input.checkout_url);
+
+			showStep("bitcoinInvoice");
+		}
+
+		function updateBitcoinTimeRemaining(expireTime) {
+			if (typeof expireTime == "undefined") {
+				var expireTime = null;
+			}
+			var displayCountdown = "Unknown time";
+			try {
+				var minutes = 0;
+				var seconds = 0;
+
+				var expireDate = new Date(expireTime).getTime();
+				var now = new Date().getTime();
+
+				var minutesRemaining = (expireDate - now) / 1000 / 60;
+
+				console.log("Step 1", minutesRemaining);
+
+				if (minutesRemaining > 0) {
+					minutes = parseInt(minutesRemaining);
+					seconds = parseInt((minutesRemaining - minutes) * 60);
+					console.log("Step 2", minutes, seconds);
+
+					if (minutesRemaining < 2) {
+						console.log("WARNING STATUS");
+						jqBitcoinTimeRemaining
+							.closest("div.bitcoinStatusDisplay")
+							.addClass("warning");
+					}
+				} else {
+					console.log("ERROR STATUS");
+					jqBitcoinTimeRemaining
+						.closest("div.bitcoinStatusDisplay")
+						.addClass("error");
+				}
+
+				if (seconds < 10) {
+					seconds = "0" + seconds;
+				}
+				console.log("Step 3", minutes, seconds);
+				displayCountdown = minutes.toFixed() + ":" + seconds;
+			} catch (err) {
+				console.warn("updateBitcoinTimeRemaining() caught error", err.message);
+			}
+			console.log(displayCountdown);
+			jqBitcoinTimeRemaining.html(displayCountdown);
+		}
+
+		function prepAndShowErrorStep(input) {
+			if (typeof input == "undefined") {
+				var input = {};
+			}
+			var jqStep = jqContainer.find('section[data-step-name="processError"]');
+			jqStep.find("span.errorDescription").innerHtml(input);
+			showStep("processError");
+		}
+
 		function scrollAll(theElement) {
 			if (!thisWidget.isLoaded) {
-				// don't scroll until after initial load completes
+				// don't scroll until after initial load is complete
 				return;
 			}
 
