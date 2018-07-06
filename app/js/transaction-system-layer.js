@@ -937,21 +937,44 @@
 			new Date().getTime() - window.mwdspace.donationStartTime.getTime();
 		console.log("elapsedMilliseconds", elapsedMilliseconds);
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
-			// console.warn("TESTING TIMEOUT OVERRIDE WITH FAKE DATA");
-			// return successFunction({
-			// 	payment_id: "1111",
-			// 	donation_id: 15697,
-			// 	checkout_url: null,
-			// 	img_data: null,
-			// 	exp: 1706745600000,
-			// 	type: null,
-			// 	alt_amount: null,
-			// 	transaction_id: "68",
-			// 	status: "Complete",
-			// 	invoice_status: null,
-			// 	id: 15697,
-			// 	errors: "Succeeded!",
-			// });
+			var testResponse;
+			if (1) {
+				testResponse = {
+					payment_id: "https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
+					donation_id: 644353,
+					checkout_url: "https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
+					img_data:
+						"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
+					exp: 1530874922224,
+					type: "bitcoin",
+					alt_amount: "0.000777",
+					transaction_id: "G8pTXqC6wz8hAyR5EzDM2X",
+					status: "Pending",
+					invoice_status: "new",
+					id: 644353,
+					errors: null,
+				};
+			} else {
+				testResponse = {
+					payment_id: "1111",
+					donation_id: 15697,
+					checkout_url: null,
+					img_data: null,
+					exp: 1706745600000,
+					type: "card",
+					alt_amount: null,
+					transaction_id: "68",
+					status: "Complete",
+					invoice_status: null,
+					id: 15697,
+					errors: "Succeeded!",
+				};
+			}
+
+			testResponse.exp = new Date().getTime() + 899123;
+
+			console.warn("TESTING TIMEOUT OVERRIDE WITH FAKE DATA");
+			return successFunction(testResponse);
 			console.error(
 				"completeDonation(): request timeout reached, calling fail function."
 			);
@@ -1013,51 +1036,6 @@
 		var verboseMode = options.verbose === true ? true : false;
 
 		var sendData = options.sendData || {};
-		// sendData = {
-		// 	amount: 45,
-		// 	currency: "USD",
-		// 	paymentType: "card",
-		// 	frequency: "o",
-		// 	first_name: "First",
-		// 	last_name: "Last",
-		// 	email: "first.last@example.com",
-		// 	phone: "5555555555",
-		// 	Address: "123Street",
-		// 	city: "LongBeach",
-		// 	state: "CA",
-		// 	postalCode: "90802",
-		// 	country: "UnitedStates",
-		// 	comment: "",
-		// 	anonymous: true,
-		// 	isDedication: true,
-		// 	dedicationType: "inHonorof",
-		// 	dedicationName: "Person",
-		// 	dedicationEmail: "person@example.com",
-		// 	dedicationMessage: "dedicationmessage",
-		// 	match: true,
-		// 	company: "Funraise",
-		// 	employeeEmail: "funraise@example.com",
-		// 	month: "3",
-		// 	year: "2021",
-		// 	bank_name: "",
-		// 	bank_routing_number: "",
-		// 	bank_account_number: "",
-		// 	bank_account_type: "checking",
-		// 	bank_account_holder_type: "personal",
-		// 	tipAmount: "0.00",
-		// 	tipPercent: "0.00",
-		// 	baseAmount: "45.00",
-		// 	tags: null,
-		// 	donateDouble: true,
-		// 	sourceUrl: "https://example.funraise.info/",
-		// 	referrer: "https://example.funraise.io/campaign-sites",
-		// 	formId: "309",
-		// 	organizationId: "1e78fec4-8fd0-4a3e-b82b-866c29012531",
-		// 	pageId: "063baa2e-cb84-4a03-9762-ffd8c2d03202",
-		// 	recurring: false,
-		// 	formAllocationId: "689",
-		// 	paymentToken: "1HI7mQMBL58UpYJZCTBreQGd419",
-		// };
 		if (sendData && typeof sendData != "string") {
 			sendData = window.mwdspace.sharedUtils.safeJsonString(sendData);
 		}

@@ -154,10 +154,10 @@
             <!-- PAYMENT ********************************************* -->
             <section class="step" data-step-name="payment">
                 <div class="payInfoContainer">
-                    <div class="inputGroup twoUp">
+                    <div class="inputGroup twoUp bigger">
                         <div id="cardNumberTarget" class="inputAppearance cardTokenizerFrame"></div>
                     </div>
-                    <div class="inputGroup twoUp">
+                    <div class="inputGroup twoUp smaller">
                         <div id="cardCvvTarget" class="inputAppearance cardTokenizerFrame"></div>
                     </div>
                     <div class="inputGroup twoUp">
@@ -180,11 +180,6 @@
                     </div>
                 </div>
 
-                <i class="fab fa-cc-visa"></i>
-                <i class="fab fa-cc-mastercard"></i>
-                <i class="fab fa-cc-amex"></i>
-                <i class="fab fa-cc-discover"></i>
-                <i class="fab fa-bitcoin"></i>
                 <div class="stepButtonContainer">
                     <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class="fa fa-spinner fa-spin"></i>'
                         data-success='<span><i class="fab fa-bitcoin"></i> Done!</span><i class="fa fa-thumbs-up"></i>' data-error='<span><i class="fas fa-exclamation-triangle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
@@ -205,16 +200,53 @@
                         <i class="fa fa-spinner fa-spin"></i>
                     </h1>
                     <h2 data-label-id="processing.message">Yay! Your donation is processing...</h2>
+                    <h2 class="processingPaySymbol">
+                        <i class="fab fa-bitcoin"></i>
+                    </h2>
+                    <!-- <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-amex"></i>
+                    <i class="fab fa-cc-discover"></i>
+                    <i class="fab fa-bitcoin"></i> -->
                 </div>
             </section>
 
             <!-- BITCOIN ********************************************* -->
-            <section class="step" data-step-name="processing">
-                <div class="generalContainer">
-                    <h1>
-                        <i class="fa fa-spinner fa-spin"></i>
-                    </h1>
-                    <h2 data-label-id="processing.message">Yay! Your donation is processing...</h2>
+            <section class="step" data-step-name="bitcoinInvoice">
+                <div class="generalContainer bitcoinContainer">
+                    <h2>
+                        <i class="fab fa-bitcoin bitcoinLogo"></i>
+                        <span data-label-id="bitcoin.heading">Bitcoin Invoice</span>
+                    </h2>
+                    <div class="bitcoinStatusDisplay spacingContainer">
+                        <span class="bitcoinTimeRemaining">
+                            <i class="fas fa-sync fa-spin"></i>
+                        </span>
+                        &nbsp;
+                        <span data-label-id="bitcoin.remainingText">remaining</span> |
+                        <span data-label-id="bitcoin.statusText">Status</span>:
+                        <span class="bitcoinStatus">
+                            <i class="fas fa-sync fa-spin"></i>
+                        </span>
+                    </div>
+
+                    <img class="scanCode" src="">
+                    <div class="spacingContainer">
+                        <p data-label-id="bitcoin.instruction">Scan above or send bitcoins to this address</p>
+                    </div>
+                    <div class="inputAppearance">
+                        <i class="fab fa-bitcoin"></i>
+                        BTC:
+                        <span class="bitcoinAmount">***</span>
+                    </div>
+                    <div class="inputAppearance">
+                        <span class="bitcoinWalletLink urlWrap"></span>
+                    </div>
+                    <div class="spacingContainer">
+                        <a class="bitcoinWalletLink" href="" target="bitcoinWallet">
+                            <span data-label-id="bitcoin.walletLinkText">Open your wallet</span>
+                        </a>
+                    </div>
                 </div>
             </section>
 
