@@ -117,8 +117,8 @@ div#mfaDonationWidgetContainer {
 					font-size: 1em;
 				}
 				div.amountDisplay {
-					font-weight: 300;
-					color: darken($colorMainText, 40%);
+					font-weight: normal;
+					color: darken($colorMainText, 30%);
 					span.currencySymbol {
 						font-size: 0.9em;
 						vertical-align: 1em;
@@ -127,6 +127,8 @@ div#mfaDonationWidgetContainer {
 						font-size: 2.5em;
 					}
 					span.displaySubAmount {
+						position: relative;
+						left: -0.15em;
 						font-size: 1.1em;
 					}
 				}
@@ -382,6 +384,10 @@ div#mfaDonationWidgetContainer {
 			&.error {
 				color: $colorError;
 			}
+			&.big {
+				font-size: 4em;
+				margin-bottom: 0.33em;
+			}
 		}
 		h2,
 		h3,
@@ -406,6 +412,9 @@ div#mfaDonationWidgetContainer {
 		div.spacingContainer {
 			margin-top: 0.75em;
 			margin-bottom: 0.75em;
+			&.error {
+				color: $colorError;
+			}
 		}
 		div.bitcoinStatusDisplay {
 			font-size: 0.9em;

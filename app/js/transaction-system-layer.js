@@ -938,17 +938,17 @@
 		console.log("elapsedMilliseconds", elapsedMilliseconds);
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
 			var testResponse;
-			if (1) {
+			if (0) {
 				testResponse = {
-					payment_id: "https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
+					payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
 					donation_id: 644353,
-					checkout_url: "https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
+					checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
 					img_data:
 						"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
 					exp: 1530874922224,
 					type: "bitcoin",
 					alt_amount: "0.000777",
-					transaction_id: "G8pTXqC6wz8hAyR5EzDM2X",
+					transaction_id: "X19hQRxwvD87QBRcADXrDX",
 					status: "Pending",
 					invoice_status: "new",
 					id: 644353,
@@ -1053,18 +1053,9 @@
 		xhr.setRequestHeader("Content-Type", sendContentType);
 		xhr.setRequestHeader("Accept", acceptContentType);
 
-		console.log("***************************");
-		console.log("requestMethod", requestMethod);
-		console.log("requestUrl", requestUrl);
-		console.log("sendContentType", sendContentType);
-		console.log("acceptContentType", acceptContentType);
-		console.log("sendData", typeof sendData);
-		console.log(sendData);
-		console.log("***************************");
-
-		// if (verboseMode) {
-		// 	console.log(">>> sendXhrRequest() sending with data", requestUrl, sendData);
-		// }
+		if (verboseMode) {
+			console.log(">>> sendXhrRequest() sending with data", requestUrl, sendData);
+		}
 		xhr.send(sendData);
 
 		function requestComplete() {
