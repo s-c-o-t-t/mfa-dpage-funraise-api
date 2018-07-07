@@ -117,6 +117,8 @@ div#mfaDonationWidgetContainer {
           div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay span.displayWholeAmount {
             font-size: 2.5em; }
           div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay span.displaySubAmount {
+            position: relative;
+            left: -0.15em;
             font-size: 1.1em; }
   div#mfaDonationWidgetContainer div.giftFormContainer {
     width: 100%;
@@ -147,18 +149,13 @@ div#mfaDonationWidgetContainer {
         min-height: 2.25rem;
         padding: 0.44rem;
         font-size: 1rem;
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 0.15em;
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+        background: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.specialSelectorContainer {
         padding: 0;
         border: none; }
-      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame {
-        height: 2.25rem;
-        overflow: hidden; }
-        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.cardTokenizerFrame iframe {
-          width: 100%; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main {
         display: flex;
         align-items: stretch;
@@ -200,6 +197,13 @@ div#mfaDonationWidgetContainer {
     flex-flow: row wrap;
     align-items: center;
     margin: 0.5em 0; }
+    div#mfaDonationWidgetContainer div.giftAmountContainer div.fixedAmountContainer,
+    div#mfaDonationWidgetContainer div.giftFrequencyContainer div.fixedAmountContainer {
+      display: flex;
+      flex-flow: row wrap;
+      flex-basis: 100%;
+      align-items: center;
+      margin-top: 0.5em; }
     div#mfaDonationWidgetContainer div.giftAmountContainer div.fancyRadioButton,
     div#mfaDonationWidgetContainer div.giftFrequencyContainer div.fancyRadioButton {
       flex: 1;
@@ -245,7 +249,12 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform {
         display: flex;
         align-items: stretch;
-        flex: 1 100%; }
+        flex: 1 100%;
+        padding: 0;
+        margin: 0.25em 0.1em 0.1em 0.1em;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 0.15em; }
         div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform > *,
         div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform > * {
           padding: 0.5rem; }
@@ -261,102 +270,190 @@ div#mfaDonationWidgetContainer {
           outline: none;
           border-top-right-radius: 0;
           border-bottom-right-radius: 0;
-          border-right: 0; }
-        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform input[name="giftAmountFreeForm"],
-        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform input[name="giftAmountFreeForm"] {
-          font-size: 0.8em; }
+          border: 0; }
+        div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform input[name="giftAmountFreeform"],
+        div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform input[name="giftAmountFreeform"] {
+          font-size: 0.8em;
+          border-left: 1px solid #ccc;
+          border-right: 1px solid #ccc; }
         div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform select[name="giftCurrency"],
         div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform select[name="giftCurrency"] {
           min-width: 3em;
-          max-width: 6.25em;
-          border-top-left-radius: 0;
-          border-bottom-left-radius: 0;
-          border-left: none; }
+          max-width: 6.25em; }
   div#mfaDonationWidgetContainer div.donorInfoContainer,
   div#mfaDonationWidgetContainer div.billingInfoContainer,
-  div#mfaDonationWidgetContainer div.payInfoContainer {
+  div#mfaDonationWidgetContainer div.payInfoContainer,
+  div#mfaDonationWidgetContainer div.payMethodContainer {
     display: flex;
     flex-flow: row wrap; }
+    div#mfaDonationWidgetContainer div.donorInfoContainer div.connectedSection,
+    div#mfaDonationWidgetContainer div.billingInfoContainer div.connectedSection,
+    div#mfaDonationWidgetContainer div.payInfoContainer div.connectedSection,
+    div#mfaDonationWidgetContainer div.payMethodContainer div.connectedSection {
+      display: flex;
+      flex-flow: row wrap;
+      flex: 1 100%;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 0.15em; }
     div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup,
     div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup,
-    div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup {
-      flex: 1 100%; }
+    div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup,
+    div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup {
+      flex: 1 100%;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox,
-      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox {
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.infoBox {
         display: flex;
         flex-wrap: wrap;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
         padding: 0.33em;
-        border: 1px solid #ccc; }
-        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox div.infoIcon,
-        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox div.infoIcon,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox div.infoIcon {
-          position: relative;
-          margin-left: auto; }
-          div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText,
-          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText,
-          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText {
-            position: absolute;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            bottom: -1em;
-            right: -1em;
-            min-width: 15em;
-            min-height: 5em;
-            max-width: 20em;
-            padding: 0.75em;
-            font-size: 0.8em;
-            color: gray;
-            background-color: white;
-            border: 1px solid #bfbfbf;
-            border-radius: 0.25em;
-            box-shadow: 0 0 0.25em rgba(153, 153, 153, 0.75); }
-            div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText:hover,
-            div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText:hover,
-            div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox div.infoIcon span.infoText:hover {
-              display: flex;
-              bottom: 0;
-              opacity: 1; }
-          div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox div.infoIcon:hover span.infoText,
-          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox div.infoIcon:hover span.infoText,
-          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox div.infoIcon:hover span.infoText {
-            display: flex; }
+        background: transparent;
+        border: 1px solid #ccc;
+        box-shadow: none; }
         div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox.collapsable,
         div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox.collapsable,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox.collapsable {
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox.collapsable,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.infoBox.collapsable {
           margin-top: 0.5em;
           display: none; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.borderTop,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.borderTop,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.borderTop,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.borderTop {
+        border-top: 1px solid #ccc; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.borderRight,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.borderRight,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.borderRight,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.borderRight {
+        border-right: 1px solid #ccc; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.collapsable,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.collapsable,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.collapsable,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.collapsable {
+        margin-top: 0.5em;
+        display: none; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp,
-      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp {
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.twoUp {
         flex-basis: 50%; }
         div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.big,
         div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.big,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.big {
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.big,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.twoUp.big {
           flex-basis: 60%; }
         div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.small,
         div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.small,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.small {
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.small,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.twoUp.small {
           flex-basis: 40%; }
-        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.bigger,
-        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.bigger,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.bigger {
-          flex-basis: 67%; }
-        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.smaller,
-        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.smaller,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.smaller {
-          flex-basis: 33%; }
         div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.twoUp.infoBox,
         div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.twoUp.infoBox,
-        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.infoBox {
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.twoUp.infoBox,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.twoUp.infoBox {
           margin-left: 0.5em;
           margin-right: 0.5em; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.collapsable,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.collapsable,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.collapsable,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.collapsable {
+        margin-top: 0.5em; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber, div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv {
+        display: flex;
+        align-items: center; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber .insetIcon, div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv .insetIcon,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber .insetIcon,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv .insetIcon,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber .insetIcon,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv .insetIcon,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber .insetIcon,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv .insetIcon {
+          padding-right: 0.25em; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber {
+        flex-basis: 75%; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber div.cardNumberFeedback {
+          display: flex;
+          align-items: center;
+          color: #000; }
+          div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
+          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
+          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
+          div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType {
+            font-size: 1.25em; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv {
+        flex-basis: 25%; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup div.cardTokenizerFrame,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup div.cardTokenizerFrame,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup div.cardTokenizerFrame,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup div.cardTokenizerFrame {
+        height: 2.25rem;
+        overflow: hidden; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup div.cardTokenizerFrame iframe,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup div.cardTokenizerFrame iframe,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup div.cardTokenizerFrame iframe,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup div.cardTokenizerFrame iframe {
+          width: 100%; }
+    div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon,
+    div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon,
+    div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon,
+    div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon {
+      position: relative;
+      margin-left: auto; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon span.infoText,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon span.infoText,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon span.infoText,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon span.infoText {
+        position: absolute;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        bottom: -1em;
+        right: -1em;
+        min-width: 15em;
+        min-height: 5em;
+        max-width: 20em;
+        padding: 0.75em;
+        font-size: 0.8em;
+        color: gray;
+        background-color: white;
+        border: 1px solid #bfbfbf;
+        border-radius: 0.25em;
+        box-shadow: 0 0 0.25em rgba(153, 153, 153, 0.75); }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon span.infoText:hover,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon span.infoText:hover,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon span.infoText:hover,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon span.infoText:hover {
+          display: flex;
+          bottom: 0;
+          opacity: 1; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon:hover span.infoText,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon:hover span.infoText,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon:hover span.infoText,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon:hover span.infoText {
+        display: flex; }
     div#mfaDonationWidgetContainer div.donorInfoContainer select,
     div#mfaDonationWidgetContainer div.billingInfoContainer select,
-    div#mfaDonationWidgetContainer div.payInfoContainer select {
+    div#mfaDonationWidgetContainer div.payInfoContainer select,
+    div#mfaDonationWidgetContainer div.payMethodContainer select {
       -webkit-appearance: none;
       appearance: none; }
   div#mfaDonationWidgetContainer div.generalContainer {

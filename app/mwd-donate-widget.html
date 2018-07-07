@@ -29,53 +29,24 @@
             <section class="step" data-step-name="giftAmount">
                 <h4 data-label-id="gift.mainLabel">Select donation amount</h4>
                 <div class="giftAmountContainer">
-                    <div class="giftOption fixed fancyRadioButton">
-                        <input id="giftAmountFixed0" type="radio" name="giftAmountFixed" value="25">
-                        <label class="giftOption" for="giftAmountFixed0">
-                            <span class="currencySymbol">?</span>
-                            <span class="displayAmount">25</span>
-                        </label>
-                    </div>
-                    <div class="giftOption fixed fancyRadioButton">
-                        <input id="giftAmountFixed1" type="radio" name="giftAmountFixed" value="50">
-                        <label class="giftOption" for="giftAmountFixed1">
-                            <span class="currencySymbol">?</span>
-                            <span class="displayAmount">50</span>
-                        </label>
-                    </div>
-                    <div class="giftOption fixed fancyRadioButton">
-                        <input id="giftAmountFixed2" type="radio" name="giftAmountFixed" value="75">
-                        <label class="giftOption" for="giftAmountFixed2">
-                            <span class="currencySymbol">?</span>
-                            <span class="displayAmount">75</span>
-                        </label>
-                    </div>
-                    <div class="giftOption fixed fancyRadioButton">
-                        <input id="giftAmountFixed3" type="radio" name="giftAmountFixed" value="100">
-                        <label class="giftOption" for="giftAmountFixed3">
-                            <span class="currencySymbol">?</span>
-                            <span class="displayAmount">100</span>
-                        </label>
-                    </div>
+                    <div class="fixedAmountContainer"></div>
                     <div class="giftOption freeform">
                         <div class="currencyDisplay">
                             <span class="currencySymbol">?</span>
                         </div>
-                        <input type="text" name="giftAmountFreeForm" placeholder="or enter amount" data-label-id="gift.otherAmountPlaceholder">
+                        <input type="text" name="giftAmountFreeform" placeholder="or enter amount" data-label-id="gift.otherAmountPlaceholder">
                         <select name="giftCurrency">
                         </select>
 
                     </div>
-                    <!-- <div class="userFeedback">
-                                    <span class="message">&nbsp;</span>
-                                </div>
-                            </div> -->
                 </div>
 
                 <!-- PAYMENT METHOD -->
                 <div class="payMethodContainer">
-                    <select name="payMethod">
-                    </select>
+                    <div class="inputGroup connectedSection">
+                        <select name="payMethod">
+                        </select>
+                    </div>
                 </div>
 
                 <!-- FREQUENCY -->
@@ -92,37 +63,41 @@
             <!-- DONOR INFO -->
             <section class="step" data-step-name="donorInfo">
                 <div class="donorInfoContainer">
-                    <div class="inputGroup twoUp">
-                        <input name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name" data-validation="/[a-z]+/i">
-                    </div>
-                    <div class="inputGroup twoUp">
-                        <input name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name" data-validation="/[a-z]+/i">
-                    </div>
-                    <div class="inputGroup">
-                        <input name="donorEmail" type="email" data-label-id="donor.emailPlaceholder" placeholder="Email" data-validation="email">
-                    </div>
-                    <div class="inputGroup">
-                        <input name="donorPhone" type="tel" data-label-id="donor.phonePlaceholder" placeholder="Phone Number (optional)" data-validation="/\d{8,}/i">
+                    <div class="connectedSection">
+                        <div class="inputGroup twoUp borderRight">
+                            <input name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name" data-validation="/[a-z]+/i">
+                        </div>
+                        <div class="inputGroup twoUp">
+                            <input name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name" data-validation="/[a-z]+/i">
+                        </div>
+                        <div class="inputGroup borderTop">
+                            <input name="donorEmail" type="email" data-label-id="donor.emailPlaceholder" placeholder="Email" data-validation="email">
+                        </div>
+                        <div class="inputGroup borderTop">
+                            <input name="donorPhone" type="tel" data-label-id="donor.phonePlaceholder" placeholder="Phone Number (optional)" data-validation="/\d{8,}/i">
+                        </div>
                     </div>
                 </div>
 
                 <h4 class="separator" data-label-id="donor.billingLabel">Billing Address</h4>
                 <div class="billingInfoContainer">
-                    <div class="inputGroup">
-                        <input name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address" data-validation="/\w{5,}/">
-                    </div>
-                    <div class="inputGroup">
-                        <input name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="/[a-z]{5,}/i">
-                    </div>
-                    <div class="inputGroup twoUp big">
-                        <select name="donorRegion"></select>
-                        <input name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder">
-                    </div>
-                    <div class="inputGroup twoUp small">
-                        <input name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code" data-validation="/\w{5,}/">
-                    </div>
-                    <div class="inputGroup">
-                        <select name="donorCountry"></select>
+                    <div class="connectedSection">
+                        <div class="inputGroup">
+                            <input name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address" data-validation="/\w{5,}/">
+                        </div>
+                        <div class="inputGroup borderTop">
+                            <input name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="/[a-z]{5,}/i">
+                        </div>
+                        <div class="inputGroup twoUp big borderTop borderRight">
+                            <select name="donorRegion"></select>
+                            <input name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder">
+                        </div>
+                        <div class="inputGroup twoUp small borderTop">
+                            <input name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code" data-validation="/\w{5,}/">
+                        </div>
+                        <div class="inputGroup borderTop">
+                            <select name="donorCountry"></select>
+                        </div>
                     </div>
 
                     <div class="inputGroup infoBox">
@@ -154,28 +129,43 @@
             <!-- PAYMENT ********************************************* -->
             <section class="step" data-step-name="payment">
                 <div class="payInfoContainer">
-                    <div class="inputGroup twoUp bigger">
-                        <div id="cardNumberTarget" class="inputAppearance cardTokenizerFrame"></div>
-                    </div>
-                    <div class="inputGroup twoUp smaller">
-                        <div id="cardCvvTarget" class="inputAppearance cardTokenizerFrame"></div>
-                    </div>
-                    <div class="inputGroup twoUp">
-                        <select name="payCardExpireMonth"></select>
-                    </div>
-                    <div class="inputGroup twoUp">
-                        <select name="payCardExpireYear"></select>
-                        <div class="userFeedback">
-                            <span class="message">&nbsp;</span>
+                    <div class="connectedSection">
+                        <div class="inputGroup twoUp cardNumber borderRight">
+                            <div id="cardNumberTarget" class="inputAppearance cardTokenizerFrame"></div>
+                            <div class="cardNumberFeedback">
+                                <span class="cardNumberValidity insetIcon">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                                <span class="cardType insetIcon">
+                                    <i class="far fa-credit-card"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="inputGroup twoUp cardCvv">
+                            <div id="cardCvvTarget" class="inputAppearance cardTokenizerFrame"></div>
+                            <div class="infoIcon insetIcon">
+                                <i class="far fa-question-circle"></i>
+                                <span class="infoText">
+                                    <img src="https://d2n4tvy2wsd0oo.cloudfront.net/widget/common/1.3/img/credit_card_cvv.jpg">
+                                    <span data-label-id="payment.extraPercentageInfoText"></span>CVV codes are located on the back of Visa, Mastercard, and Discover cards. American
+                                    Express CVV codes are located on the front.</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="inputGroup twoUp borderTop borderRight">
+                            <select name="payCardExpireMonth"></select>
+                        </div>
+                        <div class="inputGroup twoUp borderTop">
+                            <select name="payCardExpireYear"></select>
                         </div>
                     </div>
 
                     <div class="inputGroup infoBox">
-                        <input id="inputAddPercentage" class="fancyCheckbox" name="addPercentage" type="checkbox" value="3.0">
-                        <label class="fancyCheckbox" for="inputAddPercentage" data-label-id="payment.addPercentageLabel">Add 3% to cover processing fees</label>
+                        <input id="inputExtraPercentage" class="fancyCheckbox" name="extraPercentage" type="checkbox" value="3.0">
+                        <label class="fancyCheckbox" for="inputExtraPercentage" data-label-id="payment.extraPercentageLabel">Add 3% to cover processing fees</label>
                         <div class="infoIcon">
                             <i class="far fa-question-circle"></i>
-                            <span class="infoText" data-label-id="payment.addPercentageInfoText">By covering processing fees 100% of your donation will go to Mercy For Animals</span>
+                            <span class="infoText" data-label-id="payment.extraPercentageInfoText">By covering processing fees 100% of your donation will go to Mercy For Animals</span>
                         </div>
                     </div>
                 </div>
@@ -200,14 +190,9 @@
                         <i class="fa fa-spinner fa-spin"></i>
                     </h1>
                     <h3 data-label-id="processing.message">Yay! Your donation is processing...</h3>
-                    <h2 class="processingPaySymbol">
-                        <i class="fab fa-bitcoin"></i>
+                    <h2>
+                        <span class="processingPaySymbol"></span>
                     </h2>
-                    <!-- <i class="fab fa-cc-visa"></i>
-                    <i class="fab fa-cc-mastercard"></i>
-                    <i class="fab fa-cc-amex"></i>
-                    <i class="fab fa-cc-discover"></i>
-                    <i class="fab fa-bitcoin"></i> -->
                 </div>
             </section>
 

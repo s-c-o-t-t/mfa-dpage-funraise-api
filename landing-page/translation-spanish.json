@@ -47,8 +47,8 @@
 			"El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
 		"cardExpireMonthPlaceholder": "Mes",
 		"cardExpireYearPlaceholder": "Año",
-		"addPercentageLabel": "Needs translation (Add 3% to cover processing fees)",
-		"addPercentageInfoText": "Needs translation",
+		"extraPercentageLabel": "Needs translation (Add 3% to cover processing fees)",
+		"extraPercentageInfoText": "Needs translation",
 		"error": {
 			"invalidCardNumber": "Se requiere el número de tarjeta",
 			"invalidCvv": "Se requiere el código de CVV",

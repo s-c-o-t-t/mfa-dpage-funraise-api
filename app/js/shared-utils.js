@@ -84,12 +84,6 @@
 		if (typeof value == "undefined") {
 			var value = "";
 		}
-		if (value == "undefined") {
-			console.log('getSessionValue() STRING = "UNDEFINED"');
-		}
-		if (typeof value == "undefined") {
-			console.log("getSessionValue() IS UNDEFINED");
-		}
 		try {
 			sessionStorage.setItem(name, value);
 		} catch (e) {
@@ -126,12 +120,6 @@
 	sharedUtils.setLocalValue = function(name, value) {
 		if (typeof value == "undefined") {
 			var value = "";
-		}
-		if (value == "undefined") {
-			console.log('getSessionValue() STRING = "UNDEFINED"');
-		}
-		if (typeof value == "undefined") {
-			console.log("getSessionValue() IS UNDEFINED");
 		}
 		try {
 			localStorage.setItem(name, value);
@@ -203,7 +191,7 @@
 		}
 		var regexFlag = ignoreCase ? "i" : "";
 		var regex = new RegExp(targetKey, regexFlag);
-		for (parameterKey in window.mwdspace.urlParameters) {
+		for (var parameterKey in window.mwdspace.urlParameters) {
 			if (parameterKey.match(regex)) {
 				return window.mwdspace.urlParameters[parameterKey];
 			}
@@ -226,5 +214,23 @@
 				}
 			}
 		}
+	};
+
+	sharedUtils.makeUniqueId = function(prefix) {
+		if (typeof prefix == "undefined") {
+			var prefix = "";
+		}
+		function fromRandom() {
+			return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+		}
+		function fromTime() {
+			return new Date()
+				.getTime()
+				.toString(16)
+				.substring(1);
+		}
+
+		prefix = String(prefix).trim();
+		return prefix + fromRandom() + fromTime() + fromRandom();
 	};
 })();

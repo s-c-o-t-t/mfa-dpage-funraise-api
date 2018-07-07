@@ -4,6 +4,15 @@
 
 	window.mwdspace = window.mwdspace || {};
 
+	var payMethodIconHtml = {
+		card: '<i class="far fa-credit-card"></i>',
+		visa: '<i class="fab fa-cc-visa"></i>',
+		mastercard: '<i class="fab fa-cc-mastercard"></i>',
+		amex: '<i class="fab fa-cc-amex"></i>',
+		discover: '<i class="fab fa-cc-discover"></i>',
+		bitcoin: '<i class="fab fa-bitcoin"></i>',
+	};
+
 	window.mwdspace.MFA_Funraise_Widget = function(input) {
 		var thisWidget = this;
 		if (typeof input == "object") {
@@ -47,6 +56,19 @@
 		if (!thisWidget.options.formId || isNaN(thisWidget.options.formId)) {
 			thisWidget.options.formId = 4394;
 		}
+		if (
+			!thisWidget.options.listSingleGiftAskString ||
+			!thisWidget.options.listSingleGiftAskString.length
+		) {
+			thisWidget.options.listSingleGiftAskString = [25, "50*", 75, 100];
+		}
+
+		if (
+			!thisWidget.options.listMonthlyGiftAskString ||
+			!thisWidget.options.listMonthlyGiftAskString.length
+		) {
+			thisWidget.options.listMonthlyGiftAskString = [5, 10, "15*", 20];
+		}
 
 		var target = document.querySelectorAll(thisWidget.options.element);
 		if (!target) {
@@ -63,7 +85,6 @@
 			return;
 		}
 		thisWidget.isStarted = true;
-		console.log("window.mwdspace.MFA_Funraise_Widget start()", thisWidget.options);
 
 		thisWidget.targetElement.innerHTML = "";
 
@@ -118,7 +139,7 @@
 
 		var promiseBusinessLayer = thisWidget.linkExternalScript(
 			window.location.protocol +
-				"//services.mwdagency.com/donate-widget/1.0.0/js/business-logic-layer.js"
+				"//services.mwdagency.com/donate-widget/1.0.0/js/gift-utilities.js"
 		);
 		var promiseTransactionLayer = thisWidget.linkExternalScript(
 			window.location.protocol +
@@ -173,13 +194,17 @@
 		);
 
 		thisWidget.promises.labelOverrideLoad = thisWidget.prepareLabelOverride();
+
 		buildCurrencySelect();
-		buildPayMethodSelect();
 		buildFrequencyButtons();
+		getGiftString();
+
+		buildPayMethodSelect();
 		buildCountrySelect();
+		setupCompanyMatchSelect();
 		buildCardExpireMonthSelect();
 		buildCardExpireYearSelect();
-		setupCompanyMatchSelect();
+
 		// ensure text override file load (if any) is complete
 		await thisWidget.promises.labelOverrideLoad;
 		if (thisWidget.labelOverride) {
@@ -211,7 +236,7 @@
 							window.mwdspace.transactionSendData
 						)
 					) {
-						showStep("processing");
+						prepAndShowProcessingStep();
 						var buttonHtml = clickTarget.attr("data-working");
 						if (buttonHtml) {
 							clickTarget.addClass("blocked").html(buttonHtml);
@@ -329,11 +354,11 @@
 		function validateStepGift() {
 			var isValid = true;
 			if (
-				typeof userInputData.amount != "number" ||
-				userInputData.amount < userInputData.minimumAmount ||
-				userInputData.amount < 1
+				typeof userInputData.baseAmount != "number" ||
+				userInputData.baseAmount < userInputData.minimumAmount ||
+				userInputData.baseAmount < 1
 			) {
-				console.warn("amount is invalid", userInputData.amount);
+				console.warn("amount is invalid", userInputData.baseAmount);
 				isValid = false;
 			}
 			if (typeof userInputData.currency != "string") {
@@ -360,50 +385,45 @@
 		}
 
 		function setupInputWatchers() {
-			// AMOUNT - also show header display
-			jqGiftAmountFields.on("change focus keyup", function(event) {
-				jqGiftAmountFields.removeClass("selected");
-				if (jq(this).attr("name") != "giftAmountFixed") {
-					jqGiftAmountFields.prop("checked", false);
+			// CHANGE EVENT HANDLER
+			jq(document).on("change", function(event) {
+				var name = event.target.getAttribute("name");
+				var tag = String(event.target.tagName).toLowerCase();
+
+				console.log("CHANGE", tag, name);
+
+				if (
+					(name == "giftAmountFixed" || name == "giftAmountFreeform") &&
+					tag == "input"
+				) {
+					processGiftAmountChange(event);
+				} else if (name == "giftCurrency" && tag == "select") {
+					updateCurrency();
+				} else if (name == "payMethod" && tag == "select") {
+					updatePayMethod();
+				} else if (name == "giftFrequency" && tag == "input") {
+					updateFrequency();
 				}
-				jq(this).addClass("selected");
-				var newAmount = parseFloat(jq(this).val()) || 0.0;
-				updateGiftAmount(newAmount);
-				if (event.type == "change") {
-					jq("div.giftFormHeaderContainer").slideDown(666, function() {
-						scrollAll(jqContainer);
-					});
-				}
+
+				console.log(window.mwdspace.userInputData);
 			});
 
-			//TEMP FOR TESTING
+			// AMOUNT - also show header display
 			jqContainer
-				.find("div.giftAmountContainer input[type='radio']")
-				.eq(1)
-				.prop("checked", true)
-				.trigger("change");
+				.find('div.giftOption input[name="giftAmountFreeform"]')
+				.on("focus keyup paste", function(event) {
+					console.log("PRE SET EVENT", event.type);
+					processGiftAmountChange(event);
+				});
 
 			// CURRENCY
-			jqCurrencySelect
-				.on("change", function() {
-					updateCurrency();
-				})
-				.trigger("change");
+			jqCurrencySelect.trigger("change");
 
 			// PAYMENT METHOD
-			jqPayMethodSelect
-				.on("change", function() {
-					updatePayMethod();
-				})
-				.trigger("change");
+			jqPayMethodSelect.trigger("change");
 
 			// FREQUENCY
-			jqContainer
-				.find("div.giftFrequencyContainer input[type='radio']")
-				.on("change", function() {
-					updateFrequency();
-				})
-				.trigger("change");
+			jqContainer.trigger("change");
 
 			//TEMP FOR TESTING
 			jqContainer
@@ -434,15 +454,38 @@
 				.trigger("change");
 		}
 
-		function updateGiftAmount(input) {
-			if (typeof input == "undefined") {
-				var input = 0;
+		function processGiftAmountChange(event) {
+			jqGiftAmountFields.removeClass("selected");
+			var jqTarget = jq(event.target);
+			if (jqTarget.attr("name") != "giftAmountFixed") {
+				jqGiftAmountFields.prop("checked", false);
 			}
-			userInputData.amount = 0.0;
+			jqTarget.addClass("selected");
+			var newAmount = parseFloat(jqTarget.val()) || 0.0;
+			updateGiftAmount({ baseAmount: newAmount });
+			if (event.type == "change") {
+				jq("div.giftFormHeaderContainer").slideDown(666, function() {
+					scrollAll(jqContainer);
+				});
+			}
+		}
+
+		function updateGiftAmount(input) {
+			console.log("updateGiftAmount() input", input);
+			if (typeof input == "undefined") {
+				var input = {};
+			}
 			try {
-				input = parseFloat(input);
-				userInputData.amount = input || 0;
-				var displayAmount = userInputData.amount.toFixed(2).split(".");
+				userInputData.baseAmount = parseFloat(input.baseAmount) || 0.0;
+				userInputData.extraPercent = parseFloat(input.extraPercent) || 0.0;
+				console.log("userInputData", userInputData);
+				var total = parseFloat(
+					userInputData.baseAmount +
+						userInputData.baseAmount * userInputData.extraPercent
+				);
+				console.log("total", total);
+				var displayAmount = total.toFixed(2).split(".");
+				console.log("displayAmount", displayAmount);
 				jqContainer
 					.find("div.amountDisplay span.displayWholeAmount")
 					.text(displayAmount[0]);
@@ -497,12 +540,13 @@
 					break;
 				}
 			}
+			getGiftString();
 		}
 
 		// GIFT AMOUNT STEP
 		function validateDataGiftAmount() {
 			try {
-				if (isNaN(userInputData.amount) || userInputData.amount <= 0) {
+				if (isNaN(userInputData.baseAmount) || userInputData.baseAmount <= 0) {
 					return false;
 				}
 				if (!validatePaymentType(input.paymentType)) {
@@ -578,8 +622,8 @@
 
 				if (typeof userData.amount == "number") {
 					var totalAmount = userData.amount;
-					if (typeof userData.addPercentage == "number") {
-						totalAmount += userData.addPercentage * userData.amount;
+					if (typeof userData.extraPercentage == "number") {
+						totalAmount += userData.extraPercentage * userData.amount;
 					}
 					sendData.amount = totalAmount;
 					sendData.baseAmount = userData.amount;
@@ -609,6 +653,145 @@
 				console.log("buildTransactionSendData() caught error: ", err.message);
 			}
 			return null;
+		}
+
+		function getGiftString() {
+			var giftStringOptions = {
+				// basicRounding: true,
+				// minimumDynamicStart: 30.0,
+			};
+			if (window.mwdspace.userInputData.frequency == "monthly") {
+				if (thisWidget.options.listMonthlyGiftAskString) {
+					giftStringOptions.giftStringList =
+						thisWidget.options.listMonthlyGiftAskString;
+					if (!thisWidget.isMonthlyOnlyPage) {
+						giftStringOptions.calculateAsMonthly = true;
+					}
+				}
+			} else {
+				if (thisWidget.options.listSingleGiftAskString) {
+					giftStringOptions.giftStringList =
+						thisWidget.options.listSingleGiftAskString;
+				}
+			}
+
+			var finalGiftString = window.mwdspace.giftUtils.processGiftStringList(
+				giftStringOptions
+			);
+			buildGiftStringButtons(finalGiftString);
+		}
+
+		function buildGiftStringButtons(giftStringList) {
+			if (typeof giftStringList == "undefined") {
+				var giftStringList = [];
+			}
+			try {
+				if (!giftStringList || giftStringList.length < 1) {
+					throw new Error("Invalid gift string list given");
+				}
+				var jqGiftStringContainer = jqContainer.find("div.fixedAmountContainer");
+				if (jqGiftStringContainer.length !== 1) {
+					throw new Error("Unable to identify the fixed gift amount container");
+				}
+				// remove any existing options
+				jqGiftStringContainer.empty();
+
+				var domThisButton;
+
+				for (var i = 0; i < giftStringList.length; i++) {
+					domThisButton = buildGiftStringButton(giftStringList[i], {
+						id: window.mwdspace.sharedUtils.makeUniqueId("amount-" + i),
+					});
+					if (domThisButton) {
+						jqGiftStringContainer.append(domThisButton);
+					} else {
+						console.warn("Unable to add fixed gift button:", giftStringList[i]);
+					}
+				}
+			} catch (err) {
+				console.error("Unable to build the fixed gift buttons", err);
+			}
+			updateCurrency();
+		}
+
+		function buildGiftStringButton(input, options) {
+			if (typeof options == "undefined") {
+				var options = {};
+			}
+			if (typeof options != "object") {
+				options = {};
+				console.warn(
+					"buildGiftStringButton(): ignoring invalid option object",
+					options
+				);
+			}
+			var domButton = null;
+			try {
+				var thisAmount = {
+					amount: cleanFloat(input),
+					displayText: formatDisplayGift(input),
+				};
+
+				if (!thisAmount.amount || !thisAmount.displayText) {
+					throw new Error("Invalid gift string amount");
+				}
+
+				// the container div
+				domButton = document.createElement("div");
+				jq(domButton).addClass("giftOption fixed fancyRadioButton");
+
+				// the radio
+				var domRadio = document.createElement("input");
+				domRadio.setAttribute("type", "radio");
+				domRadio.setAttribute("name", "giftAmountFixed");
+				domRadio.setAttribute("value", thisAmount.amount);
+				if (options.id) {
+					domRadio.setAttribute("id", options.id);
+				}
+				domButton.appendChild(domRadio);
+
+				// the label
+				var domLabel = document.createElement("label");
+				if (options.id) {
+					domLabel.setAttribute("for", options.id);
+				}
+				domButton.appendChild(domLabel);
+
+				// label currency symbol
+				var domSymbol = document.createElement("span");
+				jq(domSymbol).addClass("currencySymbol");
+				domLabel.appendChild(domSymbol);
+
+				// label amount value
+				var domAmount = document.createElement("span");
+				jq(domAmount).addClass("displayAmount");
+				domAmount.innerHTML = thisAmount.displayText || "Unknown";
+				domLabel.appendChild(domAmount);
+			} catch (err) {
+				console.error("Error building the button for fixed amount:", input, err);
+			}
+			return domButton;
+		}
+
+		/* remove all but digits/dot before converting to float */
+		function cleanFloat(input) {
+			if (typeof input == "undefined") {
+				var input = "";
+			}
+			input = "" + input;
+			return parseFloat(input.replace(/[^0-9|\.]/g, ""));
+		}
+
+		/* remove all chars but digits/dot before convert to float */
+		function formatDisplayGift(input) {
+			if (typeof input == "undefined") {
+				var input = "";
+			}
+			input = "" + input;
+			var amount = cleanFloat(input);
+			amount = amount.toFixed(2);
+			amount = amount.replace(/\.00$/g, "");
+			return amount;
 		}
 
 		function buildCurrencySelect(options) {
@@ -720,22 +903,22 @@
 				) {
 					throw new Error("Invalid list of frequencies given");
 				}
-				var domFrequencyContainer = jqContainer.find("div.giftFrequencyContainer");
-				if (domFrequencyContainer.length !== 1) {
-					throw new Error("Unable to identify the frequency select dropdown");
+				var jqFrequencyContainer = jqContainer.find("div.giftFrequencyContainer");
+				if (jqFrequencyContainer.length !== 1) {
+					throw new Error("Unable to identify the frequency container");
 				}
 				// remove any existing options
-				domFrequencyContainer.find("div.fancyRadioButton").remove();
+				jqFrequencyContainer.find("div.fancyRadioButton").remove();
 
 				var domThisButton;
 
 				for (var i = 0; i < window.mwdspace.validFrequencyList.length; i++) {
 					domThisButton = buildFrequencyButton(
 						window.mwdspace.validFrequencyList[i],
-						{ id: "giftFrequencyButton" + i }
+						{ id: window.mwdspace.sharedUtils.makeUniqueId("frequency-" + i) }
 					);
 					if (domThisButton) {
-						domFrequencyContainer.append(domThisButton);
+						jqFrequencyContainer.append(domThisButton);
 					} else {
 						console.warn(
 							"Unable to add frequency:",
@@ -754,7 +937,7 @@
 			}
 			if (typeof options != "object") {
 				options = {};
-				console.warn("prepareRegionInput(): ignoring invalid option object", options);
+				console.warn("buildFrequencyButton(): ignoring invalid option object", options);
 			}
 			var domButton = null;
 			try {
@@ -775,7 +958,7 @@
 
 					// the label
 					var domLabel = document.createElement("label");
-					jq(domLabel).addClass("giftOption");
+
 					domLabel.setAttribute("data-label-id", "gift.frequency." + frequency.code);
 					domLabel.innerHTML = frequency.name || "Unknown";
 					if (options.id) {
@@ -1240,6 +1423,34 @@
 			for (var i = 0; i < theList.length; i++) {}
 		}
 
+		function prepAndShowProcessingStep() {
+			var iconHtml = "";
+
+			if (window.mwdspace.userInputData.payMethod == "bitcoin") {
+				iconHtml = payMethodIconHtml.bitcoin;
+			} else if (window.mwdspace.userInputData.payMethod == "card") {
+				switch (window.mwdspace.userInputData.cardType) {
+					case "visa":
+						iconHtml = payMethodIconHtml.visa;
+						break;
+					case "mastercard":
+						iconHtml = payMethodIconHtml.mastercard;
+						break;
+					case "amex":
+						iconHtml = payMethodIconHtml.amex;
+						break;
+					case "discover":
+						iconHtml = payMethodIconHtml.discover;
+						break;
+				}
+			}
+
+			var jqStep = jqContainer.find('section[data-step-name="processing"]');
+			jqStep.find("span.processingPaySymbol").html(iconHtml);
+
+			showStep("processing");
+		}
+
 		function prepAndShowBitcoinStep(input) {
 			if (typeof input != "object") {
 				console.warn("prepAndShowBitcoinStep() given invalid input", input);
@@ -1402,7 +1613,7 @@
 				var input = {};
 			}
 
-			var firstName = window.mwdspace.userInputData.firstName || "Firstname";
+			var firstName = window.mwdspace.userInputData.firstName || "";
 
 			var domFirstName = document.createElement("strong");
 			domFirstName.innerHTML = firstName;
@@ -1426,7 +1637,7 @@
 
 		function scrollAll(theElement) {
 			if (!thisWidget.isLoaded) {
-				// don't scroll until after initial load is complete
+				// don't scroll until after initial page load is complete
 				return;
 			}
 
@@ -1449,7 +1660,7 @@
 						scrollTop: elementTop,
 						easing: "ease",
 					},
-					999
+					666
 				);
 				return;
 			}
