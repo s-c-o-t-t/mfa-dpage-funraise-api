@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.5b");
+	console.log("mwd-donate-widget.js v18.7.6a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -18,6 +18,7 @@
 
 		thisWidget.targetElement = {};
 		thisWidget.promises = {};
+		thisWidget.intervals = {};
 
 		thisWidget.mainStylesUrl =
 			window.location.protocol +
@@ -153,6 +154,8 @@
 		thisWidget.defaultGiftList = [25, 50, 75, 100];
 
 		// GLOBALS
+		// Funraise environment key: ECDNSGhIR0fYQisIc1PHH7NX0pN
+		// MWD test environment key: ODBm2idmYFT3pBge5qxRBjQaWH9
 		var paymentTokenizerId =
 			thisWidget.options.paymentTokenizerId || "ODBm2idmYFT3pBge5qxRBjQaWH9";
 
@@ -304,7 +307,7 @@
 			for (var i = 0; i < jqStepList.length; i++) {
 				thisName = jqStepList[i].getAttribute("data-step-name");
 				if (thisName == targetStepName) {
-					if (i == 0 || targetStepName == "processSuccess") {
+					if (i == 0 || targetStepName == "confirmation") {
 						jqMainBackButton.hide();
 					} else {
 						jq("div.giftFormHeaderContainer").show();
@@ -314,7 +317,7 @@
 						scrollAll(jqContainer);
 					});
 					mwdspace.currentStepName = thisName;
-					if (targetStepName == "processSuccess") {
+					if (targetStepName == "confirmation") {
 						window.mwdspace.sharedUtils.removeSessionValue("savedStepName");
 					}
 				} else {
@@ -774,7 +777,7 @@
 					var domLabel = document.createElement("label");
 					jq(domLabel).addClass("giftOption");
 					domLabel.setAttribute("data-label-id", "gift.frequency." + frequency.code);
-					domLabel.innerHtml = frequency.name || "Unknown";
+					domLabel.innerHTML = frequency.name || "Unknown";
 					if (options.id) {
 						domLabel.setAttribute("for", options.id);
 					}
@@ -1126,9 +1129,6 @@
 					},
 				},
 			});
-			// setInterval(function() {
-			// 	jq(".select2-container").css("width", "100%");
-			// }, 999);
 		}
 
 		async function setupSpreedly() {
@@ -1164,7 +1164,16 @@
 							var buttonHtml = mainSubmitButton.attr("data-success");
 							mainSubmitButton.removeClass("blocked").html(buttonHtml);
 							if (donationInfo.type == "card") {
-								showStep("processSuccess");
+								var transactionStatus = String(donationInfo.status);
+								if (transactionStatus.match(/complete/i)) {
+									prepAndShowConfirmationStep();
+								} else {
+									prepAndShowErrorStep(
+										'The server appears to have had an error processing this card transaction, and reported status "' +
+											transactionStatus +
+											'".'
+									);
+								}
 							} else if (donationInfo.type == "bitcoin") {
 								prepAndShowBitcoinStep(donationInfo);
 							} else {
@@ -1239,10 +1248,6 @@
 			}
 			var jqStep = jqContainer.find('section[data-step-name="bitcoinInvoice"]');
 
-			updateBitcoinTimeRemaining(input.exp);
-			setInterval(function() {
-				updateBitcoinTimeRemaining(input.exp);
-			}, 1000);
 			jqStep.find("span.bitcoinStatus").html(input.invoice_status);
 			jqStep
 				.find("img.scanCode")
@@ -1251,10 +1256,21 @@
 			jqStep.find("span.bitcoinWalletLink").html(input.checkout_url);
 			jqStep.find("a.bitcoinWalletLink").attr("href", input.checkout_url);
 
+			// keep expire countdown timer updated
+			updateBitcoinTimer(input.exp);
+			thisWidget.intervals.bitcoinTimer = setInterval(function() {
+				updateBitcoinTimer(input.exp);
+			}, 1000);
+
 			showStep("bitcoinInvoice");
+
+			// watch for payment completion on Bitcoin side
+			thisWidget.intervals.bitcoinStatusChecker = setInterval(function() {
+				checkBitcoinPaymentStatus(input.transaction_id);
+			}, 30000);
 		}
 
-		function updateBitcoinTimeRemaining(expireTime) {
+		function updateBitcoinTimer(expireTime) {
 			if (typeof expireTime == "undefined") {
 				var expireTime = null;
 			}
@@ -1268,36 +1284,135 @@
 
 				var minutesRemaining = (expireDate - now) / 1000 / 60;
 
-				console.log("Step 1", minutesRemaining);
-
 				if (minutesRemaining > 0) {
 					minutes = parseInt(minutesRemaining);
 					seconds = parseInt((minutesRemaining - minutes) * 60);
-					console.log("Step 2", minutes, seconds);
 
 					if (minutesRemaining < 2) {
-						console.log("WARNING STATUS");
 						jqBitcoinTimeRemaining
 							.closest("div.bitcoinStatusDisplay")
 							.addClass("warning");
 					}
 				} else {
-					console.log("ERROR STATUS");
 					jqBitcoinTimeRemaining
 						.closest("div.bitcoinStatusDisplay")
 						.addClass("error");
+					clearInterval(thisWidget.intervals.bitcoinTimer);
 				}
 
 				if (seconds < 10) {
 					seconds = "0" + seconds;
 				}
-				console.log("Step 3", minutes, seconds);
 				displayCountdown = minutes.toFixed() + ":" + seconds;
 			} catch (err) {
-				console.warn("updateBitcoinTimeRemaining() caught error", err.message);
+				console.warn("updateBitcoinTimer() caught error", err.message);
 			}
-			console.log(displayCountdown);
 			jqBitcoinTimeRemaining.html(displayCountdown);
+		}
+
+		async function checkBitcoinPaymentStatus(input) {
+			console.log(">>> checkBitcoinPaymentStatus()");
+			if (typeof input == "undefined") {
+				console.warn("checkBitcoinPaymentStatus() given empty url");
+				var input = null;
+			}
+
+			var baseInvoiceUrl = "https://bitpay.com/invoices/";
+			var jqBitcoinContainer = jqContainer.find("div.bitcoinContainer");
+
+			var response = await new Promise(function(resolve) {
+				console.log(">>> checkBitcoinPaymentStatus() INSIDE PROMISE");
+				if (typeof input != "string") {
+					console.warn(
+						"checkBitcoinPaymentStatus() given invalid url type:",
+						typeof input,
+						input
+					);
+					resolve(null);
+				}
+				console.log("checkBitcoinPaymentStatus() start:", input);
+				var requestUrl = encodeURI(baseInvoiceUrl + input);
+				var xhr = new XMLHttpRequest();
+
+				xhr.addEventListener("load", function(event) {
+					// console.log("FILE LOADED:", event);
+					var fileContents =
+						event.target.responseText || event.target.response || null;
+					var tempObject = window.mwdspace.sharedUtils.safeJsonParse(fileContents);
+
+					if (!tempObject || !tempObject.data) {
+						console.log("checkBitcoinPaymentStatus(): invalid response", event);
+						resolve(null);
+					}
+
+					resolve(tempObject.data);
+				});
+				xhr.addEventListener("error", function(event) {
+					console.error("checkBitcoinPaymentStatus() ERROR EVENT", requestUrl, event);
+					resolve(null);
+				});
+				xhr.addEventListener("abort", function(event) {
+					console.warn("checkBitcoinPaymentStatus() ABORT EVENT", requestUrl, event);
+					resolve(null);
+				});
+
+				xhr.open("get", requestUrl, true);
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.send();
+			});
+
+			if (!response) {
+				var messageHtml =
+					"<div class='spacingContainer error'>Warning: Unable to check the status of this invoice (" +
+					new Date().toLocaleTimeString() +
+					"). Will try again shortly.</div>";
+				jqBitcoinContainer.find("div.bitcoinFeedback").html(messageHtml);
+				return;
+			}
+
+			console.log("checkBitcoinPaymentStatus() RESPONSE", response);
+
+			jqBitcoinContainer.find("div.bitcoinStatus").html(response.status);
+
+			switch (response.status) {
+				case "paid":
+				case "confirmed":
+				case "complete":
+					prepAndShowConfirmationStep();
+					clearInterval(thisWidget.intervals.bitcoinStatusChecker);
+					break;
+				case "expired":
+					prepAndShowErrorStep(
+						"The Bitcoin invoice expired before payment was received."
+					);
+					clearInterval(thisWidget.intervals.bitcoinStatusChecker);
+					break;
+				case "invalid":
+					var domMessage = document.createElement("div");
+					domMessage.innerHTML =
+						"The invoice received payments, but is listed as invalid.";
+					jq(domMessage).addClass("spacingContainer error");
+					jqBitcoinContainer.find("div.bitcoinFeedback").append(domMessage);
+					break;
+			}
+		}
+
+		function prepAndShowConfirmationStep(input) {
+			if (typeof input == "undefined") {
+				var input = {};
+			}
+
+			var firstName = window.mwdspace.userInputData.firstName || "Firstname";
+
+			var domFirstName = document.createElement("strong");
+			domFirstName.innerHTML = firstName;
+
+			var jqStep = jqContainer.find('section[data-step-name="confirmation"]');
+			jqStep
+				.find("span.transactionSuccessName")
+				.append(domFirstName)
+				.append("!");
+			showStep("confirmation");
 		}
 
 		function prepAndShowErrorStep(input) {
@@ -1305,7 +1420,7 @@
 				var input = {};
 			}
 			var jqStep = jqContainer.find('section[data-step-name="processError"]');
-			jqStep.find("span.errorDescription").innerHtml(input);
+			jqStep.find("span.errorDescription").html(input);
 			showStep("processError");
 		}
 
@@ -1373,9 +1488,9 @@
 			domStyleLink.rel = "stylesheet";
 			domStyleLink.type = "text/css";
 			var timeout = setTimeout(function() {
-				console.log("linkExternalStylesheet() No load after 2s", url);
+				console.log("linkExternalStylesheet() No load after 5s", url);
 				resolve(false);
-			}, 2000);
+			}, 5000);
 			domStyleLink.addEventListener("load", function(event) {
 				clearTimeout(timeout);
 				// console.log("STYLESHEET LOADED:", url);
@@ -1400,9 +1515,9 @@
 			var domScript = document.createElement("script");
 			thisWidget.targetElement.appendChild(domScript);
 			var timeout = setTimeout(function() {
-				console.log("linkExternalScript() No load after 2s", url);
+				console.log("linkExternalScript() No load after 5s", url);
 				resolve(false);
-			}, 2000);
+			}, 5000);
 			domScript.addEventListener("load", function(event) {
 				clearTimeout(timeout);
 				// console.log("SCRIPT LOADED:", url);
@@ -1438,9 +1553,9 @@
 			var xhr = new XMLHttpRequest();
 
 			var timeout = setTimeout(function() {
-				console.log("linkExternalScript() No load after 3s", url);
+				console.log("linkExternalScript() No load after 5s", url);
 				resolve(false);
-			}, 3000);
+			}, 5000);
 			xhr.addEventListener("load", function(event) {
 				clearTimeout(timeout);
 				// console.log("FILE LOADED:", input);
@@ -1459,7 +1574,6 @@
 			});
 
 			xhr.open("get", requestUrl, true);
-			// xhr.setRequestHeader('Accept', acceptContentType);
 			xhr.send();
 		});
 	};
@@ -1581,7 +1695,7 @@
 				}
 			}
 		} else {
-			console.error("REPLACE labelId not found", labelId);
+			console.warn("REPLACE labelId not found", labelId);
 		}
 	};
 })();

@@ -199,7 +199,7 @@
                     <h1>
                         <i class="fa fa-spinner fa-spin"></i>
                     </h1>
-                    <h2 data-label-id="processing.message">Yay! Your donation is processing...</h2>
+                    <h3 data-label-id="processing.message">Yay! Your donation is processing...</h3>
                     <h2 class="processingPaySymbol">
                         <i class="fab fa-bitcoin"></i>
                     </h2>
@@ -228,6 +228,7 @@
                         <span class="bitcoinStatus">
                             <i class="fas fa-sync fa-spin"></i>
                         </span>
+                        <div class="bitcoinFeedback"></div>
                     </div>
 
                     <img class="scanCode" src="">
@@ -251,15 +252,19 @@
             </section>
 
             <!-- SUCCESS ********************************************* -->
-            <section class="step" data-step-name="processSuccess">
+            <section class="step" data-step-name="confirmation">
                 <div class="generalContainer">
+                    <h1 class="big">
+                        <i class="fas fa-check-circle"></i>
+                    </h1>
                     <h2>
-                        <span data-label-id="transactionSuccess.headline">Success!</span>
+                        <span data-label-id="transactionSuccess.personalThankYou">Thank you,</span>
+                        <span class="transactionSuccessName"> for your donation!</span>
                     </h2>
-                    <h2>
-                        <span data-label-id="transactionSuccess.message">Thank you for your support</span>
-                        <i class="fas fa-smile-beam"></i>
-                    </h2>
+                    <p>&nbsp;</p>
+                    <p>
+                        <span data-label-id="transactionSuccess.emailNote">You will receive an email receipt for your donation shortly.</span>
+                    </p>
                 </div>
             </section>
 
