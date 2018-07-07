@@ -167,21 +167,14 @@ div#mfaDonationWidgetContainer {
 				min-height: $standardInputHeight;
 				padding: 0.44rem;
 				font-size: 1rem;
-				background: #fff;
-				border: 1px solid $colorElementBorder;
-				border-radius: $standardRadius;
-				box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+				background: none;
+				border: none;
+				border-radius: 0;
+				box-shadow: none;
 			}
 			div.specialSelectorContainer {
 				padding: 0;
 				border: none;
-			}
-			div.cardTokenizerFrame {
-				height: $standardInputHeight;
-				overflow: hidden;
-				iframe {
-					width: 100%;
-				}
 			}
 
 			button {
@@ -240,6 +233,13 @@ div#mfaDonationWidgetContainer {
 		flex-flow: row wrap;
 		align-items: center;
 		margin: 0.5em 0;
+		div.fixedAmountContainer {
+			display: flex;
+			flex-flow: row wrap;
+			flex-basis: 100%;
+			align-items: center;
+			margin-top: 0.5em;
+		}
 		div.fancyRadioButton {
 			flex: 1;
 			padding: 0.125em;
@@ -272,6 +272,11 @@ div#mfaDonationWidgetContainer {
 				display: flex;
 				align-items: stretch;
 				flex: 1 100%;
+				padding: 0;
+				margin: 0.25em 0.1em 0.1em 0.1em;
+				background: #fff;
+				border: 1px solid $colorElementBorder;
+				border-radius: $standardRadius;
 				> * {
 					padding: 0.5rem;
 				}
@@ -283,71 +288,60 @@ div#mfaDonationWidgetContainer {
 					@include basicButtonLook;
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
-					border-right: 0;
+					border: 0;
 				}
-				input[name="giftAmountFreeForm"] {
+				input[name="giftAmountFreeform"] {
 					font-size: 0.8em;
+					border-left: 1px solid $colorElementBorder;
+					border-right: 1px solid $colorElementBorder;
 				}
 				select[name="giftCurrency"] {
 					min-width: 3em;
 					max-width: 6.25em;
-					border-top-left-radius: 0;
-					border-bottom-left-radius: 0;
-					border-left: none;
 				}
 			}
 		}
 	}
 	div.donorInfoContainer,
 	div.billingInfoContainer,
-	div.payInfoContainer {
+	div.payInfoContainer,
+	div.payMethodContainer {
 		display: flex;
 		flex-flow: row wrap;
+		div.connectedSection {
+			display: flex;
+			flex-flow: row wrap;
+			flex: 1 100%;
+			background: #fff;
+			border: 1px solid $colorElementBorder;
+			border-radius: $standardRadius;
+		}
 		div.inputGroup {
 			flex: 1 100%;
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 			&.infoBox {
 				display: flex;
 				flex-wrap: wrap;
 				margin-top: 0.5em;
 				margin-bottom: 0.5em;
 				padding: 0.33em;
+				background: transparent;
 				border: 1px solid $colorElementBorder;
-				div.infoIcon {
-					position: relative;
-					margin-left: auto;
-					span.infoText {
-						position: absolute;
-						display: none;
-						align-items: center;
-						justify-content: center;
-						bottom: -1em;
-						right: -1em;
-						min-width: 15em;
-						min-height: 5em;
-						max-width: 20em;
-						padding: 0.75em;
-						font-size: 0.8em;
-						color: darken($colorMainText, 10%);
-						background-color: lighten($colorFormBg, 10%);
-						border: 1px solid darken($colorElementBorder, 5%);
-						border-radius: 0.25em;
-						box-shadow: 0 0 0.25em transparentize($colorMainText, 0.25);
-						&:hover {
-							display: flex;
-							bottom: 0;
-							opacity: 1;
-						}
-					}
-					&:hover {
-						span.infoText {
-							display: flex;
-						}
-					}
-				}
+				box-shadow: none;
 				&.collapsable {
 					margin-top: 0.5em;
 					display: none;
 				}
+			}
+			&.borderTop {
+				border-top: 1px solid $colorElementBorder;
+			}
+			&.borderRight {
+				border-right: 1px solid $colorElementBorder;
+			}
+			&.collapsable {
+				margin-top: 0.5em;
+				display: none;
 			}
 			&.twoUp {
 				flex-basis: 50%;
@@ -357,15 +351,74 @@ div#mfaDonationWidgetContainer {
 				&.small {
 					flex-basis: 40%;
 				}
-				&.bigger {
-					flex-basis: 67%;
-				}
-				&.smaller {
-					flex-basis: 33%;
-				}
 				&.infoBox {
 					margin-left: 0.5em;
 					margin-right: 0.5em;
+				}
+			}
+			&.collapsable {
+				margin-top: 0.5em;
+			}
+			&.cardNumber,
+			&.cardCvv {
+				display: flex;
+				align-items: center;
+				.insetIcon {
+					padding-right: 0.25em;
+				}
+			}
+			&.cardNumber {
+				flex-basis: 75%;
+				div.cardNumberFeedback {
+					display: flex;
+					align-items: center;
+					color: #000;
+					.cardType {
+						font-size: 1.25em;
+					}
+				}
+			}
+			&.cardCvv {
+				flex-basis: 25%;
+			}
+			div.cardTokenizerFrame {
+				height: $standardInputHeight;
+				overflow: hidden;
+				iframe {
+					width: 100%;
+				}
+			}
+		}
+
+		div.infoIcon {
+			position: relative;
+			margin-left: auto;
+			span.infoText {
+				position: absolute;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				bottom: -1em;
+				right: -1em;
+				min-width: 15em;
+				min-height: 5em;
+				max-width: 20em;
+				padding: 0.75em;
+				font-size: 0.8em;
+				color: darken($colorMainText, 10%);
+				background-color: lighten($colorFormBg, 10%);
+				border: 1px solid darken($colorElementBorder, 5%);
+				border-radius: 0.25em;
+				box-shadow: 0 0 0.25em transparentize($colorMainText, 0.25);
+				&:hover {
+					display: flex;
+					bottom: 0;
+					opacity: 1;
+				}
+			}
+			&:hover {
+				span.infoText {
+					display: flex;
 				}
 			}
 		}
