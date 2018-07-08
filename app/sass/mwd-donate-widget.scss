@@ -147,7 +147,7 @@ div#mfaDonationWidgetContainer {
 			overflow: hidden;
 			section.step {
 				display: none;
-				padding: 1.75rem;
+				padding: 1rem 2.5%;
 			}
 			h4 {
 				font-size: 0.9375em;
@@ -164,7 +164,7 @@ div#mfaDonationWidgetContainer {
 			input[type="number"],
 			div.inputAppearance {
 				width: 100%;
-				min-height: $standardInputHeight;
+				height: $standardInputHeight !important;
 				padding: 0.44rem;
 				font-size: 1rem;
 				background: none;
@@ -175,13 +175,19 @@ div#mfaDonationWidgetContainer {
 				&.invalid {
 					position: relative;
 					color: darken($colorError, 2%);
-					background-color: lighten($colorError, 25%);
+					background-color: lighten($colorError, 30%);
 					border: 0.5px solid transparentize($colorError, 0.25);
 					animation-name: shakeInvalid;
 					animation-duration: 0.2s;
 					animation-timing-function: ease-out;
 					animation-iteration-count: 2;
 				}
+			}
+			input[type="number"]::-webkit-inner-spin-button,
+			input[type="number"]::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				appearance: none;
+				margin: 0;
 			}
 			div.specialSelectorContainer {
 				padding: 0;
@@ -375,7 +381,13 @@ div#mfaDonationWidgetContainer {
 				display: flex;
 				align-items: center;
 				.insetIcon {
-					padding-right: 0.25em;
+					padding-right: 0.4em;
+					&.valid {
+						color: $colorSuccess;
+					}
+					&.invalid {
+						color: $colorError;
+					}
 				}
 			}
 			&.cardNumber {
@@ -385,7 +397,7 @@ div#mfaDonationWidgetContainer {
 					align-items: center;
 					color: #000;
 					.cardType {
-						font-size: 1.25em;
+						font-size: 1.5em;
 					}
 				}
 			}
@@ -407,6 +419,7 @@ div#mfaDonationWidgetContainer {
 			span.infoText {
 				position: absolute;
 				display: none;
+				flex-direction: column;
 				align-items: center;
 				justify-content: center;
 				bottom: -1em;
@@ -425,6 +438,13 @@ div#mfaDonationWidgetContainer {
 					display: flex;
 					bottom: 0;
 					opacity: 1;
+				}
+				img {
+					display: block;
+					margin: 0.15em;
+					border: 0.5px solid whitesmoke;
+					width: 100%;
+					height: auto;
 				}
 			}
 			&:hover {
@@ -572,5 +592,17 @@ input.fancyCheckbox {
 	}
 	100% {
 		left: 0;
+	}
+}
+
+@media screen and (min-width: 30rem) {
+	div#mfaDonationWidgetContainer {
+		div.giftFormContainer {
+			form.mainGiftForm {
+				section.step {
+					padding: 1.75rem;
+				}
+			}
+		}
 	}
 }

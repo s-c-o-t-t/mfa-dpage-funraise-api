@@ -189,6 +189,9 @@
 		var jqRegionInput = jqContainer.find('input[name="donorRegion"]');
 		var jqGiftAmountFields = jqContainer.find("div.giftOption input");
 		var jqCurrencySelect = jqContainer.find('select[name="giftCurrency"]');
+		var jqCardNumberFeedback = jqContainer.find(
+			"div.payInfoContainer div.cardNumberFeedback"
+		);
 		var jqBitcoinTimeRemaining = jqContainer.find(
 			"div.bitcoinContainer span.bitcoinTimeRemaining"
 		);
@@ -227,46 +230,23 @@
 			if (clickTarget) {
 				if (clickTarget.hasClass("processDonation")) {
 					if (window.mwdspace.donationInProgress) {
-						alert("There's already a donation processing.");
-						return false;
-					}
-					window.mwdspace.transactionSendData = buildTransactionSendData();
-					if (
-						window.mwdspace.transactionLayer.validateSendData(
-							window.mwdspace.transactionSendData
-						)
-					) {
-						prepAndShowProcessingStep();
-						var buttonHtml = clickTarget.attr("data-working");
-						if (buttonHtml) {
-							clickTarget.addClass("blocked").html(buttonHtml);
-						}
-						if (typeof Spreedly == "object") {
-							var tokenOptions = {
-								// Required
-								first_name:
-									window.mwdspace.transactionSendData.firstName || "Test",
-								last_name:
-									window.mwdspace.transactionSendData.lastName || "Tester",
-								month:
-									window.mwdspace.transactionSendData.cardExpireMonth || "12",
-								year:
-									window.mwdspace.transactionSendData.cardExpireMonth ||
-									"2025",
-
-								// Optional
-								email: window.mwdspace.transactionSendData.email || "",
-								zip: window.mwdspace.transactionSendData.postCode || "",
-							};
-							console.log("tokenOptions", tokenOptions);
-							Spreedly.tokenizeCreditCard(tokenOptions);
-						}
+						alert("A donation is processing.");
 					} else {
-						window.mwdspace.donationInProgress = false;
-						clickTarget.addClass("showInvalid");
-						setTimeout(function() {
-							clickTarget.removeClass("showInvalid");
-						}, 1500);
+						window.mwdspace.transactionSendData = buildTransactionSendData();
+						if (
+							window.mwdspace.transactionLayer.validateSendData(
+								window.mwdspace.transactionSendData
+							)
+						) {
+							prepAndShowProcessingStep();
+							sendTransaction(clickTarget);
+						} else {
+							window.mwdspace.donationInProgress = false;
+							clickTarget.addClass("showInvalid");
+							setTimeout(function() {
+								clickTarget.removeClass("showInvalid");
+							}, 1500);
+						}
 					}
 				} else if (clickTarget.hasClass("goNextStep")) {
 					if (!showNextStep()) {
@@ -433,23 +413,6 @@
 			return false;
 		}
 
-		function validateInputField(jqThis, validationPattern) {
-			var newValue = String(jqThis.val());
-			var re;
-			switch (validationPattern) {
-				case "email":
-					re = new RegExp(/^\w+@\w+\.[a-z]{2,}$/i);
-					break;
-				default:
-					re = new RegExp(validationPattern, "i");
-			}
-			if (newValue.match(re)) {
-				jqThis.removeClass("invalid");
-			} else {
-				jqThis.addClass("invalid");
-			}
-		}
-
 		function setupInputWatchers() {
 			// CHANGE EVENT HANDLER
 			jq(document).on("change blur", function(event) {
@@ -460,16 +423,13 @@
 				var tag = String(jqThis.prop("tagName")).toLowerCase();
 
 				if (jqThis.hasClass("changeWatch")) {
-					window.mwdspace.userInputData[name] = newValue;
-					var validationPattern = jqThis.attr("data-validation");
-					if (validationPattern) {
-						validateInputField(jqThis, validationPattern);
-					}
+					processChangeWatch(jqThis, { name: name, value: newValue });
 				}
 
 				if (name == "giftAmountFixed" && tag == "input") {
 					processGiftAmountChange(event);
 				} else if (name == "giftAmountFreeform" && tag == "input") {
+					jqGiftAmountFields.prop("checked", false);
 					var amount = cleanFloat(newValue) || 0.0;
 					var cleanedAmount = amount.toFixed(2);
 					if (cleanedAmount != newValue) {
@@ -480,7 +440,6 @@
 					} else {
 						jqThis.removeClass("invalid");
 					}
-					jqGiftAmountFields.prop("checked", false);
 					processGiftAmountChange(event);
 				} else if (name == "giftCurrency" && tag == "select") {
 					updateCurrency();
@@ -528,6 +487,57 @@
 					}
 				})
 				.trigger("change");
+		}
+
+		function processChangeWatch(jqThis, options) {
+			if (typeof options == "undefined") {
+				var options = {};
+			}
+
+			var isValid = true;
+			var validatedValue = null; // reset stored value when not valid
+
+			options.validationPattern = jqThis.attr("data-validation");
+			if (options.validationPattern) {
+				isValid = validateInputField(jqThis, options);
+			}
+
+			if (isValid) {
+				var elementType = jqThis.attr("type");
+				if (elementType == "checkbox" || elementType == "radio") {
+					if (jqThis.prop("checked")) {
+						// set value only when boolean input checked
+						validatedValue = options.value;
+					}
+				} else {
+					validatedValue = options.value;
+				}
+				// check if card info tokenization is required
+				if (jqThis.hasClass("tokenizeWatch")) {
+					tokenizeUserCard();
+				}
+			}
+			userInputData[options.name] = validatedValue;
+		}
+
+		function validateInputField(jqThis, options) {
+			if (typeof options == "undefined") {
+				var options = {};
+			}
+			var re;
+			switch (options.validationPattern) {
+				case "email":
+					re = new RegExp(/^\w+@\w+\.[a-z]{2,}$/i);
+					break;
+				default:
+					re = new RegExp(options.validationPattern, "i");
+			}
+			if (options.value.match(re)) {
+				jqThis.removeClass("invalid");
+				return true;
+			}
+			jqThis.addClass("invalid");
+			return false;
 		}
 
 		function processGiftAmountChange(event) {
@@ -682,35 +692,34 @@
 				if (userData.formId) sendData.formId = userData.formId;
 				if (userData.paymentToken) sendData.paymentToken = userData.paymentToken;
 
-				if (userData.firstName) sendData.firstName = userData.firstName;
-				if (userData.lastName) sendData.lastName = userData.lastName;
-				if (userData.email) sendData.email = userData.email;
-				if (userData.streetAddress) sendData.address = userData.streetAddress;
-				if (userData.city) sendData.city = userData.city;
-				if (userData.region) sendData.state = userData.region;
-				if (userData.postCode) sendData.postalCode = userData.postCode;
-				if (userData.country) sendData.country = userData.country;
+				if (userData.firstName) sendData.firstName = userData.donorFirstName;
+				if (userData.lastName) sendData.lastName = userData.donorLastName;
+				if (userData.email) sendData.email = userData.donorEmail;
+				if (userData.streetAddress) sendData.address = userData.donorStreet;
+				if (userData.city) sendData.city = userData.donorCity;
+				if (userData.region) sendData.state = userData.donorRegion;
+				if (userData.postCode) sendData.postalCode = userData.donorPostCode;
+				if (userData.country) sendData.country = userData.donorCountry;
 
-				if (typeof userData.amount == "number") {
-					var totalAmount = userData.amount;
+				if (typeof userData.baseAmount == "number") {
+					var totalAmount = userData.baseAmount;
 					if (typeof userData.extraPercentage == "number") {
-						totalAmount += userData.extraPercentage * userData.amount;
+						totalAmount += userData.extraPercentage * userData.baseAmount;
 					}
 					sendData.amount = totalAmount;
-					sendData.baseAmount = userData.amount;
+					sendData.baseAmount = userData.baseAmount;
 				}
 
-				if (userData.currency) sendData.currency = userData.currency;
+				if (userData.currency) sendData.currency = userData.giftCurrency;
 				if (userData.payMethod) sendData.paymentType = userData.payMethod;
-				if (userData.cardExpireMonth) sendData.month = userData.cardExpireMonth;
-				if (userData.cardExpireYear) sendData.year = userData.cardExpireYear;
 
-				// if (userData.payMethod == "card") {
-				// 	sendData.cardType = userData.cardType || "TEST VALUE";
-				// 	sendData.lastFour = userData.cardLastFour || "TEST VALUE";
-				// 	sendData.month = userData.cardExpireMonth || "TEST VALUE";
-				// 	sendData.year = userData.cardExpireYear || "TEST VALUE";
-				// }
+				if (userData.payMethod == "card") {
+					if (userData.cardExpireMonth) sendData.month = userData.cardExpireMonth;
+					if (userData.cardExpireYear) sendData.year = userData.cardExpireYear;
+
+					if (userData.cardType) sendData.cardType = userData.cardType;
+					if (userData.cardLastFour) sendData.lastFour = userData.cardLastFour;
+				}
 
 				if (userData.isCompanyMatch === true) {
 					sendData.donateDouble = true;
@@ -724,6 +733,44 @@
 				console.log("buildTransactionSendData() caught error: ", err.message);
 			}
 			return null;
+		}
+
+		function sendTransaction(clickTarget) {
+			clickTarget.addClass("blocked");
+
+			window.mwdspace.transactionLayer.startDonation(
+				window.mwdspace.transactionSendData,
+				function(donationInfo) {
+					console.log("SUCCESS FUNCTION", donationInfo);
+					clickTarget.removeClass("blocked");
+					if (donationInfo.type == "card") {
+						var transactionStatus = String(donationInfo.status);
+						if (transactionStatus.match(/complete/i)) {
+							prepAndShowConfirmationStep();
+						} else {
+							prepAndShowErrorStep(
+								'The server appears to have had an error processing this card transaction, and reported status "' +
+									transactionStatus +
+									'".'
+							);
+						}
+					} else if (donationInfo.type == "bitcoin") {
+						prepAndShowBitcoinStep(donationInfo);
+					} else {
+						console.warn(
+							"Unrecognized type property in server response",
+							donationInfo
+						);
+						prepAndShowErrorStep("Unrecognized response from the sever");
+					}
+				},
+				function(donationInfo) {
+					console.log("FAIL FUNCTION", donationInfo);
+					clickTarget.removeClass("blocked");
+					console.warn("Donation received fail response from server", donationInfo);
+					prepAndShowErrorStep("The server was unable to process the transaction");
+				}
+			);
 		}
 
 		function getGiftString() {
@@ -1060,7 +1107,7 @@
 					thisCountry = window.mwdspace.validCountryList[i];
 					if (userCountry == thisCountry.code || userCountry == thisCountry.name) {
 						if (thisCountry.regions && buildRegionSelect(thisCountry.regions)) {
-							return true;
+							return;
 						}
 					}
 				}
@@ -1071,13 +1118,19 @@
 		}
 
 		function showRegionInput() {
-			jqRegionInput.val("").show();
 			jqRegionSelect.hide();
+			jqRegionInput
+				.val("")
+				.show()
+				.trigger("change");
 		}
 
 		function buildRegionSelect(regions) {
 			jqRegionInput.hide();
-			jqRegionSelect.show();
+			jqRegionSelect
+				.val("")
+				.show()
+				.trigger("change");
 
 			if (typeof regions == "undefined") {
 				console.warn("buildRegionSelect(): no regions object", regions);
@@ -1195,7 +1248,6 @@
 			try {
 				if (country.code) {
 					domOption = document.createElement("option");
-					domOption.setAttribute("value", country.code);
 					domOption.innerText = country.name;
 				}
 			} catch (err) {
@@ -1344,7 +1396,7 @@
 			if (thisWidget.promises.spreedlyIframeScript) {
 				await thisWidget.promises.spreedlyIframeScript;
 			}
-			var theLabel = "Enter your company name";
+			var theLabel = "Search by company name";
 			try {
 				if (thisWidget.labelOverride.donor.matchCompanyPlaceholder) {
 					theLabel = thisWidget.labelOverride.donor.matchCompanyPlaceholder;
@@ -1374,7 +1426,7 @@
 							for (var i = 0; i < data.length; i++) {
 								if (data[i].name) {
 									returnObject.results.push({
-										id: i,
+										id: data[i].name,
 										text: data[i].name,
 									});
 								}
@@ -1402,65 +1454,64 @@
 
 					setSpreedlyLabels();
 
-					Spreedly.setValue("number", "4111111111111111");
-					Spreedly.setValue("cvv", "123");
+					// Spreedly.setValue("number", "4111111111111111");
+					// Spreedly.setValue("cvv", "123");
 				});
 				Spreedly.on("paymentMethod", function(token, result) {
 					console.log("\n\nSPREEDLY PAYMENT TOKENIZED", token, result);
 
-					window.mwdspace.transactionSendData.paymentToken = token;
-
-					var mainSubmitButton = jqContainer.find("button.processDonation");
-
-					window.mwdspace.transactionLayer.startDonation(
-						window.mwdspace.transactionSendData,
-						function(donationInfo) {
-							console.log("SUCCESS FUNCTION", donationInfo);
-							var buttonHtml = mainSubmitButton.attr("data-success");
-							mainSubmitButton.removeClass("blocked").html(buttonHtml);
-							if (donationInfo.type == "card") {
-								var transactionStatus = String(donationInfo.status);
-								if (transactionStatus.match(/complete/i)) {
-									prepAndShowConfirmationStep();
-								} else {
-									prepAndShowErrorStep(
-										'The server appears to have had an error processing this card transaction, and reported status "' +
-											transactionStatus +
-											'".'
-									);
-								}
-							} else if (donationInfo.type == "bitcoin") {
-								prepAndShowBitcoinStep(donationInfo);
-							} else {
-								console.warn(
-									"Unrecognized type property in server response",
-									donationInfo
-								);
-								prepAndShowErrorStep("Unrecognized response from the sever");
-							}
-						},
-						function(donationInfo) {
-							console.log("FAIL FUNCTION", donationInfo);
-							var buttonHtml = mainSubmitButton.attr("data-error");
-							mainSubmitButton
-								.removeClass("blocked")
-								.addClass("error")
-								.html(buttonHtml);
-							console.warn(
-								"Donation received fail response from server",
-								donationInfo
-							);
-							prepAndShowErrorStep(
-								"The server was unable to process the transaction"
-							);
-						}
-					);
+					window.mwdspace.userInputData.paymentToken = token;
+					window.mwdspace.userInputData.cardType = result.card_type;
+					window.mwdspace.userInputData.cardLastFour = result.last_four_digits;
 				});
 				Spreedly.on("errors", function(errors) {
 					console.log("\n\nSPREEDLY REPORTS ERRORS:");
 					for (var i = 0; i < errors.length; i++) {
 						var error = errors[i];
 						console.log(error);
+					}
+				});
+				Spreedly.on("fieldEvent", function(name, type, activeEl, response) {
+					console.log("activeEl", activeEl);
+					if (type == "input") {
+						console.log("CARD NUMBER EVENT", response);
+						if (response.validNumber && response.validCvv) {
+							console.log("BOTH FIELDS VALID");
+						}
+						if (name == "number") {
+							if (response.validNumber) {
+								jqCardNumberFeedback
+									.find("span.cardNumberValidity")
+									.removeClass("invalid")
+									.addClass("valid")
+									.html('<i class="fas fa-check-circle"></i>');
+							} else {
+								jqCardNumberFeedback
+									.find("span.cardNumberValidity")
+									.removeClass("valid")
+									.addClass("invalid")
+									.html('<i class="fas fa-times"></i>');
+							}
+							var iconHtml;
+							switch (response.cardType) {
+								case "visa":
+									iconHtml = payMethodIconHtml.visa;
+									break;
+								case "master":
+									iconHtml = payMethodIconHtml.mastercard;
+									break;
+								case "american_express":
+									iconHtml = payMethodIconHtml.amex;
+									break;
+								case "discover":
+									iconHtml = payMethodIconHtml.discover;
+									break;
+								default:
+									iconHtml = payMethodIconHtml.card;
+							}
+							console.log("Changing card type to", iconHtml);
+							jqCardNumberFeedback.find("span.cardType").html(iconHtml);
+						}
 					}
 				});
 				Spreedly.init(paymentTokenizerId, {
@@ -1488,6 +1539,42 @@
 				} catch (err) {}
 				Spreedly.setPlaceholder("number", labelCard);
 				Spreedly.setPlaceholder("cvv", labelCvv);
+
+				Spreedly.setStyle("number", "font-size:16px;color:#333;");
+				Spreedly.setStyle("cvv", "font-size:16px;color:#333;");
+			}
+		}
+
+		function tokenizeUserCard() {
+			// tokenize only when all fields are ready
+			// when successful, this will populate userInputData.paymentToken field
+			if (
+				userInputData.donorFirstname &&
+				userInputData.donorLastname &&
+				userInputData.payCardNumber &&
+				userInputData.payCardCvv &&
+				userInputData.payCardExpireMonth &&
+				userInputData.payCardExpireYear
+			) {
+				if (typeof Spreedly == "object") {
+					var tokenOptions = {
+						// Required
+						first_name: userInputData.donorFirstname,
+						last_name: userInputData.donorLastname,
+						month: userInputData.payCardExpireMonth,
+						year: userInputData.payCardExpireYear,
+					};
+					// Optional
+					if (userInputData.donorPostCode) {
+						tokenOptions.zip = userInputData.donorPostCode;
+					}
+					console.log("tokenOptions", tokenOptions);
+					Spreedly.tokenizeCreditCard(tokenOptions);
+				} else {
+					console.error("NO SPREEDLY OBJECT - Skipping Spreedly tokenization");
+				}
+			} else {
+				console.warn("Skipping Spreedly tokenization - fields not ready");
 			}
 		}
 
