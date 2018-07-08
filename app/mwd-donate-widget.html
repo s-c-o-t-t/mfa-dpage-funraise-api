@@ -37,7 +37,6 @@
                         <input type="number" name="giftAmountFreeform" placeholder="or enter amount" data-label-id="gift.otherAmountPlaceholder">
                         <select class="changeWatch" name="giftCurrency">
                         </select>
-
                     </div>
                 </div>
 
@@ -65,19 +64,20 @@
                 <div class="donorInfoContainer">
                     <div class="connectedSection">
                         <div class="inputGroup twoUp borderRight">
-                            <input class="changeWatch" name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name"
-                                data-validation="[a-z]+">
+                            <input class="changeWatch tokenizeWatch" name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name"
+                                data-validation="[a-z]+" autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp">
-                            <input class="changeWatch" name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name"
-                                data-validation="[a-z]+">
+                            <input class="changeWatch tokenizeWatch" name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name"
+                                data-validation="[a-z]+" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
-                            <input class="changeWatch" name="donorEmail" type="email" data-label-id="donor.emailPlaceholder" placeholder="Email" data-validation="email">
+                            <input class="changeWatch" name="donorEmail" type="email" data-label-id="donor.emailPlaceholder" placeholder="Email" data-validation="email"
+                                autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
                             <input class="changeWatch" name="donorPhone" type="tel" data-label-id="donor.phonePlaceholder" placeholder="Phone Number (optional)"
-                                data-validation="\d{8,}">
+                                data-validation="\d{8,}" autocomplete="on">
                         </div>
                     </div>
                 </div>
@@ -87,19 +87,20 @@
                     <div class="connectedSection">
                         <div class="inputGroup">
                             <input class="changeWatch" name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address"
-                                data-validation="\w{5,}">
+                                data-validation="\w{5,}" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
-                            <input class="changeWatch" name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="[a-z]{2,}">
+                            <input class="changeWatch" name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="[a-z]{2,}"
+                                autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp big borderTop borderRight">
                             <select class="changeWatch" name="donorRegion" data-validation="[a-z]{5,}"></select>
                             <input class="changeWatch" name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder"
-                                data-validation="[a-z]{2,}">
+                                data-validation="[a-z]{2,}" autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp small borderTop">
-                            <input class="changeWatch" name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code"
-                                data-validation="\w{2,}">
+                            <input class="changeWatch tokenizeWatch" name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code"
+                                data-validation="\w{2,}" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
                             <select class="changeWatch" name="donorCountry" data-validation="\w{2,}"></select>
@@ -111,7 +112,7 @@
                         <label class="fancyCheckbox" for="inputCompanyMatch" data-label-id="payment.companyMatchLabel">Company match</label>
                         <div class="infoIcon">
                             <i class="far fa-question-circle"></i>
-                            <span class="infoText" data-label-id="payment.companyMatchInfoText">Many Companies match employee donations. Enter this option to see if your employer has a donation
+                            <span class="infoText" data-label-id="payment.companyMatchInfoText">Many companies match employee donations. Try this option to see if your employer has a donation
                                 matching program!</span>
                         </div>
                         <div id="collapsableCompanyMatch" class="inputGroup collapsable connectedSection">
@@ -142,17 +143,17 @@
                 <div class="payInfoContainer">
                     <div class="connectedSection">
                         <div class="inputGroup twoUp cardNumber borderRight">
+                            <input class="changeWatch tokenizeWatch" type="hidden" name="payCardNumber" data-validation="card">
                             <div id="cardNumberTarget" class="inputAppearance cardTokenizerFrame"></div>
                             <div class="cardNumberFeedback">
-                                <span class="cardNumberValidity insetIcon">
-                                    <i class="fas fa-times"></i>
-                                </span>
+                                <span class="cardNumberValidity insetIcon"></span>
                                 <span class="cardType insetIcon">
                                     <i class="far fa-credit-card"></i>
                                 </span>
                             </div>
                         </div>
                         <div class="inputGroup twoUp cardCvv">
+                            <input class="changeWatch tokenizeWatch" type="hidden" name="payCardCvv">
                             <div id="cardCvvTarget" class="inputAppearance cardTokenizerFrame"></div>
                             <div class="infoIcon insetIcon">
                                 <i class="far fa-question-circle"></i>

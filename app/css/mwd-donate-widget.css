@@ -133,7 +133,7 @@ div#mfaDonationWidgetContainer {
       overflow: hidden; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm section.step {
         display: none;
-        padding: 1.75rem; }
+        padding: 1rem 2.5%; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm h4 {
         font-size: 0.9375em;
         font-weight: normal; }
@@ -147,7 +147,7 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="number"],
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.inputAppearance {
         width: 100%;
-        min-height: 2.25rem;
+        height: 2.25rem !important;
         padding: 0.44rem;
         font-size: 1rem;
         background: none;
@@ -163,12 +163,17 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.inputAppearance.invalid {
           position: relative;
           color: #ff5a3d;
-          background-color: #ffcfc7;
+          background-color: #ffe5e0;
           border: 0.5px solid rgba(255, 99, 71, 0.75);
           animation-name: shakeInvalid;
           animation-duration: 0.2s;
           animation-timing-function: ease-out;
           animation-iteration-count: 2; }
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="number"]::-webkit-inner-spin-button,
+      div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 0; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.specialSelectorContainer {
         padding: 0;
         border: 0; }
@@ -394,7 +399,23 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv .insetIcon,
         div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber .insetIcon,
         div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv .insetIcon {
-          padding-right: 0.25em; }
+          padding-right: 0.4em; }
+          div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber .insetIcon.valid, div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv .insetIcon.valid,
+          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber .insetIcon.valid,
+          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv .insetIcon.valid,
+          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber .insetIcon.valid,
+          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv .insetIcon.valid,
+          div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber .insetIcon.valid,
+          div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv .insetIcon.valid {
+            color: #8cc63e; }
+          div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber .insetIcon.invalid, div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv .insetIcon.invalid,
+          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber .insetIcon.invalid,
+          div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv .insetIcon.invalid,
+          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber .insetIcon.invalid,
+          div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv .insetIcon.invalid,
+          div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber .insetIcon.invalid,
+          div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv .insetIcon.invalid {
+            color: tomato; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber,
       div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber,
@@ -411,7 +432,7 @@ div#mfaDonationWidgetContainer {
           div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
           div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
           div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType {
-            font-size: 1.25em; }
+            font-size: 1.5em; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv,
       div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv,
@@ -440,6 +461,7 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon span.infoText {
         position: absolute;
         display: none;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         bottom: -1em;
@@ -461,6 +483,15 @@ div#mfaDonationWidgetContainer {
           display: flex;
           bottom: 0;
           opacity: 1; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon span.infoText img,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon span.infoText img,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon span.infoText img,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon span.infoText img {
+          display: block;
+          margin: 0.15em;
+          border: 0.5px solid whitesmoke;
+          width: 100%;
+          height: auto; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon:hover span.infoText,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon:hover span.infoText,
       div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon:hover span.infoText,
@@ -499,7 +530,7 @@ div#mfaDonationWidgetContainer {
       color: tomato; }
   div#mfaDonationWidgetContainer div.bitcoinContainer div.bitcoinStatusDisplay {
     font-size: 0.9em;
-    color: mediumseagreen; }
+    color: #8cc63e; }
     div#mfaDonationWidgetContainer div.bitcoinContainer div.bitcoinStatusDisplay.warning {
       color: goldenrod; }
     div#mfaDonationWidgetContainer div.bitcoinContainer div.bitcoinStatusDisplay.error {
@@ -564,5 +595,8 @@ input.fancyCheckbox {
     left: 0.44em; }
   100% {
     left: 0; } }
+@media screen and (min-width: 30rem) {
+  div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm section.step {
+    padding: 1.75rem; } }
 
 /*# sourceMappingURL=mwd-donate-widget.css.map */
