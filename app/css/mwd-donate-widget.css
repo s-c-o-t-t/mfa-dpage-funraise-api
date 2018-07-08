@@ -10,7 +10,8 @@ div#mfaDonationWidgetContainer {
   color: #999 !important;
   text-align: left;
   transition: opacity 1s;
-  /* reset various elements */ }
+  /* reset various elements */
+  /* select2 overrides */ }
   div#mfaDonationWidgetContainer.reveal {
     opacity: 1 !important; }
   div#mfaDonationWidgetContainer * {
@@ -150,12 +151,27 @@ div#mfaDonationWidgetContainer {
         padding: 0.44rem;
         font-size: 1rem;
         background: none;
-        border: none;
+        border: 0;
         border-radius: 0;
-        box-shadow: none; }
+        box-shadow: none;
+        transition: color 0.66s, background-color 0.66s; }
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm select.invalid,
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="text"].invalid,
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="email"].invalid,
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="tel"].invalid,
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="number"].invalid,
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.inputAppearance.invalid {
+          position: relative;
+          color: #ff5a3d;
+          background-color: #ffcfc7;
+          border: 0.5px solid rgba(255, 99, 71, 0.75);
+          animation-name: shakeInvalid;
+          animation-duration: 0.2s;
+          animation-timing-function: ease-out;
+          animation-iteration-count: 2; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm div.specialSelectorContainer {
         padding: 0;
-        border: none; }
+        border: 0; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main {
         display: flex;
         align-items: stretch;
@@ -183,7 +199,7 @@ div#mfaDonationWidgetContainer {
         display: none;
         color: #999;
         padding: 0 0.5em 0.5em 0;
-        border: none;
+        border: 0;
         background: none;
         left: 0;
         transition: left 0.66s; }
@@ -450,12 +466,6 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon:hover span.infoText,
       div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon:hover span.infoText {
         display: flex; }
-    div#mfaDonationWidgetContainer div.donorInfoContainer select,
-    div#mfaDonationWidgetContainer div.billingInfoContainer select,
-    div#mfaDonationWidgetContainer div.payInfoContainer select,
-    div#mfaDonationWidgetContainer div.payMethodContainer select {
-      -webkit-appearance: none;
-      appearance: none; }
   div#mfaDonationWidgetContainer div.generalContainer {
     text-align: center; }
     div#mfaDonationWidgetContainer div.generalContainer h1 {
@@ -505,6 +515,10 @@ div#mfaDonationWidgetContainer {
   div#mfaDonationWidgetContainer div.bitcoinContainer a {
     color: inherit;
     text-decoration: underline; }
+  div#mfaDonationWidgetContainer .select2-container--default .select2-selection--single {
+    border: 0; }
+  div#mfaDonationWidgetContainer .select2-search.select2-search--dropdown {
+    border-top: 1px solid #ccc; }
 
 input.fancyCheckbox {
   display: none; }

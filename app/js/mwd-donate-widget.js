@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.6a");
+	console.log("mwd-donate-widget.js v18.7.8a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -196,10 +196,10 @@
 		thisWidget.promises.labelOverrideLoad = thisWidget.prepareLabelOverride();
 
 		buildCurrencySelect();
+		buildPayMethodSelect();
 		buildFrequencyButtons();
 		getGiftString();
 
-		buildPayMethodSelect();
 		buildCountrySelect();
 		setupCompanyMatchSelect();
 		buildCardExpireMonthSelect();
@@ -286,19 +286,19 @@
 		function showNextStep() {
 			switch (mwdspace.currentStepName) {
 				case "giftAmount":
-					if (validateStepGift()) {
+					if (checkStepGift()) {
 						showStep("donorInfo");
 						return true;
 					}
 					break;
 				case "donorInfo":
-					if (validateStepDonor()) {
+					if (checkStepDonor()) {
 						showStep("payment");
 						return true;
 					}
 					break;
 				case "payment":
-					if (validateStepPayment()) {
+					if (checkStepPayment()) {
 						alert("Would process donation");
 						return true;
 					}
@@ -351,51 +351,136 @@
 			}
 		}
 
-		function validateStepGift() {
+		function checkStepGift() {
 			var isValid = true;
 			if (
 				typeof userInputData.baseAmount != "number" ||
 				userInputData.baseAmount < userInputData.minimumAmount ||
 				userInputData.baseAmount < 1
 			) {
-				console.warn("amount is invalid", userInputData.baseAmount);
+				console.warn("baseAmount is invalid", userInputData.baseAmount);
 				isValid = false;
 			}
-			if (typeof userInputData.currency != "string") {
-				console.warn("currency is invalid", userInputData.currency);
+			if (typeof userInputData.giftCurrency != "string") {
+				console.warn("giftCurrency is invalid", userInputData.giftCurrency);
 				isValid = false;
 			}
 			if (typeof userInputData.payMethod != "string") {
 				console.warn("payMethod is invalid", userInputData.payMethod);
 				isValid = false;
 			}
-			if (typeof userInputData.frequency != "string") {
-				console.warn("frequency is invalid", userInputData.frequency);
+			if (typeof userInputData.giftFrequency != "string") {
+				console.warn("giftFrequency is invalid", userInputData.giftFrequency);
 				isValid = false;
 			}
 			return isValid;
 		}
 
-		function validateStepDonor() {
-			return true;
+		function checkStepDonor() {
+			var isValid = true;
+			if (typeof userInputData.donorFirstname != "string") {
+				console.warn("donorFirstname is invalid", userInputData.donorFirstname);
+				isValid = false;
+			}
+			if (typeof userInputData.donorLastname != "string") {
+				console.warn("donorLastname is invalid", userInputData.donorLastname);
+				isValid = false;
+			}
+			if (typeof userInputData.donorEmail != "string") {
+				console.warn("donorEmail is invalid", userInputData.donorEmail);
+				isValid = false;
+			}
+			if (
+				typeof userInputData.donorPhone != "undefined" &&
+				typeof userInputData.donorPhone != "string"
+			) {
+				console.warn("donorPhone is invalid", userInputData.donorPhone);
+				isValid = false;
+			}
+			if (typeof userInputData.donorStreet != "string") {
+				console.warn("donorStreet is invalid", userInputData.donorStreet);
+				isValid = false;
+			}
+			if (typeof userInputData.donorRegion != "string") {
+				console.warn("donorRegion is invalid", userInputData.donorRegion);
+				isValid = false;
+			}
+			if (typeof userInputData.donorPostCode != "string") {
+				console.warn("donorPostCode is invalid", userInputData.donorPostCode);
+				isValid = false;
+			}
+			if (typeof userInputData.donorCountry != "string") {
+				console.warn("donorCountry is invalid", userInputData.donorCountry);
+				isValid = false;
+			}
+			if (userInputData.companyMatch == "on") {
+				if (typeof userInputData.donorMatchCompany != "string") {
+					console.warn(
+						"donorMatchCompany is invalid",
+						userInputData.donorMatchCompany
+					);
+					isValid = false;
+				}
+				if (typeof userInputData.donorMatchEmail != "string") {
+					console.warn("donorMatchEmail is invalid", userInputData.donorMatchEmail);
+					isValid = false;
+				}
+			}
+			return isValid;
 		}
 
-		function validateStepPayment() {
+		function checkStepPayment() {
 			return false;
+		}
+
+		function validateInputField(jqThis, validationPattern) {
+			var newValue = String(jqThis.val());
+			var re;
+			switch (validationPattern) {
+				case "email":
+					re = new RegExp(/^\w+@\w+\.[a-z]{2,}$/i);
+					break;
+				default:
+					re = new RegExp(validationPattern, "i");
+			}
+			if (newValue.match(re)) {
+				jqThis.removeClass("invalid");
+			} else {
+				jqThis.addClass("invalid");
+			}
 		}
 
 		function setupInputWatchers() {
 			// CHANGE EVENT HANDLER
-			jq(document).on("change", function(event) {
-				var name = event.target.getAttribute("name");
-				var tag = String(event.target.tagName).toLowerCase();
+			jq(document).on("change blur", function(event) {
+				var jqThis = jq(event.target);
 
-				console.log("CHANGE", tag, name);
+				var name = jqThis.attr("name");
+				var newValue = jqThis.val();
+				var tag = String(jqThis.prop("tagName")).toLowerCase();
 
-				if (
-					(name == "giftAmountFixed" || name == "giftAmountFreeform") &&
-					tag == "input"
-				) {
+				if (jqThis.hasClass("changeWatch")) {
+					window.mwdspace.userInputData[name] = newValue;
+					var validationPattern = jqThis.attr("data-validation");
+					if (validationPattern) {
+						validateInputField(jqThis, validationPattern);
+					}
+				}
+
+				if (name == "giftAmountFixed" && tag == "input") {
+					processGiftAmountChange(event);
+				} else if (name == "giftAmountFreeform" && tag == "input") {
+					var amount = cleanFloat(newValue) || 0.0;
+					var cleanedAmount = amount.toFixed(2);
+					if (cleanedAmount != newValue) {
+						jqThis.val(cleanedAmount);
+					}
+					if (amount < 0 || amount < window.mwdspace.userInputData.minimumAmount) {
+						jqThis.addClass("invalid");
+					} else {
+						jqThis.removeClass("invalid");
+					}
+					jqGiftAmountFields.prop("checked", false);
 					processGiftAmountChange(event);
 				} else if (name == "giftCurrency" && tag == "select") {
 					updateCurrency();
@@ -412,7 +497,6 @@
 			jqContainer
 				.find('div.giftOption input[name="giftAmountFreeform"]')
 				.on("focus keyup paste", function(event) {
-					console.log("PRE SET EVENT", event.type);
 					processGiftAmountChange(event);
 				});
 
@@ -425,19 +509,11 @@
 			// FREQUENCY
 			jqContainer.trigger("change");
 
-			//TEMP FOR TESTING
-			jqContainer
-				.find("div.giftFrequencyContainer input[type='radio']")
-				.eq(0)
-				.prop("checked", true)
-				.trigger("change");
-
 			// COMPANY MATCH - also show/hide company match input fields
 			jqContainer
 				.find("input#inputCompanyMatch")
 				.change(function() {
-					userInputData.isCompanyMatch = jq(this).prop("checked");
-					if (userInputData.isCompanyMatch) {
+					if (jq(this).prop("checked")) {
 						jqContainer
 							.find("div#collapsableCompanyMatch")
 							.slideDown(666, function() {
@@ -457,11 +533,8 @@
 		function processGiftAmountChange(event) {
 			jqGiftAmountFields.removeClass("selected");
 			var jqTarget = jq(event.target);
-			if (jqTarget.attr("name") != "giftAmountFixed") {
-				jqGiftAmountFields.prop("checked", false);
-			}
 			jqTarget.addClass("selected");
-			var newAmount = parseFloat(jqTarget.val()) || 0.0;
+			var newAmount = cleanFloat(jqTarget.val()) || 0.0;
 			updateGiftAmount({ baseAmount: newAmount });
 			if (event.type == "change") {
 				jq("div.giftFormHeaderContainer").slideDown(666, function() {
@@ -471,21 +544,17 @@
 		}
 
 		function updateGiftAmount(input) {
-			console.log("updateGiftAmount() input", input);
 			if (typeof input == "undefined") {
 				var input = {};
 			}
 			try {
 				userInputData.baseAmount = parseFloat(input.baseAmount) || 0.0;
 				userInputData.extraPercent = parseFloat(input.extraPercent) || 0.0;
-				console.log("userInputData", userInputData);
 				var total = parseFloat(
 					userInputData.baseAmount +
 						userInputData.baseAmount * userInputData.extraPercent
 				);
-				console.log("total", total);
 				var displayAmount = total.toFixed(2).split(".");
-				console.log("displayAmount", displayAmount);
 				jqContainer
 					.find("div.amountDisplay span.displayWholeAmount")
 					.text(displayAmount[0]);
@@ -498,48 +567,50 @@
 		}
 
 		function updateCurrency() {
-			delete userInputData.currency;
+			// delete userInputData.currency;
 			var currencyCode = jqCurrencySelect.val();
-			var currencySymbol = "???";
+			var currencySymbol = " (?) ";
 			var thisItem;
 			for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
 				thisItem = window.mwdspace.validCurrencyList[i];
 				if (thisItem.code == currencyCode && thisItem.symbol) {
 					currencySymbol = thisItem.symbol;
-					userInputData.currency = currencyCode;
+					// userInputData.currency = currencyCode;
 					break;
 				}
 			}
 			jqContainer.find("span.currencySymbol").html(currencySymbol);
+			// getGiftString();
 		}
 
 		function updatePayMethod() {
-			delete userInputData.payMethod;
-			var payMethod = jqPayMethodSelect.val();
-			var thisItem;
-			for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
-				thisItem = window.mwdspace.validPayMethodList[i];
-				if (thisItem.code == payMethod) {
-					userInputData.payMethod = thisItem.code;
-					userInputData.minimumAmount = thisItem.minimumAmount;
-					break;
-				}
-			}
+			// delete userInputData.payMethod;
+			// var payMethod = jqPayMethodSelect.val();
+			// var thisItem;
+			// for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
+			// 	thisItem = window.mwdspace.validPayMethodList[i];
+			// 	if (thisItem.code == payMethod) {
+			// 		userInputData.payMethod = thisItem.code;
+			// 		userInputData.minimumAmount = thisItem.minimumAmount;
+			// 		break;
+			// 	}
+			// }
+			// buildFrequencyButtons();
 		}
 
 		function updateFrequency() {
-			delete userInputData.frequency;
-			var frequency = jqContainer
-				.find("div.giftFrequencyContainer input[type='radio']:checked")
-				.val();
-			var thisItem;
-			for (var i = 0; i < window.mwdspace.validFrequencyList.length; i++) {
-				thisItem = window.mwdspace.validFrequencyList[i];
-				if (thisItem.code == frequency) {
-					userInputData.frequency = thisItem.code;
-					break;
-				}
-			}
+			// delete userInputData.frequency;
+			// var frequency = jqContainer
+			// 	.find("div.giftFrequencyContainer input[type='radio']:checked")
+			// 	.val();
+			// var thisItem;
+			// for (var i = 0; i < window.mwdspace.validFrequencyList.length; i++) {
+			// 	thisItem = window.mwdspace.validFrequencyList[i];
+			// 	if (thisItem.code == frequency) {
+			// 		userInputData.frequency = thisItem.code;
+			// 		break;
+			// 	}
+			// }
 			getGiftString();
 		}
 
@@ -583,25 +654,25 @@
 			var userData = window.mwdspace.userInputData;
 			var sendData = {};
 
-			sendData = {
-				amount: 99.99,
-				currency: "USD",
-				paymentType: "card",
-				firstName: "First",
-				lastName: "Last",
-				email: "first.last@example.com",
-				address: "123 Street",
-				city: "Long Beach",
-				state: "CA",
-				postalCode: "90802",
-				country: "United States",
-				month: 12,
-				year: 2022,
-				baseAmount: 99.0,
-				formId: 4394,
-				organizationId: "fcb4d538-ca92-4212-86cc-06d8ac929c4d",
-				paymentToken: "1HI7mQMBL58UpYJZCTBreQGd419",
-			};
+			// sendData = {
+			// 	amount: 99.99,
+			// 	currency: "USD",
+			// 	paymentType: "card",
+			// 	firstName: "First",
+			// 	lastName: "Last",
+			// 	email: "first.last@example.com",
+			// 	address: "123 Street",
+			// 	city: "Long Beach",
+			// 	state: "CA",
+			// 	postalCode: "90802",
+			// 	country: "United States",
+			// 	month: 12,
+			// 	year: 2022,
+			// 	baseAmount: 99.0,
+			// 	formId: 4394,
+			// 	organizationId: "fcb4d538-ca92-4212-86cc-06d8ac929c4d",
+			// 	paymentToken: "1HI7mQMBL58UpYJZCTBreQGd419",
+			// };
 
 			try {
 				sendData.organizationId = thisWidget.options.organizationId;
@@ -948,6 +1019,7 @@
 
 					// the radio
 					var domRadio = document.createElement("input");
+					jq(domRadio).addClass("changeWatch");
 					domRadio.setAttribute("type", "radio");
 					domRadio.setAttribute("name", "giftFrequency");
 					domRadio.setAttribute("value", frequency.code);

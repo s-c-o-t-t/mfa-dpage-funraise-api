@@ -168,13 +168,24 @@ div#mfaDonationWidgetContainer {
 				padding: 0.44rem;
 				font-size: 1rem;
 				background: none;
-				border: none;
+				border: 0;
 				border-radius: 0;
 				box-shadow: none;
+				transition: color 0.66s, background-color 0.66s;
+				&.invalid {
+					position: relative;
+					color: darken($colorError, 2%);
+					background-color: lighten($colorError, 25%);
+					border: 0.5px solid transparentize($colorError, 0.25);
+					animation-name: shakeInvalid;
+					animation-duration: 0.2s;
+					animation-timing-function: ease-out;
+					animation-iteration-count: 2;
+				}
 			}
 			div.specialSelectorContainer {
 				padding: 0;
-				border: none;
+				border: 0;
 			}
 
 			button {
@@ -214,7 +225,7 @@ div#mfaDonationWidgetContainer {
 					display: none;
 					color: $colorMainText;
 					padding: 0 0.5em 0.5em 0;
-					border: none;
+					border: 0;
 					background: none;
 					left: 0;
 					transition: left 0.66s;
@@ -422,10 +433,10 @@ div#mfaDonationWidgetContainer {
 				}
 			}
 		}
-		select {
-			-webkit-appearance: none;
-			appearance: none;
-		}
+		// select {
+		// 	-webkit-appearance: none;
+		// 	appearance: none;
+		// }
 	}
 	div.generalContainer {
 		text-align: center;
@@ -494,6 +505,14 @@ div#mfaDonationWidgetContainer {
 			color: inherit;
 			text-decoration: underline;
 		}
+	}
+	/* select2 overrides */
+
+	.select2-container--default .select2-selection--single {
+		border: 0;
+	}
+	.select2-search.select2-search--dropdown {
+		border-top: 1px solid $colorElementBorder;
 	}
 }
 

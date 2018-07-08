@@ -34,8 +34,8 @@
                         <div class="currencyDisplay">
                             <span class="currencySymbol">?</span>
                         </div>
-                        <input type="text" name="giftAmountFreeform" placeholder="or enter amount" data-label-id="gift.otherAmountPlaceholder">
-                        <select name="giftCurrency">
+                        <input type="number" name="giftAmountFreeform" placeholder="or enter amount" data-label-id="gift.otherAmountPlaceholder">
+                        <select class="changeWatch" name="giftCurrency">
                         </select>
 
                     </div>
@@ -44,7 +44,7 @@
                 <!-- PAYMENT METHOD -->
                 <div class="payMethodContainer">
                     <div class="inputGroup connectedSection">
-                        <select name="payMethod">
+                        <select class="changeWatch" name="payMethod">
                         </select>
                     </div>
                 </div>
@@ -65,16 +65,19 @@
                 <div class="donorInfoContainer">
                     <div class="connectedSection">
                         <div class="inputGroup twoUp borderRight">
-                            <input name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name" data-validation="/[a-z]+/i">
+                            <input class="changeWatch" name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name"
+                                data-validation="[a-z]+">
                         </div>
                         <div class="inputGroup twoUp">
-                            <input name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name" data-validation="/[a-z]+/i">
+                            <input class="changeWatch" name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name"
+                                data-validation="[a-z]+">
                         </div>
                         <div class="inputGroup borderTop">
-                            <input name="donorEmail" type="email" data-label-id="donor.emailPlaceholder" placeholder="Email" data-validation="email">
+                            <input class="changeWatch" name="donorEmail" type="email" data-label-id="donor.emailPlaceholder" placeholder="Email" data-validation="email">
                         </div>
                         <div class="inputGroup borderTop">
-                            <input name="donorPhone" type="tel" data-label-id="donor.phonePlaceholder" placeholder="Phone Number (optional)" data-validation="/\d{8,}/i">
+                            <input class="changeWatch" name="donorPhone" type="tel" data-label-id="donor.phonePlaceholder" placeholder="Phone Number (optional)"
+                                data-validation="\d{8,}">
                         </div>
                     </div>
                 </div>
@@ -83,36 +86,44 @@
                 <div class="billingInfoContainer">
                     <div class="connectedSection">
                         <div class="inputGroup">
-                            <input name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address" data-validation="/\w{5,}/">
+                            <input class="changeWatch" name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address"
+                                data-validation="\w{5,}">
                         </div>
                         <div class="inputGroup borderTop">
-                            <input name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="/[a-z]{5,}/i">
+                            <input class="changeWatch" name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="[a-z]{2,}">
                         </div>
                         <div class="inputGroup twoUp big borderTop borderRight">
-                            <select name="donorRegion"></select>
-                            <input name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder">
+                            <select class="changeWatch" name="donorRegion" data-validation="[a-z]{5,}"></select>
+                            <input class="changeWatch" name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder"
+                                data-validation="[a-z]{2,}">
                         </div>
                         <div class="inputGroup twoUp small borderTop">
-                            <input name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code" data-validation="/\w{5,}/">
+                            <input class="changeWatch" name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code"
+                                data-validation="\w{2,}">
                         </div>
                         <div class="inputGroup borderTop">
-                            <select name="donorCountry"></select>
+                            <select class="changeWatch" name="donorCountry" data-validation="\w{2,}"></select>
                         </div>
                     </div>
 
                     <div class="inputGroup infoBox">
-                        <input id="inputCompanyMatch" class="fancyCheckbox" name="companyMatch" type="checkbox">
+                        <input id="inputCompanyMatch" class="changeWatch fancyCheckbox" name="companyMatch" type="checkbox">
                         <label class="fancyCheckbox" for="inputCompanyMatch" data-label-id="payment.companyMatchLabel">Company match</label>
                         <div class="infoIcon">
                             <i class="far fa-question-circle"></i>
                             <span class="infoText" data-label-id="payment.companyMatchInfoText">Many Companies match employee donations. Enter this option to see if your employer has a donation
                                 matching program!</span>
                         </div>
-                        <div id="collapsableCompanyMatch" class="inputGroup collapsable">
-                            <div class="inputAppearance specialSelectorContainer">
-                                <select name="donorMatchCompany"></select>
+                        <div id="collapsableCompanyMatch" class="inputGroup collapsable connectedSection">
+                            <div class="inputGroup">
+                                <div class="inputAppearance specialSelectorContainer">
+                                    <select class="changeWatch" name="donorMatchCompany"></select>
+                                </div>
                             </div>
-                            <input name="donorMatchEmail" type="email" data-label-id="donor.matchEmailPlaceholder" placeholder="Your work email" data-validation="email">
+                            <div class="inputGroup borderTop">
+                                <input class="changeWatch" name="donorMatchEmail" type="email" data-label-id="donor.matchEmailPlaceholder" placeholder="Your work email"
+                                    data-validation="email">
+                            </div>
                         </div>
                     </div>
 
@@ -153,15 +164,15 @@
                             </div>
                         </div>
                         <div class="inputGroup twoUp borderTop borderRight">
-                            <select name="payCardExpireMonth"></select>
+                            <select class="changeWatch" name="payCardExpireMonth"></select>
                         </div>
                         <div class="inputGroup twoUp borderTop">
-                            <select name="payCardExpireYear"></select>
+                            <select class="changeWatch" name="payCardExpireYear"></select>
                         </div>
                     </div>
 
                     <div class="inputGroup infoBox">
-                        <input id="inputExtraPercentage" class="fancyCheckbox" name="extraPercentage" type="checkbox" value="3.0">
+                        <input id="inputExtraPercentage" class="changeWatch fancyCheckbox" name="extraPercentage" type="checkbox" value="3.0">
                         <label class="fancyCheckbox" for="inputExtraPercentage" data-label-id="payment.extraPercentageLabel">Add 3% to cover processing fees</label>
                         <div class="infoIcon">
                             <i class="far fa-question-circle"></i>
