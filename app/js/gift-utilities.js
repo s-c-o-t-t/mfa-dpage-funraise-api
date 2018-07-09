@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("gift-utilities.js v18.7.9c");
+	console.log("gift-utilities.js v18.7.9a");
 
 	window.mwdspace = window.mwdspace || {};
 	var sharedUtils = window.mwdspace.sharedUtils;
@@ -59,9 +59,10 @@
 		}
 		var calculateAsMonthly = options.calculateAsMonthly || false;
 
-		var urlAsk = sharedUtils.getUrlParameter("ask") || getStoredValue("urlAsk");
+		var urlAsk =
+			sharedUtils.getUrlParameter("ask") || sharedUtils.getSessionValue("urlAsk");
 		if (urlAsk) {
-			setStoredValue("urlAsk", urlAsk);
+			sharedUtils.setSessionValue("urlAsk", urlAsk);
 			var newItem, thisAmount;
 			var newList = [];
 			var giftStringList = urlAsk.split("|");
@@ -95,7 +96,8 @@
 		var basicRounding = options.basicRounding || false;
 
 		var urlAskStart =
-			sharedUtils.getUrlParameter("ask_start") || getStoredValue("urlAskStart");
+			sharedUtils.getUrlParameter("ask_start") ||
+			sharedUtils.getSessionValue("urlAskStart");
 		urlAskStart = cleanFloat(urlAskStart);
 
 		if (
@@ -103,7 +105,7 @@
 			urlAskStart >= minimumDynamicStart &&
 			urlAskStart <= maximumDynamicStart
 		) {
-			setStoredValue("urlAskStart", urlAskStart);
+			sharedUtils.setSessionValue("urlAskStart", urlAskStart);
 			var newList = [];
 			var newItem, thisAmount;
 			var formulaList = getUrlDynamicFormula();
@@ -136,9 +138,10 @@
 
 	function getUrlDynamicFormula() {
 		var urlFormulaString =
-			sharedUtils.getUrlParameter("ask_inc") || getStoredValue("urlFormulaString");
+			sharedUtils.getUrlParameter("ask_inc") ||
+			sharedUtils.getSessionValue("urlFormulaString");
 		if (urlFormulaString) {
-			setStoredValue("urlFormulaString", urlFormulaString);
+			sharedUtils.setSessionValue("urlFormulaString", urlFormulaString);
 			var formulaList = urlFormulaString.split("|");
 			if (formulaList.length > 0) {
 				return formulaList;
@@ -213,24 +216,25 @@
 
 	function getUrlAskSelectAmount() {
 		var urlValue =
-			sharedUtils.getUrlParameter("ask_selected") || getStoredValue("urlAskSelectAmount");
+			sharedUtils.getUrlParameter("ask_selected") ||
+			sharedUtils.getSessionValue("urlAskSelectAmount");
 		urlValue = parseInt(urlValue);
 		if (isNaN(urlValue)) {
 			return null;
 		}
-		setStoredValue("urlAskSelectAmount", urlValue);
+		sharedUtils.setSessionValue("urlAskSelectAmount", urlValue);
 		return urlValue;
 	}
 
 	function getUrlAskSelectPosition() {
 		var urlValue =
 			sharedUtils.getUrlParameter("ask_selected_level") ||
-			getStoredValue("urlAskSelectPosition");
+			sharedUtils.getSessionValue("urlAskSelectPosition");
 		urlValue = parseInt(urlValue);
 		if (isNaN(urlValue)) {
 			return null;
 		}
-		setStoredValue("urlAskSelectPosition", urlValue);
+		sharedUtils.setSessionValue("urlAskSelectPosition", urlValue);
 		return urlValue;
 	}
 
@@ -397,25 +401,5 @@
 			}
 		}
 		return input;
-	}
-
-	var getPageId = function() {
-		var cleanPath = String(window.location.pathname).replace(/\W/g, "_");
-		return "donate_" + cleanPath;
-	};
-
-	function setStoredValue(key, value) {
-		var pageKey = getPageId() + "_" + key;
-		return sharedUtils.setSessionValue(pageKey, value);
-	}
-
-	function getStoredValue(key) {
-		var pageKey = getPageId() + "_" + key;
-		return sharedUtils.getSessionValue(pageKey);
-	}
-
-	function forgetStoredValue(key) {
-		var pageKey = getPageId() + "_" + key;
-		return sharedUtils.removeSessionValue(pageKey);
 	}
 })();

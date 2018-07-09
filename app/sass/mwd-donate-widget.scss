@@ -436,8 +436,6 @@ div#mfaDonationWidgetContainer {
 				box-shadow: 0 0 0.25em transparentize($colorMainText, 0.25);
 				&:hover {
 					display: flex;
-					bottom: 0;
-					opacity: 1;
 				}
 				img {
 					display: block;

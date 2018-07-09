@@ -1,3 +1,0 @@
-Redirect 301 /mfa-test/widget/1.0.0/mfa_funraise_widget.js http://services.mwdagency.com/donate-widget/1.0.0/mfa_funraise_widget.js
-Redirect 301 /mfa-test/widget/1.0.0/mfa_funraise_widget.css http://services.mwdagency.com/donate-widget/1.0.0/css/mfa_funraise_widget.css
-Redirect 301 /mfa-test/widget/1.0.0/mfa_funraise_widget.css.map http://services.mwdagency.com/donate-widget/1.0.0/css/mfa_funraise_widget.css.map

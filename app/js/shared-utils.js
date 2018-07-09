@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("shared-utils.js v18.7.9c");
+	console.log("shared-utils.js v18.7.9a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -80,12 +80,13 @@
 		return false;
 	};
 
-	sharedUtils.setSessionValue = function(name, value) {
+	sharedUtils.setSessionValue = function(key, value) {
 		if (typeof value == "undefined") {
 			var value = "";
 		}
 		try {
-			sessionStorage.setItem(name, value);
+			var pageKey = sharedUtils.getPageId() + "_" + key;
+			sessionStorage.setItem(pageKey, value);
 		} catch (e) {
 			// use cookie when session storage isn't available
 			console.warn("setSessionValue(): Unable to use session storage.");
@@ -93,10 +94,11 @@
 		}
 	};
 
-	sharedUtils.getSessionValue = function(name) {
+	sharedUtils.getSessionValue = function(key) {
 		var value = null;
 		try {
-			value = sessionStorage.getItem(name);
+			var pageKey = sharedUtils.getPageId() + "_" + key;
+			value = sessionStorage.getItem(pageKey);
 		} catch (e) {
 			// use cookie when session storage isn't available
 			console.warn("getSessionValue(): Unable to use session storage.");
@@ -105,9 +107,10 @@
 		return value;
 	};
 
-	sharedUtils.removeSessionValue = function(name) {
+	sharedUtils.removeSessionValue = function(key) {
 		try {
-			sessionStorage.removeItem(name);
+			var pageKey = sharedUtils.getPageId() + "_" + key;
+			sessionStorage.removeItem(pageKey);
 			return true;
 		} catch (e) {
 			// use cookie when session storage isn't available
@@ -117,12 +120,13 @@
 		return false;
 	};
 
-	sharedUtils.setLocalValue = function(name, value) {
+	sharedUtils.setLocalValue = function(key, value) {
 		if (typeof value == "undefined") {
 			var value = "";
 		}
 		try {
-			localStorage.setItem(name, value);
+			var pageKey = sharedUtils.getPageId() + "_" + key;
+			localStorage.setItem(pageKey, value);
 		} catch (e) {
 			// use cookie when local storage isn't available
 			console.warn("setLocalValue(): Unable to use local storage.");
@@ -130,10 +134,11 @@
 		}
 	};
 
-	sharedUtils.getLocalValue = function(name) {
+	sharedUtils.getLocalValue = function(key) {
 		var value = null;
 		try {
-			value = localStorage.getItem(name);
+			var pageKey = sharedUtils.getPageId() + "_" + key;
+			value = localStorage.getItem(pageKey);
 		} catch (e) {
 			// use cookie when local storage isn't available
 			console.warn("getLocalValue(): Unable to use local storage.");
@@ -142,9 +147,10 @@
 		return value;
 	};
 
-	sharedUtils.removeLocalValue = function(name) {
+	sharedUtils.removeLocalValue = function(key) {
 		try {
-			localStorage.removeItem(name);
+			var pageKey = sharedUtils.getPageId() + "_" + key;
+			localStorage.removeItem(pageKey);
 			return true;
 		} catch (e) {
 			// use cookie when local storage isn't available
@@ -152,6 +158,15 @@
 			sharedUtils.createCookie(name, "", -1);
 		}
 		return false;
+	};
+
+	sharedUtils.getPageId = function() {
+		if (typeof window.mwdspace.pageId != "string") {
+			var cleanPath = String(window.location.pathname).replace(/\W/g, "_");
+			var prefix = window.mwdspace.pageIdPrefix || "page";
+			window.mwdspace.pageId = prefix + "_" + cleanPath;
+		}
+		return window.mwdspace.pageId;
 	};
 
 	sharedUtils.createCookie = function(name, value, days) {

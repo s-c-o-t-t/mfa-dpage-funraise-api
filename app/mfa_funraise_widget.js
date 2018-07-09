@@ -23,7 +23,7 @@
 	var scriptFilename = es5Only ? "es5-mwd-donate-widget.js" : "mwd-donate-widget.js";
 	var url =
 		window.location.protocol +
-		"//services.mwdagency.com/donate-widget/1.0.0/js/" +
+		"//quiz.mercyforanimals.org/donate-widget/1.0.0/js/" +
 		scriptFilename;
 
 	try {
