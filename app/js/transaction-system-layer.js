@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.5b");
+	console.log("transaction-system-layer.js v18.7.9c");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -865,7 +865,11 @@
 
 		// sendData.organizationId = apiConstants.organizationId;
 		sendData.sourceUrl =
-			sendData.sourceUrl || window.location.hostname + window.location.pathname;
+			sendData.sourceUrl ||
+			window.location.protocol +
+				"//" +
+				window.location.hostname +
+				window.location.pathname;
 		sendData.referrer = sendData.referrer || document.referrer || "";
 
 		var donationOptions = {
@@ -937,44 +941,44 @@
 			new Date().getTime() - window.mwdspace.donationStartTime.getTime();
 		console.log("elapsedMilliseconds", elapsedMilliseconds);
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
-			var testResponse;
-			if (0) {
-				testResponse = {
-					payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
-					donation_id: 644353,
-					checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
-					img_data:
-						"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
-					exp: 1530874922224,
-					type: "bitcoin",
-					alt_amount: "0.000777",
-					transaction_id: "X19hQRxwvD87QBRcADXrDX",
-					status: "Pending",
-					invoice_status: "new",
-					id: 644353,
-					errors: null,
-				};
-			} else {
-				testResponse = {
-					payment_id: "1111",
-					donation_id: 15697,
-					checkout_url: null,
-					img_data: null,
-					exp: 1706745600000,
-					type: "card",
-					alt_amount: null,
-					transaction_id: "68",
-					status: "Complete",
-					invoice_status: null,
-					id: 15697,
-					errors: "Succeeded!",
-				};
-			}
+			// var testResponse;
+			// if (0) {
+			// 	testResponse = {
+			// 		payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
+			// 		donation_id: 644353,
+			// 		checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
+			// 		img_data:
+			// 			"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
+			// 		exp: 1530874922224,
+			// 		type: "bitcoin",
+			// 		alt_amount: "0.000777",
+			// 		transaction_id: "X19hQRxwvD87QBRcADXrDX",
+			// 		status: "Pending",
+			// 		invoice_status: "new",
+			// 		id: 644353,
+			// 		errors: null,
+			// 	};
+			// } else {
+			// 	testResponse = {
+			// 		payment_id: "1111",
+			// 		donation_id: 15697,
+			// 		checkout_url: null,
+			// 		img_data: null,
+			// 		exp: 1706745600000,
+			// 		type: "card",
+			// 		alt_amount: null,
+			// 		transaction_id: "68",
+			// 		status: "Complete",
+			// 		invoice_status: null,
+			// 		id: 15697,
+			// 		errors: "Succeeded!",
+			// 	};
+			// }
 
-			testResponse.exp = new Date().getTime() + 899123;
+			// testResponse.exp = new Date().getTime() + 899123;
 
-			console.warn("TESTING TIMEOUT OVERRIDE WITH FAKE DATA");
-			return successFunction(testResponse);
+			// console.warn("TESTING TIMEOUT OVERRIDE WITH FAKE DATA");
+			// return successFunction(testResponse);
 			console.error(
 				"completeDonation(): request timeout reached, calling fail function."
 			);
@@ -996,24 +1000,26 @@
 				donationOptions,
 				function(response) {
 					console.log("response POLL", typeof response, response);
-					if (response.status == 204) {
-						console.log("STATUS 204 RECEIVED, DONATION STILL PROCESSING");
-						return completeDonation(
-							donateId,
-							(delayMilliseconds *= 1.15),
-							successFunction,
-							failFunction
-						);
-					}
-					if (!response.json) {
-						console.error("completeDonation(): Invalid response follows:");
-						console.warn(response);
-						return failFunction(response);
+
+					if (response.status == 200 && response.json) {
+						if (String(reponse.json.status).toLowerCase() == "Complete") {
+							window.mwdspace.sharedUtils.removeSessionValue("donationId");
+							window.mwdspace.sharedUtils.removeSessionValue("donationStartTime");
+							return successFunction(response);
+						} else {
+							console.log("*********** DONATION STILL PROCESSING");
+							return completeDonation(
+								donateId,
+								(delayMilliseconds *= 1.15),
+								successFunction,
+								failFunction
+							);
+						}
 					}
 
-					window.mwdspace.sharedUtils.removeSessionValue("donationId");
-					window.mwdspace.sharedUtils.removeSessionValue("donationStartTime");
-					return successFunction(response);
+					console.error("completeDonation(): Invalid response follows:");
+					console.warn(response);
+					return failFunction(response);
 				},
 				failFunction
 			);
@@ -1059,34 +1065,35 @@
 		xhr.send(sendData);
 
 		function requestComplete() {
-			if (this.status >= 200 && this.status <= 299) {
-				var response = {
-					status: this.status,
-					text: this.responseText,
-					json: {},
-				};
-				if (this.responseText) {
-					response.json =
-						window.mwdspace.sharedUtils.safeJsonParse(this.responseText) || {};
-				}
-				// blank response body is valid for status 204
-				if (response.json || this.status == 204) {
-					successFunction(response);
-				} else {
-					console.error("INVALID RESPONSE FROM SERVER. RESPONSE FOLLOWS:");
-					console.log(this.responseText);
-					console.warn("There may be a problem on the server.", {
-						isError: true,
-					});
-					successFunction({});
-				}
-			} else {
-				console.log(">>> sendXhrRequest() raw response", this.responseText);
-				console.warn("The server has reported an issue.", {
-					isError: true,
-				});
-				successFunction({});
+			// if (this.status >= 200 && this.status <= 299) {
+			var response = {
+				status: this.status,
+				text: this.responseText,
+				json: {},
+			};
+			if (this.responseText) {
+				response.json =
+					window.mwdspace.sharedUtils.safeJsonParse(this.responseText) || {};
 			}
+			successFunction(response);
+			// blank response body is valid for status 204
+			// if (response.json || this.status == 204) {
+			// 	successFunction(response);
+			// } else {
+			// 	console.error("INVALID RESPONSE FROM SERVER. RESPONSE FOLLOWS:");
+			// 	console.log(this.responseText);
+			// 	console.warn("There may be a problem on the server.", {
+			// 		isError: true,
+			// 	});
+			// 	successFunction({});
+			// }
+			// } else {
+			// 	console.log(">>> sendXhrRequest() raw response", this.responseText);
+			// 	console.warn("The server has reported an issue.", {
+			// 		isError: true,
+			// 	});
+			// 	successFunction({});
+			// }
 		}
 
 		function requestFailed(event) {

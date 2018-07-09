@@ -75,7 +75,16 @@ gulp.task("browserify-for-es5", function() {
 		debug: true,
 	})
 		.transform("babelify", {
-			presets: ["env"],
+			presets: [
+				[
+					"env",
+					{
+						targets: {
+							browsers: ["ie >= 11"],
+						},
+					},
+				],
+			],
 			plugins: ["transform-regenerator"],
 		})
 		.bundle()

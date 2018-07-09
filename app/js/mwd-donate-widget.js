@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.8a");
+	console.log("mwd-donate-widget.js v18.7.9c");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -54,7 +54,7 @@
 			thisWidget.options.organizationId = "fcb4d538-ca92-4212-86cc-06d8ac929c4d";
 		}
 		if (!thisWidget.options.formId || isNaN(thisWidget.options.formId)) {
-			thisWidget.options.formId = 4394;
+			thisWidget.options.formId = 1194; // 4394
 		}
 		if (
 			!thisWidget.options.listSingleGiftAskString ||
@@ -171,6 +171,7 @@
 		console.log("MFA_Funraise_Widget using jQuery version", jq.fn.jquery);
 
 		window.mwdspace.userInputData = {};
+		window.mwdspace.transactionSendData = {};
 		var userInputData = window.mwdspace.userInputData;
 		thisWidget.defaultGiftList = [25, 50, 75, 100];
 
@@ -178,7 +179,7 @@
 		// Funraise environment key: ECDNSGhIR0fYQisIc1PHH7NX0pN
 		// MWD test environment key: ODBm2idmYFT3pBge5qxRBjQaWH9
 		var paymentTokenizerId =
-			thisWidget.options.paymentTokenizerId || "ODBm2idmYFT3pBge5qxRBjQaWH9";
+			thisWidget.options.paymentTokenizerId || "ECDNSGhIR0fYQisIc1PHH7NX0pN";
 
 		// JQUERY OBJECTS
 		var jqContainer = jq("div.giftFormContainer");
@@ -239,7 +240,11 @@
 							)
 						) {
 							prepAndShowProcessingStep();
-							sendTransaction(clickTarget);
+							if (window.mwdspace.transactionSendData.paymentType == "card") {
+								tokenizeUserCard();
+							} else {
+								sendTransaction();
+							}
 						} else {
 							window.mwdspace.donationInProgress = false;
 							clickTarget.addClass("showInvalid");
@@ -358,12 +363,12 @@
 
 		function checkStepDonor() {
 			var isValid = true;
-			if (typeof userInputData.donorFirstname != "string") {
-				console.warn("donorFirstname is invalid", userInputData.donorFirstname);
+			if (typeof userInputData.donorFirstName != "string") {
+				console.warn("donorFirstName is invalid", userInputData.donorFirstName);
 				isValid = false;
 			}
-			if (typeof userInputData.donorLastname != "string") {
-				console.warn("donorLastname is invalid", userInputData.donorLastname);
+			if (typeof userInputData.donorLastName != "string") {
+				console.warn("donorLastName is invalid", userInputData.donorLastName);
 				isValid = false;
 			}
 			if (typeof userInputData.donorEmail != "string") {
@@ -430,7 +435,7 @@
 					processGiftAmountChange(event);
 				} else if (name == "giftAmountFreeform" && tag == "input") {
 					jqGiftAmountFields.prop("checked", false);
-					var amount = cleanFloat(newValue) || 0.0;
+					var amount = cleanCurrency(newValue) || 0.0;
 					var cleanedAmount = amount.toFixed(2);
 					if (cleanedAmount != newValue) {
 						jqThis.val(cleanedAmount);
@@ -512,10 +517,6 @@
 				} else {
 					validatedValue = options.value;
 				}
-				// check if card info tokenization is required
-				if (jqThis.hasClass("tokenizeWatch")) {
-					tokenizeUserCard();
-				}
 			}
 			userInputData[options.name] = validatedValue;
 		}
@@ -524,6 +525,12 @@
 			if (typeof options == "undefined") {
 				var options = {};
 			}
+
+			var valueString = "";
+			if (typeof options.value != "undefined" && options.value !== null) {
+				valueString = String(options.value);
+			}
+
 			var re;
 			switch (options.validationPattern) {
 				case "email":
@@ -532,7 +539,7 @@
 				default:
 					re = new RegExp(options.validationPattern, "i");
 			}
-			if (options.value.match(re)) {
+			if (valueString.match(re)) {
 				jqThis.removeClass("invalid");
 				return true;
 			}
@@ -544,7 +551,7 @@
 			jqGiftAmountFields.removeClass("selected");
 			var jqTarget = jq(event.target);
 			jqTarget.addClass("selected");
-			var newAmount = cleanFloat(jqTarget.val()) || 0.0;
+			var newAmount = cleanCurrency(jqTarget.val()) || 0.0;
 			updateGiftAmount({ baseAmount: newAmount });
 			if (event.type == "change") {
 				jq("div.giftFormHeaderContainer").slideDown(666, function() {
@@ -661,72 +668,72 @@
 		}
 
 		function buildTransactionSendData() {
-			var userData = window.mwdspace.userInputData;
-			var sendData = {};
-
-			// sendData = {
-			// 	amount: 99.99,
-			// 	currency: "USD",
-			// 	paymentType: "card",
-			// 	firstName: "First",
-			// 	lastName: "Last",
-			// 	email: "first.last@example.com",
-			// 	address: "123 Street",
-			// 	city: "Long Beach",
-			// 	state: "CA",
-			// 	postalCode: "90802",
-			// 	country: "United States",
-			// 	month: 12,
-			// 	year: 2022,
-			// 	baseAmount: 99.0,
-			// 	formId: 4394,
-			// 	organizationId: "fcb4d538-ca92-4212-86cc-06d8ac929c4d",
-			// 	paymentToken: "1HI7mQMBL58UpYJZCTBreQGd419",
-			// };
-
 			try {
-				sendData.organizationId = thisWidget.options.organizationId;
-				sendData.formId = thisWidget.options.formId;
+				window.mwdspace.transactionSendData = {};
+				var sendData = window.mwdspace.transactionSendData;
 
-				if (userData.organizationId) sendData.organizationId = userData.organizationId;
-				if (userData.formId) sendData.formId = userData.formId;
-				if (userData.paymentToken) sendData.paymentToken = userData.paymentToken;
+				var userData = window.mwdspace.userInputData;
 
-				if (userData.firstName) sendData.firstName = userData.donorFirstName;
-				if (userData.lastName) sendData.lastName = userData.donorLastName;
-				if (userData.email) sendData.email = userData.donorEmail;
-				if (userData.streetAddress) sendData.address = userData.donorStreet;
-				if (userData.city) sendData.city = userData.donorCity;
-				if (userData.region) sendData.state = userData.donorRegion;
-				if (userData.postCode) sendData.postalCode = userData.donorPostCode;
-				if (userData.country) sendData.country = userData.donorCountry;
+				sendData.organizationId = thisWidget.options.organizationId || null;
+				sendData.formId = thisWidget.options.formId
+					? String(thisWidget.options.formId)
+					: "";
+				sendData.formAllocationId = thisWidget.options.formAllocationId || null;
 
-				if (typeof userData.baseAmount == "number") {
-					var totalAmount = userData.baseAmount;
-					if (typeof userData.extraPercentage == "number") {
-						totalAmount += userData.extraPercentage * userData.baseAmount;
-					}
-					sendData.amount = totalAmount;
-					sendData.baseAmount = userData.baseAmount;
+				/* start - no data, added to mimic current widget */
+				sendData.bank_account_holder_type = "personal";
+				sendData.bank_account_number = "";
+				sendData.bank_account_type = "checking";
+				sendData.bank_name = "";
+				sendData.bank_routing_number = "";
+				sendData.comment = "";
+				sendData.payment_method_token = "";
+				sendData.tags = null;
+				/* end - no data, added to mimic current widget */
+
+				sendData.first_name = userData.donorFirstName || "";
+				sendData.last_name = userData.donorLastName || "";
+				sendData.email = userData.donorEmail || "";
+				sendData.phone = userData.donorPhone || "";
+				sendData.address = userData.donorStreet || "";
+				sendData.city = userData.donorCity || "";
+				sendData.state = userData.donorRegion || "";
+				sendData.postalCode = userData.donorPostCode || "";
+				sendData.country = userData.donorCountry || "";
+
+				var baseAmount = cleanCurrency(userData.baseAmount) || 0.0;
+				var tipPercent = parseFloat(userData.extraPercentage) || 0.0;
+				var tipAmount = cleanCurrency((baseAmount * tipPercent) / 100);
+				sendData.amount = baseAmount + tipAmount;
+				sendData.baseAmount = baseAmount.toFixed(2);
+				sendData.tipAmount = tipAmount.toFixed(2);
+				sendData.tipPercent = tipPercent.toFixed(2);
+
+				switch (userData.giftFrequency) {
+					case "single":
+						sendData.recurring = false;
+						sendData.frequency = "o";
+						break;
+					case "monthly":
+						sendData.recurring = true;
+						sendData.frequency = "m";
+						break;
+					default:
+						sendData.recurring = null;
+						sendData.frequency = "";
 				}
 
-				if (userData.currency) sendData.currency = userData.giftCurrency;
-				if (userData.payMethod) sendData.paymentType = userData.payMethod;
+				sendData.currency = userData.giftCurrency || "";
+				sendData.paymentType = userData.payMethod || "";
 
-				if (userData.payMethod == "card") {
-					if (userData.cardExpireMonth) sendData.month = userData.cardExpireMonth;
-					if (userData.cardExpireYear) sendData.year = userData.cardExpireYear;
-
-					if (userData.cardType) sendData.cardType = userData.cardType;
-					if (userData.cardLastFour) sendData.lastFour = userData.cardLastFour;
+				if (sendData.paymentType == "card") {
+					sendData.month = userData.payCardExpireMonth || "";
+					sendData.year = userData.payCardExpireYear || "";
 				}
 
-				if (userData.isCompanyMatch === true) {
-					sendData.donateDouble = true;
-					if (userData.companyMatchName) sendData.company = userData.companyMatchName;
-					if (userData.companyMatchEmail)
-						sendData.employeeEmail = userData.companyMatchEmail;
-				}
+				sendData.donateDouble = userData.isCompanyMatch === true;
+				sendData.company = userData.companyMatchName || "";
+				sendData.employeeEmail = userData.companyMatchEmail || "";
 
 				return sendData;
 			} catch (err) {
@@ -735,14 +742,18 @@
 			return null;
 		}
 
-		function sendTransaction(clickTarget) {
-			clickTarget.addClass("blocked");
+		function sendTransaction() {
+			console.log("sendTransaction() SENDING", window.mwdspace.transactionSendData);
+			// prepAndShowErrorStep("SENDING IS CURRENTLY DISABLED FOR TESTING");
+			// if (1) {
+			// 	return;
+			// }
 
 			window.mwdspace.transactionLayer.startDonation(
 				window.mwdspace.transactionSendData,
 				function(donationInfo) {
 					console.log("SUCCESS FUNCTION", donationInfo);
-					clickTarget.removeClass("blocked");
+
 					if (donationInfo.type == "card") {
 						var transactionStatus = String(donationInfo.status);
 						if (transactionStatus.match(/complete/i)) {
@@ -766,9 +777,14 @@
 				},
 				function(donationInfo) {
 					console.log("FAIL FUNCTION", donationInfo);
-					clickTarget.removeClass("blocked");
+
 					console.warn("Donation received fail response from server", donationInfo);
-					prepAndShowErrorStep("The server was unable to process the transaction");
+
+					var userMessage =
+						donationInfo.text ||
+						"The server was unable to process the transaction, but provided no explanation.";
+
+					prepAndShowErrorStep(userMessage);
 				}
 			);
 		}
@@ -846,7 +862,7 @@
 			var domButton = null;
 			try {
 				var thisAmount = {
-					amount: cleanFloat(input),
+					amount: cleanCurrency(input),
 					displayText: formatDisplayGift(input),
 				};
 
@@ -891,13 +907,17 @@
 			return domButton;
 		}
 
-		/* remove all but digits/dot before converting to float */
-		function cleanFloat(input) {
+		/* remove all but digits/dot before converting to float and rounding to 2 digits */
+		function cleanCurrency(input) {
 			if (typeof input == "undefined") {
 				var input = "";
 			}
+			if (isNaN(input)) {
+				input = "";
+			}
 			input = "" + input;
-			return parseFloat(input.replace(/[^0-9|\.]/g, ""));
+			var rawCurrency = parseFloat(input.replace(/[^0-9|\.]/g, ""));
+			return Math.round(rawCurrency * 100) / 100;
 		}
 
 		/* remove all chars but digits/dot before convert to float */
@@ -906,7 +926,7 @@
 				var input = "";
 			}
 			input = "" + input;
-			var amount = cleanFloat(input);
+			var amount = cleanCurrency(input);
 			amount = amount.toFixed(2);
 			amount = amount.replace(/\.00$/g, "");
 			return amount;
@@ -1229,7 +1249,11 @@
 						okToAdd = findListMatch(options.filterList, thisCountry.code);
 					}
 					if (okToAdd) {
-						domThisOption = buildCountryOption(thisCountry);
+						var attributes = {};
+						if (thisCountry.code == "US") {
+							attributes = { selected: "selected" };
+						}
+						domThisOption = buildCountryOption(thisCountry, attributes);
 						if (domThisOption) {
 							domCountrySelect.append(domThisOption);
 						} else {
@@ -1243,7 +1267,17 @@
 			}
 		}
 
-		function buildCountryOption(country) {
+		function buildCountryOption(country, attributes) {
+			if (typeof attributes == "undefined") {
+				var attributes = {};
+			}
+			if (typeof attributes != "object") {
+				console.warn(
+					"buildCountryOption() ignoring invalid attributes object",
+					attributes
+				);
+				attributes = {};
+			}
 			var domOption = null;
 			try {
 				if (country.code) {
@@ -1252,6 +1286,9 @@
 				}
 			} catch (err) {
 				console.error("Unable to build the option element for country:", country);
+			}
+			for (var key in attributes) {
+				domOption.setAttribute(key, attributes[key]);
 			}
 			return domOption;
 		}
@@ -1301,12 +1338,11 @@
 				if (typeof month != "number" && typeof month != "string" && !month) {
 					console.error("Invalid month given:", month);
 				} else {
-					if (typeof value == "undefined") {
-						var value = month;
-					}
 					try {
-						month = window.mwdspace.sharedUtils.ensureString(month);
-						month = month.padStart(2, "0");
+						month = parseInt(month);
+						if (month < 10) {
+							month = "0" + month;
+						}
 					} catch (err) {}
 
 					domOption = document.createElement("option");
@@ -1327,7 +1363,7 @@
 				var recentDate = new Date();
 				recentDate.setDate(recentDate.getDate() - 7);
 				var startYear = recentDate.getFullYear();
-				var yearsToShow = 15;
+				var yearsToShow = 20;
 
 				var domCardExpireYearSelect = jqContainer.find(
 					'select[name="payCardExpireYear"]'
@@ -1408,7 +1444,6 @@
 				delay: 400,
 				placeholder: theLabel,
 				width: "100%",
-				// theme: "classic",
 				ajax: {
 					url: "https://platform.funraise.io/api/v1/ddcompanies",
 					data: function(params) {
@@ -1458,11 +1493,15 @@
 					// Spreedly.setValue("cvv", "123");
 				});
 				Spreedly.on("paymentMethod", function(token, result) {
-					console.log("\n\nSPREEDLY PAYMENT TOKENIZED", token, result);
+					console.log("\n\nSPREEDLY PAYMENT TOKENIZED", result);
 
-					window.mwdspace.userInputData.paymentToken = token;
-					window.mwdspace.userInputData.cardType = result.card_type;
-					window.mwdspace.userInputData.cardLastFour = result.last_four_digits;
+					window.mwdspace.transactionSendData.paymentToken = token;
+					// window.mwdspace.transactionSendData.cardType = result.card_type;
+					// window.mwdspace.transactionSendData.lastFour = result.last_four_digits;
+
+					sendTransaction();
+
+					// PROCESS ERROR CHECK NEEDED
 				});
 				Spreedly.on("errors", function(errors) {
 					console.log("\n\nSPREEDLY REPORTS ERRORS:");
@@ -1470,14 +1509,16 @@
 						var error = errors[i];
 						console.log(error);
 					}
+					// PROCESS ERROR CHECK NEEDED
 				});
 				Spreedly.on("fieldEvent", function(name, type, activeEl, response) {
-					console.log("activeEl", activeEl);
 					if (type == "input") {
 						console.log("CARD NUMBER EVENT", response);
-						if (response.validNumber && response.validCvv) {
-							console.log("BOTH FIELDS VALID");
-						}
+						window.mwdspace.userInputData.hasValidCardNumber =
+							response.validNumber || false;
+						window.mwdspace.userInputData.hasValidCardCvv =
+							response.validCvv || false;
+						window.mwdspace.userInputData.cardType = response.cardType || false;
 						if (name == "number") {
 							if (response.validNumber) {
 								jqCardNumberFeedback
@@ -1509,7 +1550,6 @@
 								default:
 									iconHtml = payMethodIconHtml.card;
 							}
-							console.log("Changing card type to", iconHtml);
 							jqCardNumberFeedback.find("span.cardType").html(iconHtml);
 						}
 					}
@@ -1548,27 +1588,49 @@
 		function tokenizeUserCard() {
 			// tokenize only when all fields are ready
 			// when successful, this will populate userInputData.paymentToken field
+
+			// PROCESS ERROR CHECK NEEDED
+
 			if (
-				userInputData.donorFirstname &&
-				userInputData.donorLastname &&
-				userInputData.payCardNumber &&
-				userInputData.payCardCvv &&
+				userInputData.hasValidCardNumber &&
+				userInputData.hasValidCardCvv &&
 				userInputData.payCardExpireMonth &&
+				userInputData.donorFirstName &&
+				userInputData.donorLastName &&
 				userInputData.payCardExpireYear
 			) {
 				if (typeof Spreedly == "object") {
 					var tokenOptions = {
 						// Required
-						first_name: userInputData.donorFirstname,
-						last_name: userInputData.donorLastname,
+						first_name: userInputData.donorFirstName,
+						last_name: userInputData.donorLastName,
 						month: userInputData.payCardExpireMonth,
 						year: userInputData.payCardExpireYear,
 					};
 					// Optional
+					if (userInputData.donorEmail) {
+						tokenOptions.email = userInputData.donorEmail;
+					}
+					if (userInputData.donorPhone) {
+						tokenOptions.phone_number = userInputData.donorPhone;
+					}
+					if (userInputData.donorStreet) {
+						tokenOptions.address1 = userInputData.donorStreet;
+					}
+					if (userInputData.donorCity) {
+						tokenOptions.city = userInputData.donorCity;
+					}
+					if (userInputData.donorRegion) {
+						tokenOptions.state = userInputData.donorRegion;
+					}
 					if (userInputData.donorPostCode) {
 						tokenOptions.zip = userInputData.donorPostCode;
 					}
-					console.log("tokenOptions", tokenOptions);
+					if (userInputData.donorCountry) {
+						tokenOptions.country = userInputData.donorCountry;
+					}
+
+					console.log(">> CALLING tokenizeCreditCard", tokenOptions);
 					Spreedly.tokenizeCreditCard(tokenOptions);
 				} else {
 					console.error("NO SPREEDLY OBJECT - Skipping Spreedly tokenization");
@@ -1588,17 +1650,22 @@
 			if (window.mwdspace.userInputData.payMethod == "bitcoin") {
 				iconHtml = payMethodIconHtml.bitcoin;
 			} else if (window.mwdspace.userInputData.payMethod == "card") {
-				switch (window.mwdspace.userInputData.cardType) {
+				switch (window.mwdspace.userInputData.payCardType) {
 					case "visa":
 						iconHtml = payMethodIconHtml.visa;
 						break;
 					case "mastercard":
+					case "master":
+					case "mc":
 						iconHtml = payMethodIconHtml.mastercard;
 						break;
 					case "amex":
+					case "american_express":
+					case "americanexpress":
 						iconHtml = payMethodIconHtml.amex;
 						break;
 					case "discover":
+					case "disc":
 						iconHtml = payMethodIconHtml.discover;
 						break;
 				}
