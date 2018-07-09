@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("shared-utils.js v18.7.5a");
+	console.log("shared-utils.js v18.7.9c");
 
 	window.mwdspace = window.mwdspace || {};
 

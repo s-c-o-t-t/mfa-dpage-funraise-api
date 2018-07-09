@@ -64,11 +64,11 @@
                 <div class="donorInfoContainer">
                     <div class="connectedSection">
                         <div class="inputGroup twoUp borderRight">
-                            <input class="changeWatch tokenizeWatch" name="donorFirstname" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name"
+                            <input class="changeWatch" name="donorFirstName" type="text" data-label-id="donor.firstnamePlaceholder" placeholder="First Name"
                                 data-validation="[a-z]+" autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp">
-                            <input class="changeWatch tokenizeWatch" name="donorLastname" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name"
+                            <input class="changeWatch" name="donorLastName" type="text" data-label-id="donor.lastnamePlaceholder" placeholder="Last Name"
                                 data-validation="[a-z]+" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
@@ -94,12 +94,12 @@
                                 autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp big borderTop borderRight">
-                            <select class="changeWatch" name="donorRegion" data-validation="[a-z]{5,}"></select>
+                            <select class="changeWatch" name="donorRegion" data-validation="[a-z]{2,}"></select>
                             <input class="changeWatch" name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder"
                                 data-validation="[a-z]{2,}" autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp small borderTop">
-                            <input class="changeWatch tokenizeWatch" name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code"
+                            <input class="changeWatch" name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code"
                                 data-validation="\w{2,}" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
@@ -143,7 +143,7 @@
                 <div class="payInfoContainer">
                     <div class="connectedSection">
                         <div class="inputGroup twoUp cardNumber borderRight">
-                            <input class="changeWatch tokenizeWatch" type="hidden" name="payCardNumber" data-validation="card">
+                            <!-- <input class="changeWatch" type="hidden" name="payCardNumber" data-validation="card"> -->
                             <div id="cardNumberTarget" class="inputAppearance cardTokenizerFrame"></div>
                             <div class="cardNumberFeedback">
                                 <span class="cardNumberValidity insetIcon"></span>
@@ -153,7 +153,7 @@
                             </div>
                         </div>
                         <div class="inputGroup twoUp cardCvv">
-                            <input class="changeWatch tokenizeWatch" type="hidden" name="payCardCvv">
+                            <!-- <input class="changeWatch" type="hidden" name="payCardCvv"> -->
                             <div id="cardCvvTarget" class="inputAppearance cardTokenizerFrame"></div>
                             <div class="infoIcon insetIcon">
                                 <i class="far fa-question-circle"></i>
@@ -272,11 +272,16 @@
                         <i class="fas fa-exclamation-triangle"></i>
                     </h1>
                     <h3>
-                        <span data-label-id="transactionError.message">Oh no! There was an error:
-                            <span class="errorDescription"></span>
-                        </span>
+                        <span data-label-id="transactionError.message">Oh no! There was an&nbsp;error:</span>
                     </h3>
-                    <p data-label-id="transactionError.tryAgainText" class="clickTarget errorRestart">Please try again</p>
+                    <h3>
+                        <strong>
+                            <span class="errorDescription"></span>
+                        </strong>
+                    </h3>
+                    <div class="spacingContainer">
+                        <p data-label-id="transactionError.tryAgainText" class="clickTarget errorRestart">Please try again</p>
+                    </div>
 
                 </div>
             </section>
