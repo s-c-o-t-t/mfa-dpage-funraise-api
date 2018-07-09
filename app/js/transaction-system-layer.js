@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.9c");
+	console.log("transaction-system-layer.js v18.7.9a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -12,8 +12,8 @@
 		baseUrl: "https://test.funraise.io/public/api/v2/",
 	};
 
-	var requestTimeoutSeconds = 5;
-	var requestInitialPollDelay = 1500;
+	var requestTimeoutSeconds = 20;
+	var requestInitialPollDelay = 3000;
 	window.mwdspace = window.mwdspace || {};
 
 	window.mwdspace.donationInProgress = false;
@@ -53,14 +53,12 @@
 			name: "Card",
 			description: "Donate With Card",
 			minimumAmount: 5.0,
-			maximumAmount: 20000.0,
 		},
 		{
 			code: "bitcoin",
 			name: "Bitcoin",
 			description: "Donate With Bitcoin",
 			minimumAmount: 5.0,
-			maximumAmount: 50000.0,
 		},
 	];
 
@@ -1010,7 +1008,7 @@
 							console.log("*********** DONATION STILL PROCESSING");
 							return completeDonation(
 								donateId,
-								(delayMilliseconds *= 1.15),
+								1000,
 								successFunction,
 								failFunction
 							);
@@ -1130,7 +1128,7 @@
 				return "text/plain";
 				break;
 			default:
-				return "application/json";
+				return "application/json; charset=UTF-8";
 		}
 	}
 })();

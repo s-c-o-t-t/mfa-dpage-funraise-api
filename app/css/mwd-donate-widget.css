@@ -480,9 +480,7 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon span.infoText:hover,
         div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon span.infoText:hover,
         div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon span.infoText:hover {
-          display: flex;
-          bottom: 0;
-          opacity: 1; }
+          display: flex; }
         div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon span.infoText img,
         div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon span.infoText img,
         div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon span.infoText img,

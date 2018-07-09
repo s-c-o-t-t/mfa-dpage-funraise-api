@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.9c");
+	console.log("mwd-donate-widget.js v18.7.9a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -24,17 +24,15 @@
 		thisWidget.isStarted = false;
 		thisWidget.isLoaded = false;
 		thisWidget.codeVersion = "1.0.0";
+		thisWidget.baseWidgetUrl =
+			"https://quiz.mercyforanimals.org/donate-widget/" + thisWidget.codeVersion + "/";
 
 		thisWidget.targetElement = {};
 		thisWidget.promises = {};
 		thisWidget.intervals = {};
 
-		thisWidget.mainStylesUrl =
-			window.location.protocol +
-			"//services.mwdagency.com/donate-widget/1.0.0/css/mwd-donate-widget.css";
-		thisWidget.mainHtmlUrl =
-			window.location.protocol +
-			"//services.mwdagency.com/donate-widget/1.0.0/mwd-donate-widget.html";
+		thisWidget.mainStylesUrl = thisWidget.baseWidgetUrl + "css/mwd-donate-widget.css";
+		thisWidget.mainHtmlUrl = thisWidget.baseWidgetUrl + "mwd-donate-widget.html";
 
 		console.log("window.mwdspace.MFA_Funraise_Widget", thisWidget.codeVersion);
 
@@ -70,6 +68,8 @@
 			thisWidget.options.listMonthlyGiftAskString = [5, 10, "15*", 20];
 		}
 
+		window.mwdspace.pageIdPrefix = "form" + thisWidget.options.formId;
+
 		var target = document.querySelectorAll(thisWidget.options.element);
 		if (!target) {
 			console.warn("Specified target element not found:", thisWidget.options.element);
@@ -101,8 +101,7 @@
 		var widgetHtml, sharedUtilResult;
 		var promiseMainHtml = thisWidget.loadFile(thisWidget.mainHtmlUrl);
 		var promiseSharedUtils = thisWidget.linkExternalScript(
-			window.location.protocol +
-				"//services.mwdagency.com/donate-widget/1.0.0/js/shared-utils.js"
+			thisWidget.baseWidgetUrl + "js/shared-utils.js"
 		);
 		[widgetHtml, sharedUtilResult] = await Promise.all([
 			promiseMainHtml,
@@ -138,12 +137,10 @@
 		);
 
 		var promiseBusinessLayer = thisWidget.linkExternalScript(
-			window.location.protocol +
-				"//services.mwdagency.com/donate-widget/1.0.0/js/gift-utilities.js"
+			thisWidget.baseWidgetUrl + "js/gift-utilities.js"
 		);
 		var promiseTransactionLayer = thisWidget.linkExternalScript(
-			window.location.protocol +
-				"//services.mwdagency.com/donate-widget/1.0.0/js/transaction-system-layer.js"
+			thisWidget.baseWidgetUrl + "js/transaction-system-layer.js"
 		);
 
 		await Promise.all([
@@ -446,6 +443,12 @@
 						jqThis.removeClass("invalid");
 					}
 					processGiftAmountChange(event);
+				} else if (name == "giftExtraPercent" && tag == "input") {
+					var newPercent = 0;
+					if (jqThis.prop("checked")) {
+						newPercent = jqThis.val();
+					}
+					updateGiftAmount({ extraPercent: newPercent });
 				} else if (name == "giftCurrency" && tag == "select") {
 					updateCurrency();
 				} else if (name == "payMethod" && tag == "select") {
@@ -519,6 +522,8 @@
 				}
 			}
 			userInputData[options.name] = validatedValue;
+
+			window.mwdspace.sharedUtils.setSessionValue(options.name, options.value);
 		}
 
 		function validateInputField(jqThis, options) {
@@ -534,7 +539,7 @@
 			var re;
 			switch (options.validationPattern) {
 				case "email":
-					re = new RegExp(/^\w+@\w+\.[a-z]{2,}$/i);
+					re = new RegExp(/^[\w|\.|\-|\_]+@[\w|\.|\-|\_]+\.[a-z]{2,}$/i);
 					break;
 				default:
 					re = new RegExp(options.validationPattern, "i");
@@ -565,11 +570,17 @@
 				var input = {};
 			}
 			try {
-				userInputData.baseAmount = parseFloat(input.baseAmount) || 0.0;
-				userInputData.extraPercent = parseFloat(input.extraPercent) || 0.0;
+				userInputData.baseAmount = userInputData.baseAmount || 0;
+				userInputData.extraPercent = userInputData.extraPercent || 0;
+				if (typeof input.baseAmount != "undefined") {
+					userInputData.baseAmount = parseFloat(input.baseAmount) || 0.0;
+				}
+				if (typeof input.extraPercent != "undefined") {
+					userInputData.extraPercent = parseFloat(input.extraPercent) || 0.0;
+				}
 				var total = parseFloat(
 					userInputData.baseAmount +
-						userInputData.baseAmount * userInputData.extraPercent
+						(userInputData.baseAmount * userInputData.extraPercent) / 100
 				);
 				var displayAmount = total.toFixed(2).split(".");
 				jqContainer
@@ -578,6 +589,15 @@
 				jqContainer
 					.find("div.amountDisplay span.displaySubAmount")
 					.text("." + displayAmount[1]);
+
+				window.mwdspace.sharedUtils.setSessionValue(
+					"baseAmount",
+					userInputData.baseAmount
+				);
+				window.mwdspace.sharedUtils.setSessionValue(
+					"extraPercent",
+					userInputData.extraPercent
+				);
 			} catch (err) {
 				console.log("updateGiftAmount() caught error: ", err.message);
 			}
@@ -677,7 +697,7 @@
 				sendData.organizationId = thisWidget.options.organizationId || null;
 				sendData.formId = thisWidget.options.formId
 					? String(thisWidget.options.formId)
-					: "";
+					: ""; //mimic test
 				sendData.formAllocationId = thisWidget.options.formAllocationId || null;
 
 				/* start - no data, added to mimic current widget */
@@ -702,12 +722,12 @@
 				sendData.country = userData.donorCountry || "";
 
 				var baseAmount = cleanCurrency(userData.baseAmount) || 0.0;
-				var tipPercent = parseFloat(userData.extraPercentage) || 0.0;
+				var tipPercent = parseFloat(userData.giftExtraPercent) || 0.0;
 				var tipAmount = cleanCurrency((baseAmount * tipPercent) / 100);
 				sendData.amount = baseAmount + tipAmount;
-				sendData.baseAmount = baseAmount.toFixed(2);
-				sendData.tipAmount = tipAmount.toFixed(2);
-				sendData.tipPercent = tipPercent.toFixed(2);
+				sendData.baseAmount = baseAmount.toFixed(2); //mimic test
+				sendData.tipAmount = tipAmount.toFixed(2); //mimic test
+				sendData.tipPercent = "3.00"; //mimic test
 
 				switch (userData.giftFrequency) {
 					case "single":
@@ -830,18 +850,28 @@
 				// remove any existing options
 				jqGiftStringContainer.empty();
 
-				var domThisButton;
+				var domThisButton, thisAmount, thisId;
+				var defaultId = null;
 
 				for (var i = 0; i < giftStringList.length; i++) {
-					domThisButton = buildGiftStringButton(giftStringList[i], {
-						id: window.mwdspace.sharedUtils.makeUniqueId("amount-" + i),
+					thisAmount = giftStringList[i];
+					thisId = window.mwdspace.sharedUtils.makeUniqueId("amount-" + i);
+					if (!defaultId && String(thisAmount).match(/\*/)) {
+						defaultId = thisId;
+					}
+					domThisButton = buildGiftStringButton(thisAmount, {
+						id: thisId,
 					});
 					if (domThisButton) {
 						jqGiftStringContainer.append(domThisButton);
 					} else {
-						console.warn("Unable to add fixed gift button:", giftStringList[i]);
+						console.warn("Unable to add fixed gift button:", thisAmount);
 					}
 				}
+				// below is in progress
+				// if (defaultId) {
+				// 	jqContainer("div.giftAmountContainer input#" + defaultId);
+				// }
 			} catch (err) {
 				console.error("Unable to build the fixed gift buttons", err);
 			}
@@ -910,13 +940,15 @@
 		/* remove all but digits/dot before converting to float and rounding to 2 digits */
 		function cleanCurrency(input) {
 			if (typeof input == "undefined") {
+				console.warn("cleanCurrency() given empty input");
 				var input = "";
-			}
-			if (isNaN(input)) {
-				input = "";
 			}
 			input = "" + input;
 			var rawCurrency = parseFloat(input.replace(/[^0-9|\.]/g, ""));
+			if (isNaN(rawCurrency)) {
+				console.warn("cleanCurrency() defaulting invalid input to 0.00", input);
+				return 0.0;
+			}
 			return Math.round(rawCurrency * 100) / 100;
 		}
 
@@ -1230,7 +1262,8 @@
 				options = {};
 				console.warn("buildCountrySelect(): ignoring invalid option object", options);
 			}
-			var defaultCountry = typeof options.default == "string" ? options.default : "US";
+			var defaultCountry =
+				typeof options.default == "string" ? options.default : "United States";
 			try {
 				if (!window.mwdspace.validCountryList) {
 					throw new Error("List of valid countries not found");
@@ -1249,11 +1282,8 @@
 						okToAdd = findListMatch(options.filterList, thisCountry.code);
 					}
 					if (okToAdd) {
-						var attributes = {};
-						if (thisCountry.code == "US") {
-							attributes = { selected: "selected" };
-						}
-						domThisOption = buildCountryOption(thisCountry, attributes);
+						// var attributes = {};
+						domThisOption = buildCountryOption(thisCountry);
 						if (domThisOption) {
 							domCountrySelect.append(domThisOption);
 						} else {
@@ -1339,9 +1369,9 @@
 					console.error("Invalid month given:", month);
 				} else {
 					try {
-						month = parseInt(month);
-						if (month < 10) {
-							month = "0" + month;
+						var tempInt = parseInt(month);
+						if (!isNaN(tempInt) && tempInt >= 0 && tempInt < 10) {
+							month = "0" + tempInt;
 						}
 					} catch (err) {}
 
@@ -1886,7 +1916,7 @@
 						scrollTop: elementTop,
 						easing: "ease",
 					},
-					666
+					444
 				);
 				return;
 			}
@@ -2109,7 +2139,6 @@
 				thisTag = String(elementList[i].tagName).toLowerCase();
 				switch (thisTag) {
 					case "input":
-						// console.warn("REPLACE (placeholder)", labelId, thisTag,value);
 						elementList[i].setAttribute("placeholder", value);
 						break;
 					case "label":
@@ -2124,7 +2153,6 @@
 					case "h6":
 					case "p":
 					case "li":
-						// console.warn("REPLACE (inner html)", labelId, thisTag, value);
 						elementList[i].innerHTML = value;
 						break;
 					default:
