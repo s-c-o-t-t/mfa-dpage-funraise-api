@@ -42,7 +42,6 @@
 	},
 	"payment": {
 		"cardNumberPlaceholder": "Tarjeta",
-		"cvvPlaceholder": "CVV (test transalation)",
 		"cvvHint":
 			"El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
 		"cardExpireMonthPlaceholder": "Mes",
@@ -53,8 +52,12 @@
 			"invalidCardNumber": "Se requiere el número de tarjeta",
 			"invalidCvv": "Se requiere el código de CVV",
 			"invalidMonth": "Por favor seleccione el mes",
-			"invalidYear": "Por favor seleccione el año",
-			"captchaNotice": "Please follow the Captcha instructions to continue"
+			"invalidYear": "Por favor seleccione el año"
 		}
+	},
+	"transactionSuccess": {
+		"thankYouText": "¡Gracias",
+		"emailReceiptText":
+			"Te enviaremos pronto un recibo de tu donación al correo electrónico."
 	}
 }

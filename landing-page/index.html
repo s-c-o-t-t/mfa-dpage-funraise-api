@@ -33,6 +33,7 @@
     <meta name="description" content="Donate today to help stop animal cruelty on factory farms and support MFA’s life-saving work!"
     />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="IE=9">
 
@@ -1286,7 +1287,14 @@
                                                             window.mwdspace = window.mwdspace || {};
                                                             var mainWidget = new window.mwdspace.MFA_Funraise_Widget({
                                                                 element: 'div#form-test-01',
-                                                                labelOverride: 'https://quiz.mercyforanimals.org/mfa-dpage-01/translation-spanish.json'
+                                                                labelOverride: 'https://quiz.mercyforanimals.org/mfa-dpage-01/translation-spanish.json',
+                                                                singleGiftStringList: [22, 33, 44, 44],
+                                                                monthlyGiftStringList: [5.5, 6.6, 7.7, 8.8],
+                                                                "currencies": {
+                                                                    MXN: {
+                                                                        singleGiftStringList: [100, 200, 500, 750]
+                                                                    }
+                                                                }
                                                             });
                                                             mainWidget.start();
                                                         </script>

@@ -1,16 +1,19 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.9a");
+	console.log("transaction-system-layer.js v18.7.10a");
 
 	window.mwdspace = window.mwdspace || {};
 
 	window.mwdspace.transactionLayer = window.mwdspace.transactionLayer || {};
 	var transactionLayer = window.mwdspace.transactionLayer;
 
-	// https://platform.funraise.io/
 	var apiConstants = {
 		baseUrl: "https://test.funraise.io/public/api/v2/",
 	};
+
+	if (window.mwdspace.sharedUtils.getUrlParameter("api") == "live") {
+		apiConstants.baseUrl = "https://platform.funraise.io/public/api/v2/";
+	}
 
 	var requestTimeoutSeconds = 20;
 	var requestInitialPollDelay = 3000;
@@ -58,7 +61,7 @@
 			code: "bitcoin",
 			name: "Bitcoin",
 			description: "Donate With Bitcoin",
-			minimumAmount: 5.0,
+			minimumAmount: 1.0,
 		},
 	];
 
@@ -724,7 +727,7 @@
 		{ name: "Sweden", code: "SE" },
 		{ name: "Switzerland", code: "CH" },
 		{ name: "Syrian Arab Republic", code: "SY" },
-		{ name: "Taiwan, Province of China", code: "TW" },
+		{ name: "Taiwan", code: "TW" },
 		{ name: "Tajikistan", code: "TJ" },
 		{ name: "Tanzania, United Republic of", code: "TZ" },
 		{ name: "Thailand", code: "TH" },
@@ -877,36 +880,54 @@
 			verbose: true,
 		};
 
-		//initial post to create donation
-		try {
-			sendXhrRequest(
-				donationOptions,
-				function(response) {
-					console.log("response INITIAL", typeof response, response);
-					if (!response.json || !response.json.id) {
-						console.error('startDonation(): Invalid response, no "id":');
-						console.log(response);
-						return failFunction(response);
-					}
-					var donateId = response.json.id;
-					window.mwdspace.donationStartTime = new Date();
-					window.mwdspace.sharedUtils.setSessionValue("donationId", donateId);
-					window.mwdspace.sharedUtils.setSessionValue(
-						"donationStartTime",
-						window.mwdspace.donationStartTime.toUTCString()
-					);
-					completeDonation(
-						donateId,
-						requestInitialPollDelay,
-						successFunction,
-						failFunction
-					);
-				},
-				failFunction
+		if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
+			console.log("SENDING LIVE DONATION POST");
+
+			//initial post to create donation
+			try {
+				sendXhrRequest(
+					donationOptions,
+					function(response) {
+						console.log("response INITIAL", typeof response, response);
+						if (!response.json || !response.json.id) {
+							console.error('startDonation(): Invalid response, no "id":');
+							console.log(response);
+							return failFunction(response);
+						}
+						var donateId = response.json.id;
+						window.mwdspace.donationStartTime = new Date();
+						window.mwdspace.sharedUtils.setSessionValue("donationId", donateId);
+						window.mwdspace.sharedUtils.setSessionValue(
+							"donationStartTime",
+							window.mwdspace.donationStartTime.toUTCString()
+						);
+						completeDonation(
+							donateId,
+							requestInitialPollDelay,
+							successFunction,
+							failFunction
+						);
+					},
+					failFunction
+				);
+			} catch (err) {
+				console.error("startDonation CAUGHT ERROR", err);
+				failFunction({});
+			}
+		} else {
+			console.log("RETURNING TEST DONATION ID");
+
+			//{"id":"a4f29f88-e392-41ca-9a3a-881926d3228d"}
+
+			var donateId = "a4f29f88-e392-41ca-9a3a-881926d3228d";
+			window.mwdspace.donationStartTime = new Date();
+			window.mwdspace.sharedUtils.setSessionValue("donationId", donateId);
+			window.mwdspace.sharedUtils.setSessionValue(
+				"donationStartTime",
+				window.mwdspace.donationStartTime.toUTCString()
 			);
-		} catch (err) {
-			console.error("startDonation CAUGHT ERROR", err);
-			failFunction({});
+
+			completeDonation(donateId, requestInitialPollDelay, successFunction, failFunction);
 		}
 	};
 
@@ -939,44 +960,6 @@
 			new Date().getTime() - window.mwdspace.donationStartTime.getTime();
 		console.log("elapsedMilliseconds", elapsedMilliseconds);
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
-			// var testResponse;
-			// if (0) {
-			// 	testResponse = {
-			// 		payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
-			// 		donation_id: 644353,
-			// 		checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
-			// 		img_data:
-			// 			"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
-			// 		exp: 1530874922224,
-			// 		type: "bitcoin",
-			// 		alt_amount: "0.000777",
-			// 		transaction_id: "X19hQRxwvD87QBRcADXrDX",
-			// 		status: "Pending",
-			// 		invoice_status: "new",
-			// 		id: 644353,
-			// 		errors: null,
-			// 	};
-			// } else {
-			// 	testResponse = {
-			// 		payment_id: "1111",
-			// 		donation_id: 15697,
-			// 		checkout_url: null,
-			// 		img_data: null,
-			// 		exp: 1706745600000,
-			// 		type: "card",
-			// 		alt_amount: null,
-			// 		transaction_id: "68",
-			// 		status: "Complete",
-			// 		invoice_status: null,
-			// 		id: 15697,
-			// 		errors: "Succeeded!",
-			// 	};
-			// }
-
-			// testResponse.exp = new Date().getTime() + 899123;
-
-			// console.warn("TESTING TIMEOUT OVERRIDE WITH FAKE DATA");
-			// return successFunction(testResponse);
 			console.error(
 				"completeDonation(): request timeout reached, calling fail function."
 			);
@@ -994,33 +977,80 @@
 				verbose: true,
 			};
 
-			sendXhrRequest(
-				donationOptions,
-				function(response) {
-					console.log("response POLL", typeof response, response);
+			if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
+				console.log("SENDING LIVE POLL REQUEST");
+				sendXhrRequest(
+					donationOptions,
+					function(response) {
+						console.log("response POLL", typeof response, response);
 
-					if (response.status == 200 && response.json) {
-						if (String(reponse.json.status).toLowerCase() == "Complete") {
-							window.mwdspace.sharedUtils.removeSessionValue("donationId");
-							window.mwdspace.sharedUtils.removeSessionValue("donationStartTime");
-							return successFunction(response);
-						} else {
-							console.log("*********** DONATION STILL PROCESSING");
-							return completeDonation(
-								donateId,
-								1000,
-								successFunction,
-								failFunction
-							);
+						if (response.status == 200 && response.json) {
+							if (String(reponse.json.status).toLowerCase() == "Complete") {
+								window.mwdspace.sharedUtils.removeSessionValue("donationId");
+								window.mwdspace.sharedUtils.removeSessionValue(
+									"donationStartTime"
+								);
+								return successFunction(response);
+							} else {
+								console.log("*********** DONATION STILL PROCESSING");
+								return completeDonation(
+									donateId,
+									1000,
+									successFunction,
+									failFunction
+								);
+							}
 						}
-					}
 
-					console.error("completeDonation(): Invalid response follows:");
-					console.warn(response);
-					return failFunction(response);
-				},
-				failFunction
-			);
+						console.error("completeDonation(): Invalid response follows:");
+						console.warn(response);
+						return failFunction(response);
+					},
+					failFunction
+				);
+			} else {
+				console.log("RETURNING TEST DATA");
+
+				var testResponse;
+				if (window.mwdspace.transactionSendData.paymentType == "bitcoin") {
+					testResponse = {
+						payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
+						donation_id: 644353,
+						checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
+						img_data:
+							"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
+						exp: 1530874922224,
+						type: "bitcoin",
+						alt_amount: "0.000777",
+						transaction_id: "X19hQRxwvD87QBRcADXrDX",
+						status: "Pending",
+						invoice_status: "new",
+						id: 644353,
+						errors: null,
+					};
+				} else {
+					testResponse = {
+						payment_id: "1111",
+						donation_id: 15697,
+						checkout_url: null,
+						img_data: null,
+						exp: 1706745600000,
+						type: "card",
+						alt_amount: null,
+						transaction_id: "68",
+						status: "Complete",
+						invoice_status: null,
+						id: 15697,
+						errors: "Succeeded!",
+					};
+				}
+
+				testResponse.exp = new Date().getTime() + 899123;
+
+				window.mwdspace.sharedUtils.removeSessionValue("donationId");
+				window.mwdspace.sharedUtils.removeSessionValue("donationStartTime");
+				successFunction(testResponse);
+			}
 		}, delayMilliseconds);
 	}
 
@@ -1055,7 +1085,7 @@
 
 		xhr.open(requestMethod, requestUrl, true);
 		xhr.setRequestHeader("Content-Type", sendContentType);
-		xhr.setRequestHeader("Accept", acceptContentType);
+		xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
 
 		if (verboseMode) {
 			console.log(">>> sendXhrRequest() sending with data", requestUrl, sendData);
