@@ -210,6 +210,7 @@
 
 		setupInputWatchers();
 		buildFrequencyButtons();
+		prePopulateUserFields();
 
 		// ensure text override file load (if any) is complete
 		await thisWidget.promises.labelOverrideLoad;
@@ -230,29 +231,30 @@
 			var clickTarget = jq(event.target).closest("button, .clickTarget");
 			if (clickTarget) {
 				if (clickTarget.hasClass("processDonation")) {
-					if (window.mwdspace.donationInProgress) {
-						alert("A donation is processing.");
-					} else {
-						window.mwdspace.transactionSendData = buildTransactionSendData();
-						if (
-							window.mwdspace.transactionLayer.validateSendData(
-								window.mwdspace.transactionSendData
-							)
-						) {
-							prepAndShowProcessingStep();
-							if (window.mwdspace.transactionSendData.payMethod == "card") {
-								tokenizeUserCard();
-							} else {
-								sendTransaction();
-							}
-						} else {
-							window.mwdspace.donationInProgress = false;
-							clickTarget.addClass("showInvalid");
-							setTimeout(function() {
-								clickTarget.removeClass("showInvalid");
-							}, 1500);
-						}
-					}
+					console.log("You shoudn't be seeing this");
+					// if (window.mwdspace.donationInProgress) {
+					// 	alert("A donation is processing.");
+					// } else {
+					// 	window.mwdspace.transactionSendData = buildTransactionSendData();
+					// 	if (
+					// 		window.mwdspace.transactionLayer.validateSendData(
+					// 			window.mwdspace.transactionSendData
+					// 		)
+					// 	) {
+					// 		prepAndShowProcessingStep();
+					// 		if (window.mwdspace.transactionSendData.payMethod == "card") {
+					// 			tokenizeUserCard();
+					// 		} else {
+					// 			sendTransaction();
+					// 		}
+					// 	} else {
+					// 		window.mwdspace.donationInProgress = false;
+					// 		clickTarget.addClass("showInvalid");
+					// 		setTimeout(function() {
+					// 			clickTarget.removeClass("showInvalid");
+					// 		}, 1500);
+					// 	}
+					// }
 				} else if (clickTarget.hasClass("goNextStep")) {
 					if (!showNextStep()) {
 						clickTarget.addClass("showInvalid");
@@ -279,14 +281,17 @@
 					break;
 				case "donorInfo":
 					if (checkStepDonor()) {
-						showStep("payment");
-						return true;
+						if (window.mwdspace.userInputData.payMethod == "card") {
+							showStep("cardInfo");
+							return true;
+						} else {
+							return sendTransaction();
+						}
 					}
 					break;
-				case "payment":
-					if (checkStepPayment()) {
-						alert("Would process donation");
-						return true;
+				case "cardInfo":
+					if (checkStepCard()) {
+						return tokenizeUserCard();
 					}
 					break;
 			}
@@ -298,7 +303,7 @@
 				case "donorInfo":
 					showStep("giftAmount");
 					break;
-				case "payment":
+				case "cardInfo":
 					showStep("donorInfo");
 					break;
 			}
@@ -318,11 +323,14 @@
 			for (var i = 0; i < jqStepList.length; i++) {
 				thisName = jqStepList[i].getAttribute("data-step-name");
 				if (thisName == targetStepName) {
-					if (i == 0 || targetStepName == "confirmation") {
-						jqMainBackButton.hide();
-					} else {
-						jq("div.giftFormHeaderContainer").show();
-						jqMainBackButton.fadeIn(888);
+					switch (targetStepName) {
+						case "donorInfo":
+						case "cardInfo":
+							jq("div.giftFormHeaderContainer").show();
+							jqMainBackButton.fadeIn(888);
+							break;
+						default:
+							jqMainBackButton.hide();
 					}
 					jq(jqStepList[i]).fadeIn(666, function() {
 						scrollAll(jqContainer);
@@ -390,10 +398,7 @@
 						jq(this).attr("name") != "donorCountry" &&
 						jq(this).css("display") != "none"
 					) {
-						console.log("TRIGGER CHANGE TO", jq(this).attr("name"));
 						jq(this).trigger("change");
-					} else {
-						console.log("SKIPPING TRIGGER FOR", jq(this).attr("name"));
 					}
 				});
 			userInputData.donorCountry =
@@ -453,8 +458,41 @@
 			return isValid;
 		}
 
-		function checkStepPayment() {
-			return false;
+		function checkStepCard() {
+			console.log(">>> checkStepCard()");
+			var isValid = true;
+
+			jqContainer
+				.find("section.step[data-step-name='cardInfo'] .changeWatch")
+				.trigger("change");
+
+			var jqCardNumberBox = jqContainer.find("div.payInfoContainer div#cardNumberTarget");
+			if (userInputData.hasValidCardNumber === true) {
+				jqCardNumberBox.removeClass("invalid");
+			} else {
+				isValid = false;
+				jqCardNumberBox.addClass("invalid");
+				console.warn("hasValidCardNumber is invalid", userInputData.hasValidCardNumber);
+			}
+			var jqCardCvvBox = jqContainer.find("div.payInfoContainer div#cardCvvTarget");
+			if (userInputData.hasValidCardCvv === true) {
+				jqCardCvvBox.removeClass("invalid");
+			} else {
+				isValid = false;
+				jqCardCvvBox.addClass("invalid");
+				console.warn("hasValidCardCvv is invalid", userInputData.hasValidCardCvv);
+			}
+
+			if (typeof userInputData.payCardExpireMonth != "string") {
+				console.warn("payCardExpireMonth is invalid", userInputData.payCardExpireMonth);
+				isValid = false;
+			}
+			if (typeof userInputData.payCardExpireYear != "string") {
+				console.warn("payCardExpireYear is invalid", userInputData.payCardExpireYear);
+				isValid = false;
+			}
+
+			return isValid;
 		}
 
 		function showStepFeedback(stepName, message, isError) {
@@ -498,7 +536,6 @@
 				var tag = String(jqThis.prop("tagName")).toLowerCase();
 
 				if (jqThis.hasClass("changeWatch")) {
-					console.log("CHANGEWATCH EVENT", event.type);
 					processChangeWatch(jqThis, { name: name, value: newValue });
 				}
 
@@ -561,7 +598,7 @@
 		}
 
 		function processChangeWatch(jqThis, options) {
-			console.log("processChangeWatch()", jqThis, options);
+			// console.log("processChangeWatch()", jqThis, options);
 			if (typeof options == "undefined") {
 				var options = {};
 			}
@@ -591,7 +628,7 @@
 		}
 
 		function validateInputField(jqThis, options) {
-			console.log("validateInputField()", jqThis, options);
+			// console.log("validateInputField()", jqThis, options);
 			if (typeof options == "undefined") {
 				var options = {};
 			}
@@ -625,11 +662,11 @@
 
 		function processGiftAmountChange(event) {
 			var jqTarget = jq(event.target);
-			console.log(">>> processGiftAmountChange()", event.type, jqTarget.attr("name"));
+			// console.log(">>> processGiftAmountChange()", event.type, jqTarget.attr("name"));
 			var newValue = cleanCurrency(jqTarget.val()) || 0.0;
 			updateGiftAmount({ baseAmount: newValue });
 			jqContainer.find("div.giftOption input").removeClass("selected");
-			console.log("Removed class from", jqContainer.find("div.giftOption input").length);
+
 			jqTarget.addClass("selected");
 			if (event.type == "change") {
 				jq("div.giftFormHeaderContainer").slideDown(666, function() {
@@ -650,10 +687,6 @@
 					}
 				}
 				jqContainer.find("div.giftOption input[type='radio']").prop("checked", false);
-				console.log(
-					"Removed checked from",
-					jqContainer.find("div.giftOption input[type='radio']").length
-				);
 			}
 		}
 
@@ -713,22 +746,62 @@
 		}
 
 		function updatePayMethod() {
-			// delete userInputData.payMethod;
-			// var payMethod = jqPayMethodSelect.val();
-			// var thisItem;
-			// for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
-			// 	thisItem = window.mwdspace.validPayMethodList[i];
-			// 	if (thisItem.code == payMethod) {
-			// 		userInputData.payMethod = thisItem.code;
-			// 		userInputData.minimumAmount = thisItem.minimumAmount;
-			// 		break;
-			// 	}
-			// }
-			// buildFrequencyButtons();
+			var payMethod = jqPayMethodSelect.val();
+			var thisItem;
+			for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
+				thisItem = window.mwdspace.validPayMethodList[i];
+				if (thisItem.code == payMethod) {
+					// userInputData.payMethod = thisItem.code;
+					userInputData.minimumAmount = thisItem.minimumAmount;
+					if (thisItem.frequencies) {
+						console.log("calling freq filter", thisItem);
+						filterFrequencyButtons(thisItem.frequencies);
+					}
+					break;
+				}
+			}
+		}
+
+		function filterFrequencyButtons(frequencyList) {
+			if (typeof frequencyList != "object" || frequencyList.length < 1) {
+				console.warn(
+					"filterFrequencyButtons() ignoring invalid frequency list",
+					frequencyList
+				);
+				return;
+			}
+			console.log("filterFrequencyButtons()", frequencyList);
+			var visibleOptions = 0;
+			var selectedOptionNowHidden = false;
+			jqContainer
+				.find("div.giftFrequencyContainer div.fancyRadioButton input[type='radio']")
+				.each(function() {
+					if (frequencyList.indexOf(jq(this).val()) >= 0) {
+						// show this frequency
+						jq(this)
+							.closest("div.fancyRadioButton")
+							.show();
+						visibleOptions++;
+					} else {
+						// hide this frequency
+						if (jq(this).prop("checked")) {
+							selectedOptionNowHidden = true;
+						}
+						jq(this)
+							.closest("div.fancyRadioButton")
+							.hide();
+					}
+				});
+			if (visibleOptions < 1) {
+				// something is wrong, show all
+				jqContainer.find("div.giftFrequencyContainer div.fancyRadioButton").show();
+			} else if (visibleOptions == 1) {
+				// hide all
+				jqContainer.find("div.giftFrequencyContainer div.fancyRadioButton").hide();
+			}
 		}
 
 		function updateFrequency() {
-			// delete userInputData.frequency;
 			// var frequency = jqContainer
 			// 	.find("div.giftFrequencyContainer input[type='radio']:checked")
 			// 	.val();
@@ -743,40 +816,44 @@
 			getGiftString();
 		}
 
-		// GIFT AMOUNT STEP
-		function validateDataGiftAmount() {
-			try {
-				if (isNaN(userInputData.baseAmount) || userInputData.baseAmount <= 0) {
-					return false;
-				}
-				if (!validatePaymentType(input.paymentType)) {
-					return false;
-				}
-				if (!validateFrequency(input.frequency)) {
-					return false;
-				}
+		function prePopulateUserFields() {
+			setInputFromUrl("first", "donorFirstName");
+			setInputFromUrl("last", "donorLastName");
+			setInputFromUrl("email", "donorEmail");
+			setInputFromUrl("phone", "donorPhone");
+			setInputFromUrl("street", "donorStreet");
+			setInputFromUrl("city", "donorCity");
+			setInputFromUrl("postcode", "donorPostCode");
+			setInputFromUrl("country", "donorCountry");
+			setInputFromUrl("region", "donorRegion"); //must be after country
 
-				return true;
-			} catch (err) {
-				console.log("validateDataGiftAmount() caught error: ", err.message);
-			}
-			return false;
+			setInputFromUrl("currency", "giftCurrency");
+			setInputFromUrl("amount", "giftAmountFreeform");
 		}
 
-		function validatePaymentType(input) {
-			if (typeof input != "string") {
-				return false;
+		function setInputFromUrl(urlKey, selector) {
+			if (typeof urlKey == "undefined" || !urlKey) {
+				console.log("setInputFromUrl() given invalid urlKey", urlKey);
+				return;
 			}
-
-			return true;
-		}
-
-		function validateFrequency(input) {
-			if (typeof input != "string") {
-				return false;
+			if (typeof selector == "undefined" || !selector) {
+				console.log("setInputFromUrl() given invalid selector", selector);
+				return;
 			}
-
-			return true;
+			var urlValue = window.mwdspace.sharedUtils.getUrlParameter(urlKey);
+			if (urlValue) {
+				console.log("-- POPULATING", selector, "with", urlValue);
+				var jqTarget = jqContainer
+					.find(
+						"section.step input[name='" +
+							selector +
+							"'], section.step select[name='" +
+							selector +
+							"']"
+					)
+					.val(urlValue)
+					.trigger("change");
+			}
 		}
 
 		function buildTransactionSendData() {
@@ -858,11 +935,17 @@
 		}
 
 		function sendTransaction() {
+			window.mwdspace.transactionSendData = buildTransactionSendData();
+			if (
+				!window.mwdspace.transactionLayer.validateSendData(
+					window.mwdspace.transactionSendData
+				)
+			) {
+				return false;
+			}
 			console.log("sendTransaction() SENDING", window.mwdspace.transactionSendData);
-			// prepAndShowErrorStep("SENDING IS CURRENTLY DISABLED FOR TESTING");
-			// if (1) {
-			// 	return;
-			// }
+
+			prepAndShowProcessingStep();
 
 			window.mwdspace.transactionLayer.startDonation(
 				window.mwdspace.transactionSendData,
@@ -902,6 +985,7 @@
 					prepAndShowErrorStep(userMessage);
 				}
 			);
+			return true;
 		}
 
 		function getGiftString() {
@@ -1444,7 +1528,7 @@
 				// add placeholder value
 				var domThisOption = buildCardExpireMonthOption("Month", {
 					value: "",
-					"data-label-id": "payment.cardExpireMonthPlaceholder",
+					"data-label-id": "cardInfo.cardExpireMonthPlaceholder",
 				});
 				domCardExpireMonthSelect.append(domThisOption);
 				// add months
@@ -1514,7 +1598,7 @@
 				// add placeholder value
 				var domThisOption = buildCardExpireYearOption("Year", {
 					value: "",
-					"data-label-id": "payment.cardExpireYearPlaceholder",
+					"data-label-id": "cardInfo.cardExpireYearPlaceholder",
 				});
 				domCardExpireYearSelect.append(domThisOption);
 				// add years
@@ -1707,13 +1791,13 @@
 				var labelCard = "Card";
 				var labelCvv = "cvv";
 				try {
-					if (thisWidget.labelOverride.payment.cardNumberPlaceholder) {
-						labelCard = thisWidget.labelOverride.payment.cardNumberPlaceholder;
+					if (thisWidget.labelOverride.cardInfo.cardNumberPlaceholder) {
+						labelCard = thisWidget.labelOverride.cardInfo.cardNumberPlaceholder;
 					}
 				} catch (err) {}
 				try {
-					if (thisWidget.labelOverride.payment.cvvPlaceholder) {
-						labelCvv = thisWidget.labelOverride.payment.cvvPlaceholder;
+					if (thisWidget.labelOverride.cardInfo.cvvPlaceholder) {
+						labelCvv = thisWidget.labelOverride.cardInfo.cvvPlaceholder;
 					}
 				} catch (err) {}
 				Spreedly.setPlaceholder("number", labelCard);
@@ -1771,12 +1855,14 @@
 
 					console.log(">> CALLING tokenizeCreditCard", tokenOptions);
 					Spreedly.tokenizeCreditCard(tokenOptions);
+					return true;
 				} else {
-					console.error("NO SPREEDLY OBJECT - Skipping Spreedly tokenization");
+					console.error("NO SPREEDLY OBJECT");
 				}
 			} else {
-				console.warn("Skipping Spreedly tokenization - fields not ready");
+				console.error("SPREEDLY FIELD NOT READY");
 			}
+			return false;
 		}
 
 		function findListMatch(theList, matchString) {

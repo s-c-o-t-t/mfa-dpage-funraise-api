@@ -14,7 +14,9 @@ div#mfaDonationWidgetContainer {
   /* select2 overrides */
   /* ANIMATIONS */
   /* Button Processing */
-  /* Shake left/right to indicate no */ }
+  /* Shake left/right to indicate no */
+  /* short hop up */
+  /* mild exapnsion */ }
   div#mfaDonationWidgetContainer.reveal {
     opacity: 1 !important; }
   div#mfaDonationWidgetContainer * {
@@ -173,10 +175,10 @@ div#mfaDonationWidgetContainer {
           color: #ff5a3d;
           background-color: #ffe5e0;
           border: 0.5px solid rgba(255, 99, 71, 0.75);
-          animation-name: shakeInvalid;
-          animation-duration: 0.2s;
+          animation-name: getAttention;
+          animation-duration: 0.25s;
           animation-timing-function: ease-out;
-          animation-iteration-count: 2; }
+          animation-iteration-count: 1; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="number"]::-webkit-inner-spin-button,
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm input[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -338,7 +340,7 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox,
       div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.infoBox {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
         padding: 0.33em;
@@ -476,7 +478,7 @@ div#mfaDonationWidgetContainer {
         justify-content: center;
         bottom: -1em;
         right: -1em;
-        min-width: 26em;
+        min-width: 15em;
         min-height: 5em;
         max-width: 26em;
         padding: 1em;
@@ -612,6 +614,22 @@ div#mfaDonationWidgetContainer {
     left: 0.44em; }
   100% {
     left: 0; } }
+@keyframes hopAttention {
+  0% {
+    top: 0; }
+  50% {
+    top: -0.25em; }
+  90% {
+    top: 0.1em; }
+  100% {
+    top: 0; } }
+@keyframes getAttention {
+  0% {
+    transform: scale(1); }
+  60% {
+    transform: scale(1.1); }
+  100% {
+    transform: scale(1); } }
 @media screen and (min-width: 30rem) {
   div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm section.step {
     padding: 1.75rem; } }
