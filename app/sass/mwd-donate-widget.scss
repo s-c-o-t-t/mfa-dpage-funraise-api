@@ -187,10 +187,10 @@ div#mfaDonationWidgetContainer {
 					color: darken($colorError, 2%);
 					background-color: lighten($colorError, 30%);
 					border: 0.5px solid transparentize($colorError, 0.25);
-					animation-name: shakeInvalid;
-					animation-duration: 0.2s;
+					animation-name: getAttention;
+					animation-duration: 0.25s;
 					animation-timing-function: ease-out;
-					animation-iteration-count: 2;
+					animation-iteration-count: 1;
 				}
 			}
 			input[type="number"]::-webkit-inner-spin-button,
@@ -350,7 +350,7 @@ div#mfaDonationWidgetContainer {
 			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 			&.infoBox {
 				display: flex;
-				flex-wrap: nowrap;
+				flex-wrap: wrap;
 				margin-top: 0.5em;
 				margin-bottom: 0.5em;
 				padding: 0.33em;
@@ -436,7 +436,7 @@ div#mfaDonationWidgetContainer {
 				justify-content: center;
 				bottom: -1em;
 				right: -1em;
-				min-width: 26em;
+				min-width: 15em;
 				min-height: 5em;
 				max-width: 26em;
 				padding: 1em;
@@ -615,6 +615,38 @@ div#mfaDonationWidgetContainer {
 		}
 		100% {
 			left: 0;
+		}
+	}
+
+	/* short hop up */
+	@keyframes hopAttention {
+		0% {
+			top: 0;
+		}
+		50% {
+			top: -0.25em;
+		}
+		90% {
+			top: 0.1em;
+		}
+		100% {
+			top: 0;
+		}
+	}
+
+	/* mild exapnsion */
+	@keyframes getAttention {
+		0% {
+			transform: scale(1);
+		}
+		60% {
+			transform: scale(1.1);
+		}
+		// 90% {
+		// 	transform: scale(0.95);
+		// }
+		100% {
+			transform: scale(1);
 		}
 	}
 }

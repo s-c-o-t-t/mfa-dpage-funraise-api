@@ -16,7 +16,7 @@
 	}
 
 	var requestTimeoutSeconds = 20;
-	var requestInitialPollDelay = 3000;
+	var requestInitialPollDelay = 4000;
 	window.mwdspace = window.mwdspace || {};
 
 	window.mwdspace.donationInProgress = false;
@@ -56,12 +56,14 @@
 			name: "Card",
 			description: "Donate With Card",
 			minimumAmount: 5.0,
+			frequencies: ["single", "monthly"],
 		},
 		{
 			code: "bitcoin",
 			name: "Bitcoin",
 			description: "Donate With Bitcoin",
 			minimumAmount: 1.0,
+			frequencies: ["single"],
 		},
 	];
 

@@ -193,6 +193,9 @@
 	};
 
 	sharedUtils.getUrlParameter = function(input, ignoreCase) {
+		if (typeof input == "undefined") {
+			var input = "";
+		}
 		if (typeof ignoreCase == "undefined") {
 			var ignoreCase = true;
 		}
