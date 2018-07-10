@@ -11,7 +11,10 @@ div#mfaDonationWidgetContainer {
   text-align: left;
   transition: opacity 1s;
   /* reset various elements */
-  /* select2 overrides */ }
+  /* select2 overrides */
+  /* ANIMATIONS */
+  /* Button Processing */
+  /* Shake left/right to indicate no */ }
   div#mfaDonationWidgetContainer.reveal {
     opacity: 1 !important; }
   div#mfaDonationWidgetContainer * {
@@ -95,6 +98,7 @@ div#mfaDonationWidgetContainer {
     display: none; }
     div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       align-items: baseline;
       padding: 0.75em;
@@ -103,7 +107,12 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader > div {
         width: 25%; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.introContentContainer {
-        display: none; }
+        display: none;
+        text-align: center; }
+        div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.introContentContainer img {
+          width: 100%;
+          height: auto;
+          margin: 0.15em auto; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer {
         text-align: center;
         min-width: 45%; }
@@ -129,8 +138,7 @@ div#mfaDonationWidgetContainer {
       background-color: #f5f5f5;
       background: linear-gradient(#fff, #f3f3f4, #f3f3f4, #f3f3f4);
       box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-      border-radius: 0.15em;
-      overflow: hidden; }
+      border-radius: 0.15em; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm section.step {
         display: none;
         padding: 1rem 2.5%; }
@@ -181,7 +189,6 @@ div#mfaDonationWidgetContainer {
         display: flex;
         align-items: stretch;
         justify-content: space-between;
-        margin-top: 1rem;
         width: 100%;
         padding: 1em;
         text-align: left;
@@ -218,6 +225,9 @@ div#mfaDonationWidgetContainer {
     flex-flow: row wrap;
     align-items: center;
     margin: 0.5em 0; }
+    div#mfaDonationWidgetContainer div.giftAmountContainer.giftAmountContainer,
+    div#mfaDonationWidgetContainer div.giftFrequencyContainer.giftAmountContainer {
+      margin-top: 0; }
     div#mfaDonationWidgetContainer div.giftAmountContainer div.fixedAmountContainer,
     div#mfaDonationWidgetContainer div.giftFrequencyContainer div.fixedAmountContainer {
       display: flex;
@@ -227,7 +237,7 @@ div#mfaDonationWidgetContainer {
       margin-top: 0.5em; }
     div#mfaDonationWidgetContainer div.giftAmountContainer div.fancyRadioButton,
     div#mfaDonationWidgetContainer div.giftFrequencyContainer div.fancyRadioButton {
-      flex: 1;
+      flex: 1 0 0;
       padding: 0.125em; }
       div#mfaDonationWidgetContainer div.giftAmountContainer div.fancyRadioButton input[type="radio"],
       div#mfaDonationWidgetContainer div.giftFrequencyContainer div.fancyRadioButton input[type="radio"] {
@@ -270,7 +280,7 @@ div#mfaDonationWidgetContainer {
       div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform {
         display: flex;
         align-items: stretch;
-        flex: 1 100%;
+        flex: 1 0 100%;
         padding: 0;
         margin: 0.25em 0.1em 0.1em 0.1em;
         background: #fff;
@@ -313,7 +323,7 @@ div#mfaDonationWidgetContainer {
     div#mfaDonationWidgetContainer div.payMethodContainer div.connectedSection {
       display: flex;
       flex-flow: row wrap;
-      flex: 1 100%;
+      flex: 1 0 100%;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 0.15em; }
@@ -321,14 +331,14 @@ div#mfaDonationWidgetContainer {
     div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup,
     div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup,
     div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup {
-      flex: 1 100%;
+      flex: 1 0 100%;
       box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox,
       div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox,
       div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.infoBox {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
         padding: 0.33em;
@@ -466,12 +476,12 @@ div#mfaDonationWidgetContainer {
         justify-content: center;
         bottom: -1em;
         right: -1em;
-        min-width: 15em;
+        min-width: 26em;
         min-height: 5em;
-        max-width: 20em;
-        padding: 0.75em;
-        font-size: 0.8em;
-        color: gray;
+        max-width: 26em;
+        padding: 1em;
+        font-size: 0.9em;
+        color: #666666;
         background-color: white;
         border: 1px solid #bfbfbf;
         border-radius: 0.25em;
@@ -544,37 +554,47 @@ div#mfaDonationWidgetContainer {
   div#mfaDonationWidgetContainer div.bitcoinContainer a {
     color: inherit;
     text-decoration: underline; }
+  div#mfaDonationWidgetContainer div.stepButtonContainer {
+    margin-top: 1rem; }
+    div#mfaDonationWidgetContainer div.stepButtonContainer div.userFeedback {
+      text-align: center; }
+      div#mfaDonationWidgetContainer div.stepButtonContainer div.userFeedback p {
+        display: none;
+        margin-bottom: 0.5rem;
+        text-align: center; }
+        div#mfaDonationWidgetContainer div.stepButtonContainer div.userFeedback p.error {
+          padding: 0.25em 0.5em;
+          border-radius: 0.5em;
+          color: #ff5a3d;
+          background-color: #ffe5e0;
+          border: 0.5px solid rgba(255, 99, 71, 0.75); }
   div#mfaDonationWidgetContainer .select2-container--default .select2-selection--single {
     border: 0; }
   div#mfaDonationWidgetContainer .select2-search.select2-search--dropdown {
     border-top: 1px solid #ccc; }
-
-input.fancyCheckbox {
-  display: none; }
-  input.fancyCheckbox + label.fancyCheckbox:before {
-    content: "";
-    display: inline-block;
-    margin-left: 0;
-    margin-right: 0.5em;
-    width: 0.9em;
-    height: 0.9em;
-    background: #fff;
-    border: 1px solid #b0b0b7;
-    border-radius: 0;
-    transition: 0.2s; }
-  input.fancyCheckbox:checked + label.fancyCheckbox:before {
-    transform: rotate(40deg);
-    width: 0.45em;
-    margin-left: 0.25em;
-    margin-right: 0.7em;
-    border-top: none;
-    border-left: none;
-    background: transparent;
-    border-right: 2px solid #01a7df;
-    border-bottom: 2px solid #01a7df; }
-
-/* ANIMATIONS */
-/* Button Processing */
+  div#mfaDonationWidgetContainer input.fancyCheckbox {
+    display: none; }
+    div#mfaDonationWidgetContainer input.fancyCheckbox + label.fancyCheckbox:before {
+      content: "";
+      display: inline-block;
+      margin-left: 0;
+      margin-right: 0.5em;
+      width: 0.9em;
+      height: 0.9em;
+      background: #fff;
+      border: 1px solid #b0b0b7;
+      border-radius: 0;
+      transition: 0.2s; }
+    div#mfaDonationWidgetContainer input.fancyCheckbox:checked + label.fancyCheckbox:before {
+      transform: rotate(40deg);
+      width: 0.45em;
+      margin-left: 0.25em;
+      margin-right: 0.7em;
+      border-top: none;
+      border-left: none;
+      background: transparent;
+      border-right: 2px solid #01a7df;
+      border-bottom: 2px solid #01a7df; }
 @keyframes buttonInAction {
   0% {
     opacity: 0.5; }
@@ -583,7 +603,6 @@ input.fancyCheckbox {
     background-color: #0181ac; }
   100% {
     opacity: 0.5; } }
-/* Shake left/right to indicate no */
 @keyframes shakeInvalid {
   0% {
     left: 0; }

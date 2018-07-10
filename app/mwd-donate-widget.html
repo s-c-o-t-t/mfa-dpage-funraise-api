@@ -6,7 +6,7 @@
 
         <div class="giftFormHeaderContainer">
             <div class="giftFormHeader">
-                <div>
+                <div class="buttonContainer">
                     <button class="goPreviousStep subtle" type="button">
                         <i class="fa fa-arrow-left"></i>
                     </button>
@@ -52,6 +52,9 @@
                 <div class="giftFrequencyContainer"></div>
 
                 <div class="stepButtonContainer">
+                    <div class="userFeedback">
+                        <p class="message"></p>
+                    </div>
                     <button class="goNextStep main" type="button">
                         <span data-label-id="button.goDonorInfo">Enter Your Information</span>
                         <i class="fa fa-angle-right"></i>
@@ -77,7 +80,7 @@
                         </div>
                         <div class="inputGroup borderTop">
                             <input class="changeWatch" name="donorPhone" type="tel" data-label-id="donor.phonePlaceholder" placeholder="Phone Number (optional)"
-                                data-validation="\d{7,}" autocomplete="on">
+                                data-validation="(\d{7,})|(^$)" autocomplete="on">
                         </div>
                     </div>
                 </div>
@@ -87,23 +90,23 @@
                     <div class="connectedSection">
                         <div class="inputGroup">
                             <input class="changeWatch" name="donorStreet" type="text" data-label-id="donor.streetPlaceholder" placeholder="Street Address"
-                                data-validation="\w{5,}" autocomplete="on">
+                                data-validation="\w+" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
-                            <input class="changeWatch" name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="[a-z]{2,}"
+                            <input class="changeWatch" name="donorCity" type="text" data-label-id="donor.cityPlaceholder" placeholder="City" data-validation="[a-z]+"
                                 autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp big borderTop borderRight">
-                            <select class="changeWatch" name="donorRegion" data-validation="[a-z]{2,}"></select>
+                            <select class="changeWatch" name="donorRegion" data-validation="[a-z]+"></select>
                             <input class="changeWatch" name="donorRegion" type="text" placeholder="State/Region" data-label-id="donor.regionPlaceholder"
-                                data-validation="[a-z]{2,}" autocomplete="on">
+                                data-validation="[a-z]+" autocomplete="on">
                         </div>
                         <div class="inputGroup twoUp small borderTop">
                             <input class="changeWatch" name="donorPostCode" type="text" data-label-id="donor.postCodePlaceholder" placeholder="Zip Code"
-                                data-validation="\w{2,}" autocomplete="on">
+                                data-validation="\w+" autocomplete="on">
                         </div>
                         <div class="inputGroup borderTop">
-                            <select class="changeWatch" name="donorCountry" data-validation="\w{2,}"></select>
+                            <select class="changeWatch" name="donorCountry" data-validation="\w+"></select>
                         </div>
                     </div>
 
@@ -131,6 +134,9 @@
                 </div>
 
                 <div class="stepButtonContainer">
+                    <div class="userFeedback">
+                        <p class="message"></p>
+                    </div>
                     <button class="goNextStep main" type="button">
                         <span data-label-id="button.goPaymentInfo">Enter Payment Information</span>
                         <i class="fa fa-angle-right"></i>
@@ -183,15 +189,13 @@
                 </div>
 
                 <div class="stepButtonContainer">
-                    <button class="processDonation main" data-working='<span><i class="fab fa-bitcoin"></i> Processing&hellip;</span><i class="fa fa-spinner fa-spin"></i>'
-                        data-success='<span><i class="fab fa-bitcoin"></i> Done!</span><i class="fa fa-thumbs-up"></i>' data-error='<span><i class="fas fa-exclamation-triangle"></i> Sorry, unable to process</span><i class="fa fa-frown-o"></i>'
-                        type="button">
+                    <div class="userFeedback">
+                        <p class="message"></p>
+                    </div>
+                    <button class="processDonation main" type="button">
                         <span data-label-id="button.mainSubmit">Submit Donation</span>
                         <i class="fa fa-check"></i>
                     </button>
-                    <div class="userFeedback">
-                        <span class="message">&nbsp;</span>
-                    </div>
                 </div>
             </section>
 
@@ -255,12 +259,11 @@
                         <i class="fas fa-check-circle"></i>
                     </h1>
                     <h2>
-                        <span data-label-id="transactionSuccess.personalThankYou">Thank you,</span>
-                        <span class="transactionSuccessName"> for your donation!</span>
+                        <span class="transactionSuccessMessage">Thank you for your support!</span>
                     </h2>
                     <p>&nbsp;</p>
                     <p>
-                        <span data-label-id="transactionSuccess.emailNote">You will receive an email receipt for your donation shortly.</span>
+                        <span data-label-id="transactionSuccess.emailReceiptText">You will receive an email receipt for your donation shortly.</span>
                     </p>
                 </div>
             </section>

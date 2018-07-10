@@ -17,7 +17,7 @@ var concat = require("gulp-concat");
 gulp.task("optimize-css", function() {
 	var cssPlugins = [
 		autoprefixer({
-			browsers: ["last 10 version"],
+			browsers: ["last 10 version", "ie >= 11"],
 		}),
 		cssnano(),
 	];
@@ -69,22 +69,12 @@ gulp.task("copy-other-files", function() {
 // });
 
 gulp.task("browserify-for-es5", function() {
-	// app.js is your main JS file with all your module inclusions
 	return browserify({
 		entries: "app/js/mwd-donate-widget.js",
 		debug: true,
 	})
 		.transform("babelify", {
-			presets: [
-				[
-					"env",
-					{
-						targets: {
-							browsers: ["ie >= 11"],
-						},
-					},
-				],
-			],
+			presets: ["env"],
 			plugins: ["transform-regenerator"],
 		})
 		.bundle()
