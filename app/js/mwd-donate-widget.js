@@ -949,11 +949,13 @@
 
 			window.mwdspace.transactionLayer.startDonation(
 				window.mwdspace.transactionSendData,
-				function(donationInfo) {
-					console.log("SUCCESS FUNCTION", donationInfo);
+				function(response) {
+					console.log("SUCCESS FUNCTION", response);
 
-					if (donationInfo.type == "card") {
-						var transactionStatus = String(donationInfo.status);
+					var transactionData = response.json || {};
+
+					if (transactionData.type == "card") {
+						var transactionStatus = String(transactionData.status);
 						if (transactionStatus.match(/complete/i)) {
 							prepAndShowConfirmationStep();
 						} else {
@@ -963,24 +965,32 @@
 									'".'
 							);
 						}
-					} else if (donationInfo.type == "bitcoin") {
-						prepAndShowBitcoinStep(donationInfo);
+					} else if (transactionData.type == "bitcoin") {
+						prepAndShowBitcoinStep(transactionData);
 					} else {
-						console.warn(
-							"Unrecognized type property in server response",
-							donationInfo
-						);
+						console.warn("Unrecognized type property in server response", response);
 						prepAndShowErrorStep("Unrecognized response from the sever");
 					}
 				},
-				function(donationInfo) {
-					console.log("FAIL FUNCTION", donationInfo);
+				function(response) {
+					console.log("FAIL FUNCTION", response);
 
-					console.warn("Donation received fail response from server", donationInfo);
+					console.warn("Donation received fail response from server", response);
 
 					var userMessage =
-						donationInfo.text ||
+						response.text ||
 						"The server was unable to process the transaction, but provided no explanation.";
+
+					try {
+						userMessage +=
+							" <span class='hint'>(HTML status: " +
+							(response.status || "[No Status]") +
+							" " +
+							(response.statusText || "[No Text]") +
+							")</span>";
+					} catch (err) {
+						console.log("Caught error: ", err.message);
+					}
 
 					prepAndShowErrorStep(userMessage);
 				}

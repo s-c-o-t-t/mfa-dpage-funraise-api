@@ -89,6 +89,10 @@ div#mfaDonationWidgetContainer {
     word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word; }
+  div#mfaDonationWidgetContainer .hint {
+    font-style: italic;
+    font-size: 0.85em;
+    opacity: 0.9; }
   div#mfaDonationWidgetContainer .clickTarget {
     cursor: pointer;
     text-decoration: underline; }
