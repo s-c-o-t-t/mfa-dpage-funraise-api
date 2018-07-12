@@ -230,32 +230,7 @@
 			// console.log("click", event.target.tagName, event.target.className);
 			var clickTarget = jq(event.target).closest("button, .clickTarget");
 			if (clickTarget) {
-				if (clickTarget.hasClass("processDonation")) {
-					console.log("You shoudn't be seeing this");
-					// if (window.mwdspace.donationInProgress) {
-					// 	alert("A donation is processing.");
-					// } else {
-					// 	window.mwdspace.transactionSendData = buildTransactionSendData();
-					// 	if (
-					// 		window.mwdspace.transactionLayer.validateSendData(
-					// 			window.mwdspace.transactionSendData
-					// 		)
-					// 	) {
-					// 		prepAndShowProcessingStep();
-					// 		if (window.mwdspace.transactionSendData.payMethod == "card") {
-					// 			tokenizeUserCard();
-					// 		} else {
-					// 			sendTransaction();
-					// 		}
-					// 	} else {
-					// 		window.mwdspace.donationInProgress = false;
-					// 		clickTarget.addClass("showInvalid");
-					// 		setTimeout(function() {
-					// 			clickTarget.removeClass("showInvalid");
-					// 		}, 1500);
-					// 	}
-					// }
-				} else if (clickTarget.hasClass("goNextStep")) {
+				if (clickTarget.hasClass("goNextStep")) {
 					if (!showNextStep()) {
 						clickTarget.addClass("showInvalid");
 						setTimeout(function() {
@@ -285,12 +260,14 @@
 							showStep("cardInfo");
 							return true;
 						} else {
+							buildTransactionSendData();
 							return sendTransaction();
 						}
 					}
 					break;
 				case "cardInfo":
 					if (checkStepCard()) {
+						buildTransactionSendData();
 						return tokenizeUserCard();
 					}
 					break;
@@ -927,15 +904,14 @@
 				sendData.employeeEmail = userData.companyMatchEmail || "";
 
 				console.log("buildTransactionSendData() sendData", sendData);
-				return sendData;
+				return true;
 			} catch (err) {
 				console.log("buildTransactionSendData() caught error: ", err.message);
 			}
-			return null;
+			return false;
 		}
 
 		function sendTransaction() {
-			window.mwdspace.transactionSendData = buildTransactionSendData();
 			if (
 				!window.mwdspace.transactionLayer.validateSendData(
 					window.mwdspace.transactionSendData
@@ -949,11 +925,13 @@
 
 			window.mwdspace.transactionLayer.startDonation(
 				window.mwdspace.transactionSendData,
-				function(donationInfo) {
-					console.log("SUCCESS FUNCTION", donationInfo);
+				function(response) {
+					console.log("SUCCESS FUNCTION", response);
 
-					if (donationInfo.type == "card") {
-						var transactionStatus = String(donationInfo.status);
+					var transactionData = response.json || {};
+
+					if (transactionData.type == "card") {
+						var transactionStatus = String(transactionData.status);
 						if (transactionStatus.match(/complete/i)) {
 							prepAndShowConfirmationStep();
 						} else {
@@ -963,24 +941,32 @@
 									'".'
 							);
 						}
-					} else if (donationInfo.type == "bitcoin") {
-						prepAndShowBitcoinStep(donationInfo);
+					} else if (transactionData.type == "bitcoin") {
+						prepAndShowBitcoinStep(transactionData);
 					} else {
-						console.warn(
-							"Unrecognized type property in server response",
-							donationInfo
-						);
+						console.warn("Unrecognized type property in server response", response);
 						prepAndShowErrorStep("Unrecognized response from the sever");
 					}
 				},
-				function(donationInfo) {
-					console.log("FAIL FUNCTION", donationInfo);
+				function(response) {
+					console.log("FAIL FUNCTION", response);
 
-					console.warn("Donation received fail response from server", donationInfo);
+					console.warn("Donation received fail response from server", response);
 
 					var userMessage =
-						donationInfo.text ||
+						response.text ||
 						"The server was unable to process the transaction, but provided no explanation.";
+
+					try {
+						userMessage +=
+							" <span class='hint'>(HTML status: " +
+							(response.status || "[No Status]") +
+							" " +
+							(response.statusText || "[No Text]") +
+							")</span>";
+					} catch (err) {
+						console.log("Caught error: ", err.message);
+					}
 
 					prepAndShowErrorStep(userMessage);
 				}
@@ -1719,7 +1705,7 @@
 					setSpreedlyLabels();
 				});
 				Spreedly.on("paymentMethod", function(token, result) {
-					// console.log("\n\nSPREEDLY PAYMENT TOKENIZED", result);
+					console.log("\n\nSPREEDLY PAYMENT TOKENIZED", result);
 
 					window.mwdspace.transactionSendData.paymentToken = token;
 

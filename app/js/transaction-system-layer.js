@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.10a");
+	console.log("transaction-system-layer.js v18.7.11a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -31,7 +31,7 @@
 		{
 			code: "CAD",
 			name: "Canadian Dollar",
-			symbol: "$",
+			symbol: "C$",
 		},
 		{
 			code: "MXN",
@@ -987,7 +987,13 @@
 						console.log("response POLL", typeof response, response);
 
 						if (response.status == 200 && response.json) {
-							if (String(reponse.json.status).toLowerCase() == "Complete") {
+							var transactionStatus = String(response.json.status).toLowerCase();
+							var transactionType = String(response.json.type).toLowerCase();
+
+							if (
+								transactionStatus == "complete" ||
+								(transactionStatus == "pending" && transactionType == "bitcoin")
+							) {
 								window.mwdspace.sharedUtils.removeSessionValue("donationId");
 								window.mwdspace.sharedUtils.removeSessionValue(
 									"donationStartTime"
@@ -997,7 +1003,7 @@
 								console.log("*********** DONATION STILL PROCESSING");
 								return completeDonation(
 									donateId,
-									1000,
+									3000,
 									successFunction,
 									failFunction
 								);
@@ -1095,9 +1101,9 @@
 		xhr.send(sendData);
 
 		function requestComplete() {
-			// if (this.status >= 200 && this.status <= 299) {
 			var response = {
 				status: this.status,
+				statusText: this.statusText,
 				text: this.responseText,
 				json: {},
 			};
@@ -1106,24 +1112,6 @@
 					window.mwdspace.sharedUtils.safeJsonParse(this.responseText) || {};
 			}
 			successFunction(response);
-			// blank response body is valid for status 204
-			// if (response.json || this.status == 204) {
-			// 	successFunction(response);
-			// } else {
-			// 	console.error("INVALID RESPONSE FROM SERVER. RESPONSE FOLLOWS:");
-			// 	console.log(this.responseText);
-			// 	console.warn("There may be a problem on the server.", {
-			// 		isError: true,
-			// 	});
-			// 	successFunction({});
-			// }
-			// } else {
-			// 	console.log(">>> sendXhrRequest() raw response", this.responseText);
-			// 	console.warn("The server has reported an issue.", {
-			// 		isError: true,
-			// 	});
-			// 	successFunction({});
-			// }
 		}
 
 		function requestFailed(event) {
