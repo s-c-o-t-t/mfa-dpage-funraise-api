@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.11a");
+	console.log("transaction-system-layer.js v18.7.12");
 
 	window.mwdspace = window.mwdspace || {};
 

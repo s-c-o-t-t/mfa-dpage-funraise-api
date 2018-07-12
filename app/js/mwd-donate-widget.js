@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.10d");
+	console.log("mwd-donate-widget.js v18.7.12");
 
 	window.mwdspace = window.mwdspace || {};
 
