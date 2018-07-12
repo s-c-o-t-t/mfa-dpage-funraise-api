@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.12");
+	console.log("transaction-system-layer.js v18.7.12b");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -15,7 +15,7 @@
 		apiConstants.baseUrl = "https://platform.funraise.io/public/api/v2/";
 	}
 
-	var requestTimeoutSeconds = 20;
+	var requestTimeoutSeconds = 30;
 	var requestInitialPollDelay = 4000;
 	window.mwdspace = window.mwdspace || {};
 
@@ -965,7 +965,12 @@
 			console.error(
 				"completeDonation(): request timeout reached, calling fail function."
 			);
-			return failFunction({});
+			return failFunction({
+				text:
+					"Timeout after no response from the server for " +
+					requestTimeoutSeconds +
+					" seconds.",
+			});
 		}
 
 		setTimeout(function() {
@@ -984,29 +989,30 @@
 				sendXhrRequest(
 					donationOptions,
 					function(response) {
-						console.log("response POLL", typeof response, response);
+						console.log("response POLL", response);
 
-						if (response.status == 200 && response.json) {
-							var transactionStatus = String(response.json.status).toLowerCase();
-							var transactionType = String(response.json.type).toLowerCase();
+						if (response.status == 204) {
+							console.log("*********** DONATION STILL PROCESSING");
+							return completeDonation(
+								donateId,
+								3000,
+								successFunction,
+								failFunction
+							);
+						} else if (response.status == 200) {
+							var transactionStatus = String(response.json.status);
+							var transactionType = String(response.json.type);
 
 							if (
-								transactionStatus == "complete" ||
-								(transactionStatus == "pending" && transactionType == "bitcoin")
+								transactionStatus.match(/complete/i) ||
+								(transactionStatus.match(/pending/i) &&
+									transactionType.match(/bitcoin/i))
 							) {
 								window.mwdspace.sharedUtils.removeSessionValue("donationId");
 								window.mwdspace.sharedUtils.removeSessionValue(
 									"donationStartTime"
 								);
 								return successFunction(response);
-							} else {
-								console.log("*********** DONATION STILL PROCESSING");
-								return completeDonation(
-									donateId,
-									3000,
-									successFunction,
-									failFunction
-								);
 							}
 						}
 
@@ -1019,9 +1025,14 @@
 			} else {
 				console.log("RETURNING TEST DATA");
 
-				var testResponse;
+				var testResponse = {
+					status: 200,
+					statusText: "OK",
+					text: "testing",
+					json: {},
+				};
 				if (window.mwdspace.transactionSendData.paymentType == "bitcoin") {
-					testResponse = {
+					testResponse.json = {
 						payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
 						donation_id: 644353,
 						checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
@@ -1037,7 +1048,7 @@
 						errors: null,
 					};
 				} else {
-					testResponse = {
+					testResponse.json = {
 						payment_id: "1111",
 						donation_id: 15697,
 						checkout_url: null,
@@ -1053,7 +1064,7 @@
 					};
 				}
 
-				testResponse.exp = new Date().getTime() + 899123;
+				testResponse.json.exp = new Date().getTime() + 899123;
 
 				window.mwdspace.sharedUtils.removeSessionValue("donationId");
 				window.mwdspace.sharedUtils.removeSessionValue("donationStartTime");

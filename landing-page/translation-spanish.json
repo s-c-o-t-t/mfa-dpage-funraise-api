@@ -33,8 +33,8 @@
 		"regionPlaceholder": "Estado",
 		"postCodePlaceholder": "Código postal",
 		"companyMatchLabel": "Needs transation (Company Match)",
-		"matchCompanyPlaceholder": "Needs translation (Enter your company)",
-		"matchEmailPlaceholder": "Needs translation (Your work email)",
+		"matchCompanyPlaceholder": "Translation of (Search by company name)",
+		"matchEmailPlaceholder": "Translation of  (Your work email)",
 		"billingLabel": "Dirección donde recibes la correspondencia",
 		"error": {
 			"invalidFields": "Por favor complete las informaciónes"
@@ -46,8 +46,9 @@
 			"El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
 		"cardExpireMonthPlaceholder": "Mes",
 		"cardExpireYearPlaceholder": "Año",
-		"extraPercentageLabel": "Needs translation (Add 3% to cover processing fees)",
-		"extraPercentageInfoText": "Needs translation",
+		"extraPercentageLabel": "Translation of (Add 3% to cover processing fees)",
+		"extraPercentageInfoText":
+			"Translation of (By covering processing fees 100% of your donation will go to Mercy For Animals)",
 		"error": {
 			"invalidCardNumber": "Se requiere el número de tarjeta",
 			"invalidCvv": "Se requiere el código de CVV",
@@ -55,9 +56,21 @@
 			"invalidYear": "Por favor seleccione el año"
 		}
 	},
-	"transactionSuccess": {
+	"processing": {
+		"message": "¡Hurra! Estamos procesando tu donación."
+	},
+	"confirmation": {
 		"thankYouText": "¡Gracias",
 		"emailReceiptText":
 			"Te enviaremos pronto un recibo de tu donación al correo electrónico."
+	},
+	"transactionError": {
+		"headline": "Translation of (Oh no! There was an error:)",
+		"tryAgainText": "Translation of (Please try again)",
+		"error": {
+			"systemMessage": "Translation of (System message:)",
+			"unknown":
+				"Translation of (The server was unable to process the transaction, but provided no explanation.)"
+		}
 	}
 }

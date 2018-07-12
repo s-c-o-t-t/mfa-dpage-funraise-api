@@ -359,15 +359,6 @@
 			console.log(">>> checkStepDonor()");
 			var isValid = true;
 
-			console.log(
-				"JQ MATCH #1",
-				jqContainer.find("section.step[data-step-name='donorInfo'] .changeWatch").length
-			);
-			console.log(
-				"JQ MATCH #2",
-				jqContainer.find("div.billingInfoContainer select[name='donorCountry']").length,
-				jqContainer.find("div.billingInfoContainer select[name='donorCountry']").val()
-			);
 			jqContainer
 				.find("section.step[data-step-name='donorInfo'] .changeWatch")
 				.each(function() {
@@ -953,19 +944,34 @@
 
 					console.warn("Donation received fail response from server", response);
 
-					var userMessage =
-						response.text ||
-						"The server was unable to process the transaction, but provided no explanation.";
-
-					try {
-						userMessage +=
-							" <span class='hint'>(HTML status: " +
-							(response.status || "[No Status]") +
-							" " +
-							(response.statusText || "[No Text]") +
-							")</span>";
-					} catch (err) {
-						console.log("Caught error: ", err.message);
+					var userMessage;
+					if (response.text) {
+						// pass thru the transaction system response text
+						userMessage = "System message:";
+						try {
+							userMessage =
+								window.mwdspace.labelOverride.transactionError.error
+									.systemMessage || userMessage;
+						} catch (err) {}
+						userMessage += " " + response.text;
+					} else {
+						userMessage =
+							"The server was unable to process the transaction, but provided no explanation.";
+						try {
+							userMessage =
+								window.mwdspace.labelOverride.transactionError.error.unknown ||
+								userMessage;
+						} catch (err) {}
+						try {
+							userMessage +=
+								" <span class='hint'>(HTML status: " +
+								(response.status || "[No Status]") +
+								" " +
+								(response.statusText || "[No Text]") +
+								")</span>";
+						} catch (err) {
+							console.log("Caught error: ", err.message);
+						}
 					}
 
 					prepAndShowErrorStep(userMessage);
@@ -2133,7 +2139,7 @@
 			}
 
 			var jqMessage = jqContainer.find(
-				'section[data-step-name="confirmation"] span.transactionSuccessMessage'
+				'section[data-step-name="confirmation"] span.confirmationMessage'
 			);
 
 			console.log("jqMessage.length", jqMessage.length);
@@ -2141,8 +2147,8 @@
 			// THANK YOU TEXT
 			var thankYouText = "Thank you";
 			try {
-				if (thisWidget.labelOverride.transactionSuccess.thankYouText) {
-					thankYouText = thisWidget.labelOverride.transactionSuccess.thankYouText;
+				if (thisWidget.labelOverride.confirmation.thankYouText) {
+					thankYouText = thisWidget.labelOverride.confirmation.thankYouText;
 				}
 			} catch (err) {}
 			jqMessage.html(thankYouText);
@@ -2166,9 +2172,9 @@
 			if (typeof input == "undefined") {
 				var input = {};
 			}
-			var jqStep = jqContainer.find('section[data-step-name="processError"]');
-			jqStep.find("span.errorDescription").html(input);
-			showStep("processError");
+			var jqStep = jqContainer.find('section[data-step-name="transactionError"]');
+			jqStep.find("span.errorMessage").html(input);
+			showStep("transactionError");
 		}
 
 		function scrollAll(theElement) {
