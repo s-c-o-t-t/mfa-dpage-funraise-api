@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.12");
+	console.log("mwd-donate-widget.js v18.7.14");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -24,8 +24,17 @@
 		thisWidget.isStarted = false;
 		thisWidget.isLoaded = false;
 		thisWidget.codeVersion = "1.0.0";
-		thisWidget.baseWidgetUrl =
-			"https://quiz.mercyforanimals.org/donate-widget/" + thisWidget.codeVersion + "/";
+
+		if (window.location.hostname == "localhost") {
+			thisWidget.baseWidgetUrl =
+				"http://localhost:8888/mwd/mfa/mfa-dpage-funraise-api/dist/";
+			console.warn("USING TEST BASE URL", thisWidget.baseWidgetUrl);
+		} else {
+			thisWidget.baseWidgetUrl =
+				"https://quiz.mercyforanimals.org/donate-widget/" +
+				thisWidget.codeVersion +
+				"/";
+		}
 
 		thisWidget.targetElement = {};
 		thisWidget.promises = {};
@@ -33,8 +42,6 @@
 
 		thisWidget.mainStylesUrl = thisWidget.baseWidgetUrl + "css/mwd-donate-widget.css";
 		thisWidget.mainHtmlUrl = thisWidget.baseWidgetUrl + "mwd-donate-widget.html";
-
-		console.log("window.mwdspace.MFA_Funraise_Widget", thisWidget.codeVersion);
 
 		if (!thisWidget.options.loadingText) {
 			thisWidget.options.loadingText = "One moment...";
@@ -477,10 +484,10 @@
 				console.log("showStepFeedback() given invalid input", stepName, message);
 			}
 			var jqFeedback = jq(
-				'section[data-step-name="giftAmount"] div.userFeedback p.message'
+				'section[data-step-name="' + stepName + '"] div.userFeedback p.message'
 			);
-			if (message) {
-				jqFeedback.html(message).fadeIn(444);
+			if (message || isError) {
+				jqFeedback.html(message || "Sorry, an unknown error occured").fadeIn(444);
 				if (isError) {
 					jqFeedback.addClass("error");
 				} else {
@@ -810,8 +817,7 @@
 			}
 			var urlValue = window.mwdspace.sharedUtils.getUrlParameter(urlKey);
 			if (urlValue) {
-				console.log("-- POPULATING", selector, "with", urlValue);
-				var jqTarget = jqContainer
+				jqContainer
 					.find(
 						"section.step input[name='" +
 							selector +
@@ -838,6 +844,12 @@
 					? String(thisWidget.options.formId)
 					: ""; //mimic test
 				sendData.formAllocationId = thisWidget.options.formAllocationId || null;
+
+				// TESTING - 12 July
+				if (window.mwdspace.sharedUtils.getUrlParameter("api") != "live") {
+					sendData.organizationId = "1e78fec4-8fd0-4a3e-b82b-866c29012531";
+					sendData.formId = 10;
+				}
 
 				/* start - no data, added to mimic current widget */
 				sendData.bank_account_holder_type = "personal";
@@ -921,6 +933,8 @@
 
 					var transactionData = response.json || {};
 
+					console.log("transactionData", transactionData);
+
 					if (transactionData.type == "card") {
 						var transactionStatus = String(transactionData.status);
 						if (transactionStatus.match(/complete/i)) {
@@ -935,8 +949,15 @@
 					} else if (transactionData.type == "bitcoin") {
 						prepAndShowBitcoinStep(transactionData);
 					} else {
-						console.warn("Unrecognized type property in server response", response);
-						prepAndShowErrorStep("Unrecognized response from the sever");
+						if (window.mwdspace.sharedUtils.getUrlParameter("api") == "live") {
+							console.warn(
+								"Unrecognized type property in server response",
+								response
+							);
+							prepAndShowErrorStep("Unrecognized response from the server");
+						} else {
+							prepAndShowConfirmationStep();
+						}
 					}
 				},
 				function(response) {
@@ -1575,9 +1596,9 @@
 
 		function buildCardExpireYearSelect() {
 			try {
-				// show only current year and beyond (with some fudge factor)
+				// show only current year and beyond
 				var recentDate = new Date();
-				recentDate.setDate(recentDate.getDate() - 7);
+				recentDate.setDate(recentDate.getDate() - 7); // show last year for 7 days
 				var startYear = recentDate.getFullYear();
 				var yearsToShow = 20;
 
@@ -1700,32 +1721,43 @@
 			if (thisWidget.promises.spreedlyIframeScript) {
 				await thisWidget.promises.spreedlyIframeScript;
 				Spreedly.on("ready", function() {
-					//format card number
-					Spreedly.setPlaceholder("number", "Card");
-					Spreedly.setFieldType("number", "text");
-					Spreedly.setNumberFormat("prettyFormat");
-
-					//format cvv
-					Spreedly.setPlaceholder("cvv", "cvv");
-
 					setSpreedlyLabels();
 				});
 				Spreedly.on("paymentMethod", function(token, result) {
-					console.log("\n\nSPREEDLY PAYMENT TOKENIZED", result);
+					window.mwdspace.transactionSendData.paymentToken = null;
 
-					window.mwdspace.transactionSendData.paymentToken = token;
-
-					sendTransaction();
-
-					// PROCESS ERROR CHECK NEEDED
+					if (result.errors && result.errors.length > 0) {
+						console.warn("SPREEDLY REPORTS paymentMethod ERRORS:");
+						for (var i = 0; i < result.errors.length; i++) {
+							var error = result.errors[i];
+							console.warn(error);
+						}
+						var message =
+							"Error during secure card information transfer. Please try again.";
+						try {
+							message =
+								thisWidget.labelOverride.gift.error.tokenizeError || message;
+						} catch (err) {}
+						showStepFeedback("cardInfo", message, true);
+					} else {
+						window.mwdspace.transactionSendData.paymentToken = token;
+						sendTransaction();
+						showStepFeedback("cardInfo");
+					}
 				});
 				Spreedly.on("errors", function(errors) {
-					console.log("\n\nSPREEDLY REPORTS ERRORS:");
+					console.warn("SPREEDLY REPORTS GENERAL ERRORS:");
 					for (var i = 0; i < errors.length; i++) {
 						var error = errors[i];
-						console.log(error);
+						console.warn(error);
 					}
-					// PROCESS ERROR CHECK NEEDED
+					var message = "Unexpected error with secure card handler";
+					try {
+						message =
+							thisWidget.labelOverride.gift.error.generalTokenizerError ||
+							message;
+					} catch (err) {}
+					showStepFeedback("cardInfo", message, true);
 				});
 				Spreedly.on("fieldEvent", function(name, type, activeEl, response) {
 					if (type == "input") {
@@ -1735,37 +1767,7 @@
 							response.validCvv || false;
 						window.mwdspace.userInputData.payCardType = response.cardType || false;
 						if (name == "number") {
-							if (response.validNumber) {
-								jqCardNumberFeedback
-									.find("span.cardNumberValidity")
-									.removeClass("invalid")
-									.addClass("valid")
-									.html('<i class="fas fa-check-circle"></i>');
-							} else {
-								jqCardNumberFeedback
-									.find("span.cardNumberValidity")
-									.removeClass("valid")
-									.addClass("invalid")
-									.html('<i class="fas fa-times"></i>');
-							}
-							var iconHtml;
-							switch (response.cardType) {
-								case "visa":
-									iconHtml = payMethodIconHtml.visa;
-									break;
-								case "master":
-									iconHtml = payMethodIconHtml.mastercard;
-									break;
-								case "american_express":
-									iconHtml = payMethodIconHtml.amex;
-									break;
-								case "discover":
-									iconHtml = payMethodIconHtml.discover;
-									break;
-								default:
-									iconHtml = payMethodIconHtml.card;
-							}
-							jqCardNumberFeedback.find("span.cardType").html(iconHtml);
+							setCardNumberFeedback(response.validNumber, response.cardType);
 						}
 					}
 				});
@@ -1779,32 +1781,64 @@
 		}
 
 		function setSpreedlyLabels() {
-			if (typeof Spreedly == "object") {
-				var labelCard = "Card";
-				var labelCvv = "cvv";
-				try {
-					if (thisWidget.labelOverride.cardInfo.cardNumberPlaceholder) {
-						labelCard = thisWidget.labelOverride.cardInfo.cardNumberPlaceholder;
-					}
-				} catch (err) {}
-				try {
-					if (thisWidget.labelOverride.cardInfo.cvvPlaceholder) {
-						labelCvv = thisWidget.labelOverride.cardInfo.cvvPlaceholder;
-					}
-				} catch (err) {}
-				Spreedly.setPlaceholder("number", labelCard);
-				Spreedly.setPlaceholder("cvv", labelCvv);
+			Spreedly.setFieldType("number", "text");
+			Spreedly.setNumberFormat("prettyFormat");
+			Spreedly.setStyle("number", "font-size:16px;color:#333;");
+			Spreedly.setStyle("cvv", "font-size:16px;color:#333;");
 
-				Spreedly.setStyle("number", "font-size:16px;color:#333;");
-				Spreedly.setStyle("cvv", "font-size:16px;color:#333;");
+			var labelCard = "Card";
+			var labelCvv = "cvv";
+			try {
+				if (thisWidget.labelOverride.cardInfo.cardNumberPlaceholder) {
+					labelCard = thisWidget.labelOverride.cardInfo.cardNumberPlaceholder;
+				}
+			} catch (err) {}
+			try {
+				if (thisWidget.labelOverride.cardInfo.cvvPlaceholder) {
+					labelCvv = thisWidget.labelOverride.cardInfo.cvvPlaceholder;
+				}
+			} catch (err) {}
+			Spreedly.setPlaceholder("number", labelCard);
+			Spreedly.setPlaceholder("cvv", labelCvv);
+		}
+
+		function setCardNumberFeedback(isValid, cardType) {
+			if (isValid) {
+				jqCardNumberFeedback
+					.find("span.cardNumberValidity")
+					.removeClass("invalid")
+					.addClass("valid")
+					.html('<i class="fas fa-check-circle"></i>');
+			} else {
+				jqCardNumberFeedback
+					.find("span.cardNumberValidity")
+					.removeClass("valid")
+					.addClass("invalid")
+					.html('<i class="fas fa-times"></i>');
+			}
+
+			var jqCardIcon = jqCardNumberFeedback.find("span.cardType");
+			switch (cardType) {
+				case "visa":
+					jqCardIcon.html(payMethodIconHtml.visa).addClass("known");
+					break;
+				case "master":
+					jqCardIcon.html(payMethodIconHtml.mastercard).addClass("known");
+					break;
+				case "american_express":
+					jqCardIcon.html(payMethodIconHtml.amex).addClass("known");
+					break;
+				case "discover":
+					jqCardIcon.html(payMethodIconHtml.discover).addClass("known");
+					break;
+				default:
+					jqCardIcon.html(payMethodIconHtml.card).removeClass("known");
 			}
 		}
 
 		function tokenizeUserCard() {
 			// tokenize only when all fields are ready
-			// when successful, this will populate userInputData.paymentToken field
-
-			// PROCESS ERROR CHECK NEEDED
+			// when successful, this will populate transactionSendData.paymentToken field
 
 			if (
 				userInputData.hasValidCardNumber &&
@@ -1971,138 +2005,65 @@
 				var input = null;
 			}
 
-			var baseInvoiceUrl = "https://bitpay.com/invoices/";
+			var baseInvoiceUrl = "https://test.bitpay.com/invoices/";
+			if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
+				baseInvoiceUrl = "https://bitpay.com/invoices/";
+			}
 			var jqBitcoinContainer = jqContainer.find("div.bitcoinContainer");
 
 			var response;
 
-			if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
-				console.log("SENDING LIVE POLL REQUEST");
-				response = await new Promise(function(resolve) {
-					console.log(">>> checkBitcoinPaymentStatus() INSIDE PROMISE");
-					if (typeof input != "string") {
-						console.warn(
-							"checkBitcoinPaymentStatus() given invalid url type:",
-							typeof input,
-							input
-						);
+			// if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
+			console.log("SENDING LIVE BITCOIN POLL REQUEST");
+			response = await new Promise(function(resolve) {
+				console.log(">>> checkBitcoinPaymentStatus() INSIDE PROMISE");
+				if (typeof input != "string") {
+					console.warn(
+						"checkBitcoinPaymentStatus() given invalid url type:",
+						typeof input,
+						input
+					);
+					resolve(null);
+				}
+				console.log("checkBitcoinPaymentStatus() start:", input);
+				var requestUrl = encodeURI(baseInvoiceUrl + input);
+				var xhr = new XMLHttpRequest();
+
+				xhr.addEventListener("load", function(event) {
+					// console.log("FILE LOADED:", event);
+					var fileContents =
+						event.target.responseText || event.target.response || null;
+					var tempObject = window.mwdspace.sharedUtils.safeJsonParse(fileContents);
+
+					if (!tempObject || !tempObject.data) {
+						console.log("checkBitcoinPaymentStatus(): invalid response", event);
 						resolve(null);
 					}
-					console.log("checkBitcoinPaymentStatus() start:", input);
-					var requestUrl = encodeURI(baseInvoiceUrl + input);
-					var xhr = new XMLHttpRequest();
 
-					xhr.addEventListener("load", function(event) {
-						// console.log("FILE LOADED:", event);
-						var fileContents =
-							event.target.responseText || event.target.response || null;
-						var tempObject = window.mwdspace.sharedUtils.safeJsonParse(
-							fileContents
-						);
-
-						if (!tempObject || !tempObject.data) {
-							console.log("checkBitcoinPaymentStatus(): invalid response", event);
-							resolve(null);
-						}
-
-						resolve(tempObject.data);
-					});
-					xhr.addEventListener("error", function(event) {
-						console.error(
-							"checkBitcoinPaymentStatus() ERROR EVENT",
-							requestUrl,
-							event
-						);
-						resolve(null);
-					});
-					xhr.addEventListener("abort", function(event) {
-						console.warn(
-							"checkBitcoinPaymentStatus() ABORT EVENT",
-							requestUrl,
-							event
-						);
-						resolve(null);
-					});
-
-					xhr.open("get", requestUrl, true);
-					xhr.setRequestHeader("Accept", "application/json");
-					xhr.send();
+					resolve(tempObject.data);
 				});
-			} else {
-				response = {
-					url: "https://bitpay.com/invoice?id=G8pTXqC6wz8hAyR5EzDM2X",
-					status: "complete",
-					price: 5,
-					currency: "USD",
-					orderId: "644353",
-					invoiceTime: 1530812344969,
-					expirationTime: 1530813244969,
-					currentTime: 1530812749555,
-					guid: "99044051",
-					id: "G8pTXqC6wz8hAyR5EzDM2X",
-					lowFeeDetected: false,
-					amountPaid: 0,
-					exceptionStatus: false,
-					refundAddressRequestPending: false,
-					buyerProvidedInfo: {},
-					paymentSubtotals: {
-						BCH: 679800,
-						BTC: 76100,
-					},
-					paymentTotals: {
-						BCH: 679800,
-						BTC: 77700,
-					},
-					exchangeRates: {
-						BCH: {
-							BTC: 0.11193848139253873,
-							USD: 735.55,
-						},
-						BTC: {
-							BCH: 8.933100410560373,
-							USD: 6571.009999999999,
-						},
-					},
-					supportedTransactionCurrencies: {
-						BCH: {
-							enabled: true,
-						},
-						BTC: {
-							enabled: true,
-						},
-					},
-					minerFees: {
-						BCH: {
-							totalFee: 0,
-							satoshisPerByte: 0,
-						},
-						BTC: {
-							totalFee: 1600,
-							satoshisPerByte: 11.179,
-						},
-					},
-					paymentCodes: {
-						BCH: {
-							BIP72b:
-								"bitcoincash:?r=https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
-							BIP73: "https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
-						},
-						BTC: {
-							BIP72b: "bitcoin:?r=https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
-							BIP73: "https://bitpay.com/i/G8pTXqC6wz8hAyR5EzDM2X",
-						},
-					},
-					btcPrice: "0.000761",
-					token: "5uqeA84nXkFyYDAk2yW3RZUo3XpqfVaNq25v6HjNw27EtxcNoNjCetZBh8375q2rH",
-				};
-			}
+				xhr.addEventListener("error", function(event) {
+					console.error("checkBitcoinPaymentStatus() ERROR EVENT", requestUrl, event);
+					resolve(null);
+				});
+				xhr.addEventListener("abort", function(event) {
+					console.warn("checkBitcoinPaymentStatus() ABORT EVENT", requestUrl, event);
+					resolve(null);
+				});
+
+				xhr.open("get", requestUrl, true);
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.send();
+			});
 
 			if (!response) {
-				var messageHtml =
-					"<div class='spacingContainer error'>Warning: Unable to check the status of this invoice (" +
+				var domMessage = document.createElement("div");
+				domMessage.innerHTML =
+					"Warning: Unable to verify the status of this invoice (" +
 					new Date().toLocaleTimeString() +
 					"). Will try again shortly.</div>";
-				jqBitcoinContainer.find("div.bitcoinFeedback").html(messageHtml);
+				jq(domMessage).addClass("spacingContainer error");
+				jqBitcoinContainer.find("div.bitcoinFeedback").append(domMessage);
 				return;
 			}
 
@@ -2129,6 +2090,13 @@
 						"The invoice received payments, but is listed as invalid.";
 					jq(domMessage).addClass("spacingContainer error");
 					jqBitcoinContainer.find("div.bitcoinFeedback").append(domMessage);
+					break;
+				case "new":
+					// FOR TEST MODE
+					if (window.mwdspace.sharedUtils.getUrlParameter("data") != "live") {
+					}
+					prepAndShowConfirmationStep();
+					clearInterval(thisWidget.intervals.bitcoinStatusChecker);
 					break;
 			}
 		}

@@ -415,7 +415,8 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv .insetIcon,
         div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber .insetIcon,
         div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardCvv .insetIcon {
-          padding-right: 0.4em; }
+          padding-right: 0.4em;
+          transition: color 0.25s; }
           div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber .insetIcon.valid, div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv .insetIcon.valid,
           div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber .insetIcon.valid,
           div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv .insetIcon.valid,
@@ -442,13 +443,19 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback,
         div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber div.cardNumberFeedback {
           display: flex;
-          align-items: center;
-          color: #000; }
+          align-items: center; }
           div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
           div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
           div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType,
           div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType {
-            font-size: 1.5em; }
+            font-size: 1.5em;
+            color: #999;
+            transition: opacity 0.66s; }
+            div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType.known,
+            div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType.known,
+            div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType.known,
+            div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.cardNumber div.cardNumberFeedback .cardType.known {
+              color: #000; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.cardCvv,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.cardCvv,
       div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.cardCvv,
@@ -571,6 +578,7 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.stepButtonContainer div.userFeedback p.error {
           padding: 0.25em 0.5em;
           border-radius: 0.5em;
+          font-weight: bold;
           color: #ff5a3d;
           background-color: #ffe5e0;
           border: 0.5px solid rgba(255, 99, 71, 0.75); }

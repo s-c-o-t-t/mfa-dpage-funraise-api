@@ -21,10 +21,12 @@
 	}
 
 	var scriptFilename = es5Only ? "es5-mwd-donate-widget.js" : "mwd-donate-widget.js";
-	var url =
-		window.location.protocol +
-		"//quiz.mercyforanimals.org/donate-widget/1.0.0/js/" +
-		scriptFilename;
+
+	var url = "https://quiz.mercyforanimals.org/donate-widget/1.0.0/js/" + scriptFilename;
+	if (window.location.hostname == "localhost") {
+		url = "http://localhost:8888/mwd/mfa/mfa-dpage-funraise-api/dist/js/" + scriptFilename;
+		console.warn("LOADING TEST WIDGET", url);
+	}
 
 	try {
 		var inlineInclude = '<script src="' + encodeURI(url) + '"></script>';
