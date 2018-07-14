@@ -50,10 +50,10 @@
 		"extraPercentageInfoText":
 			"Translation of (By covering processing fees 100% of your donation will go to Mercy For Animals)",
 		"error": {
-			"invalidCardNumber": "Se requiere el número de tarjeta",
-			"invalidCvv": "Se requiere el código de CVV",
-			"invalidMonth": "Por favor seleccione el mes",
-			"invalidYear": "Por favor seleccione el año"
+			"tokenizeError":
+				"Translation of (Error during secure card information transfer. Please try again.)",
+			"generalTokenizerError":
+				"Translation of (Unexpected error with secure card handler)"
 		}
 	},
 	"processing": {

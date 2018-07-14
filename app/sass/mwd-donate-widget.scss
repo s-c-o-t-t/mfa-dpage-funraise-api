@@ -399,6 +399,7 @@ div#mfaDonationWidgetContainer {
 				align-items: center;
 				.insetIcon {
 					padding-right: 0.4em;
+					transition: color 0.25s;
 					&.valid {
 						color: $colorSuccess;
 					}
@@ -412,9 +413,13 @@ div#mfaDonationWidgetContainer {
 				div.cardNumberFeedback {
 					display: flex;
 					align-items: center;
-					color: #000;
 					.cardType {
 						font-size: 1.5em;
+						color: $colorMainText;
+						transition: opacity 0.66s;
+						&.known {
+							color: #000;
+						}
 					}
 				}
 			}
@@ -548,6 +553,7 @@ div#mfaDonationWidgetContainer {
 				&.error {
 					padding: 0.25em 0.5em;
 					border-radius: 0.5em;
+					font-weight: bold;
 					color: darken($colorError, 2%);
 					background-color: lighten($colorError, 30%);
 					border: 0.5px solid transparentize($colorError, 0.25);
