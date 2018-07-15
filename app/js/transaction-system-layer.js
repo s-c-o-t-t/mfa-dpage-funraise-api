@@ -1071,7 +1071,6 @@
 
 		xhr.addEventListener("load", requestComplete);
 		xhr.addEventListener("error", requestFailed);
-		xhr.addEventListener("abort", requestCanceled);
 		if (progressCallback) {
 			xhr.addEventListener("progress", requestProgress);
 		}
@@ -1102,12 +1101,6 @@
 		function requestFailed(event) {
 			console.log("event.status", event.status);
 			console.warn("sendXhrRequest(): request failed", this);
-			console.log(event);
-			failFunction(this);
-		}
-
-		function requestCanceled(event) {
-			console.warn("sendXhrRequest(): request canceled", this);
 			console.log(event);
 			failFunction(this);
 		}

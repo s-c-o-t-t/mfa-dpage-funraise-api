@@ -15,7 +15,6 @@ div#mfaDonationWidgetContainer {
   /* ANIMATIONS */
   /* Button Processing */
   /* Shake left/right to indicate no */
-  /* short hop up */
   /* mild exapnsion */ }
   div#mfaDonationWidgetContainer.reveal {
     opacity: 1 !important; }
@@ -193,7 +192,7 @@ div#mfaDonationWidgetContainer {
         border: 0; }
       div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main {
         display: flex;
-        align-items: stretch;
+        align-items: center;
         justify-content: space-between;
         width: 100%;
         padding: 1em;
@@ -203,12 +202,13 @@ div#mfaDonationWidgetContainer {
         color: #fff;
         background-color: #01a7df;
         border: 1px solid #01a7df; }
-        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main i.fa {
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main span.icon {
+          font-weight: bold;
           position: relative;
           font-size: 1.25em;
           left: 0;
           transition: left 0.66s; }
-        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main.goNextStep:hover i.fa, div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main.goNextStep:active i.fa {
+        div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main:hover span.icon.slideRight, div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main:active span.icon.slideRight {
           left: 0.33em; }
         div#mfaDonationWidgetContainer div.giftFormContainer form.mainGiftForm button.main.error {
           background: tomato;
@@ -626,15 +626,6 @@ div#mfaDonationWidgetContainer {
     left: 0.44em; }
   100% {
     left: 0; } }
-@keyframes hopAttention {
-  0% {
-    top: 0; }
-  50% {
-    top: -0.25em; }
-  90% {
-    top: 0.1em; }
-  100% {
-    top: 0; } }
 @keyframes getAttention {
   0% {
     transform: scale(1); }
