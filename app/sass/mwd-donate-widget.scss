@@ -212,7 +212,7 @@ div#mfaDonationWidgetContainer {
 			button {
 				&.main {
 					display: flex;
-					align-items: stretch;
+					align-items: center;
 					justify-content: space-between;
 					width: 100%;
 					padding: 1em;
@@ -222,20 +222,23 @@ div#mfaDonationWidgetContainer {
 					color: #fff;
 					background-color: $colorMercyBlue;
 					border: 1px solid $colorMercyBlue;
-					i.fa {
+					span.icon {
+						font-weight: bold;
 						position: relative;
 						font-size: 1.25em;
 						left: 0;
 						transition: left 0.66s;
 					}
-					&.goNextStep {
-						&:hover,
-						&:active {
-							i.fa {
+					// &.goNextStep {
+					&:hover,
+					&:active {
+						span.icon {
+							&.slideRight {
 								left: 0.33em;
 							}
 						}
 					}
+					// }
 					&.error {
 						background: $colorError;
 						border-color: darken($colorError, 10%);
@@ -626,22 +629,6 @@ div#mfaDonationWidgetContainer {
 		}
 		100% {
 			left: 0;
-		}
-	}
-
-	/* short hop up */
-	@keyframes hopAttention {
-		0% {
-			top: 0;
-		}
-		50% {
-			top: -0.25em;
-		}
-		90% {
-			top: 0.1em;
-		}
-		100% {
-			top: 0;
 		}
 	}
 

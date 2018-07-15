@@ -1,6 +1,6 @@
 <div class="giftFormContainer">
     <div class="loadingDisplay">
-        <i class="fa fa-spinner fa-spin"></i>
+        <i class="fa fas fa-spinner fa-spin"></i>
     </div>
     <form class="mainGiftForm" novalidate="novalidate" role="form">
 
@@ -8,7 +8,7 @@
             <div class="giftFormHeader">
                 <div class="buttonContainer">
                     <button class="goPreviousStep subtle" type="button">
-                        <i class="fa fa-arrow-left"></i>
+                        <i class="fa fas fa-arrow-left"></i>
                     </button>
                 </div>
                 <div data-label-id="header.introContent" class="introContentContainer"></div>
@@ -57,7 +57,9 @@
                     </div>
                     <button class="goNextStep main" type="button">
                         <span data-label-id="button.goDonorInfo">Enter Your Information</span>
-                        <i class="fa fa-angle-right"></i>
+                        <span class="icon slideRight">
+                            <i class="fa fas fa-angle-right"></i>
+                        </span>
                     </button>
                 </div>
             </section>
@@ -114,7 +116,7 @@
                         <input id="inputCompanyMatch" class="changeWatch fancyCheckbox" name="companyMatch" type="checkbox">
                         <label class="fancyCheckbox" for="inputCompanyMatch" data-label-id="cardInfo.companyMatchLabel">Company match</label>
                         <div class="infoIcon">
-                            <i class="far fa-question-circle"></i>
+                            <i class="fa far fa-question-circle"></i>
                             <span class="infoText" data-label-id="cardInfo.companyMatchInfoText">Many companies match employee donations. Try this option to see if your employer has a donation
                                 matching program!</span>
                         </div>
@@ -139,7 +141,9 @@
                     </div>
                     <button class="goNextStep main" type="button">
                         <span data-label-id="button.goPaymentInfo">Enter Payment Information</span>
-                        <i class="fa fa-angle-right"></i>
+                        <span class="icon slideRight">
+                            <i class="fa fas fa-angle-right"></i>
+                        </span>
                     </button>
                 </div>
             </section>
@@ -153,18 +157,18 @@
                             <div class="cardNumberFeedback">
                                 <span class="cardNumberValidity insetIcon"></span>
                                 <span class="cardType insetIcon">
-                                    <i class="far fa-credit-card"></i>
+                                    <i class="fa far fa-credit-card"></i>
                                 </span>
                             </div>
                         </div>
                         <div class="inputGroup twoUp cardCvv">
                             <div id="cardCvvTarget" class="inputAppearance cardTokenizerFrame"></div>
                             <div class="infoIcon insetIcon">
-                                <i class="far fa-question-circle"></i>
+                                <i class="fa far fa-question-circle"></i>
                                 <span class="infoText">
                                     <img src="https://d2n4tvy2wsd0oo.cloudfront.net/widget/common/1.3/img/credit_card_cvv.jpg">
-                                    <span data-label-id="cardInfo.extraPercentageInfoText"></span>CVV codes are located on the back of Visa, Mastercard, and Discover cards. American
-                                    Express CVV codes are located on the front.</span>
+                                    <span data-label-id="cardInfo.cvvHint">CVV codes are located on the back of Visa, Mastercard, and Discover cards. American Express
+                                        CVV codes are located on the front.</span>
                                 </span>
                             </div>
                         </div>
@@ -180,7 +184,7 @@
                         <input id="inputExtraPercentage" class="fancyCheckbox" name="giftExtraPercent" type="checkbox" value="3.0">
                         <label class="fancyCheckbox" for="inputExtraPercentage" data-label-id="cardInfo.extraPercentageLabel">Add 3% to cover processing fees</label>
                         <div class="infoIcon">
-                            <i class="far fa-question-circle"></i>
+                            <i class="fa far fa-question-circle"></i>
                             <span class="infoText" data-label-id="cardInfo.extraPercentageInfoText">By covering processing fees 100% of your donation will go to Mercy For Animals</span>
                         </div>
                     </div>
@@ -192,7 +196,9 @@
                     </div>
                     <button class="goNextStep main" type="button">
                         <span data-label-id="button.mainSubmit">Submit Donation</span>
-                        <i class="fa fa-check"></i>
+                        <span class="icon">
+                            <i class="fa fas fa-check"></i>
+                        </span>
                     </button>
                 </div>
             </section>
@@ -201,7 +207,7 @@
             <section class="step" data-step-name="processing">
                 <div class="generalContainer">
                     <h1>
-                        <i class="fa fa-spinner fa-spin"></i>
+                        <i class="fa fas fa-spinner fa-spin"></i>
                     </h1>
                     <h3 data-label-id="processing.message">Yay! Your donation is processing...</h3>
                     <h2>
@@ -214,18 +220,18 @@
             <section class="step" data-step-name="bitcoinInvoice">
                 <div class="generalContainer bitcoinContainer">
                     <h2>
-                        <i class="fab fa-bitcoin bitcoinLogo"></i>
+                        <i class="fa fab fa-bitcoin fa-btc bitcoinLogo"></i>
                         <span data-label-id="bitcoin.heading">Bitcoin Invoice</span>
                     </h2>
                     <div class="bitcoinStatusDisplay spacingContainer">
                         <span class="bitcoinTimeRemaining">
-                            <i class="fas fa-sync fa-spin"></i>
+                            <i class="fa fas fa-sync fa-spin"></i>
                         </span>
                         &nbsp;
                         <span data-label-id="bitcoin.remainingText">remaining</span> |
                         <span data-label-id="bitcoin.statusText">Status</span>:
                         <span class="bitcoinStatus">
-                            <i class="fas fa-sync fa-spin"></i>
+                            <i class="fa fas fa-sync fa-spin"></i>
                         </span>
                         <div class="bitcoinFeedback"></div>
                     </div>
@@ -235,7 +241,7 @@
                         <p data-label-id="bitcoin.instruction">Scan above or send bitcoins to this address</p>
                     </div>
                     <div class="inputAppearance">
-                        <i class="fab fa-bitcoin"></i>
+                        <i class="fa fab fa-bitcoin fa-btc"></i>
                         BTC:
                         <span class="bitcoinAmount">***</span>
                     </div>
@@ -254,7 +260,7 @@
             <section class="step" data-step-name="confirmation">
                 <div class="generalContainer">
                     <h1 class="big">
-                        <i class="fas fa-check-circle"></i>
+                        <i class="fa fas fa-check-circle"></i>
                     </h1>
                     <h2>
                         <span class="confirmationMessage">Thank you for your support!</span>
@@ -270,7 +276,7 @@
             <section class="step" data-step-name="transactionError">
                 <div class="generalContainer">
                     <h1 class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="fa fas fa-exclamation-triangle"></i>
                     </h1>
                     <h3>
                         <span data-label-id="transactionError.headline">Oh no! There was an&nbsp;error:</span>
