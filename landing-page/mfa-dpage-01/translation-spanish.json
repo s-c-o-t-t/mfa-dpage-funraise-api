@@ -1,6 +1,7 @@
 {
 	"header": {
-		"amountText": "Tu donación",
+		"singleDonationText": "Tu donación",
+		"monthlyDonationText": "Tu donación periódica",
 		"introContent": "LAST CHANCE! ACT&nbsp;<strong>NOW!</strong>"
 	},
 	"button": {

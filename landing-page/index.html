@@ -1290,11 +1290,19 @@
                                                                 labelOverride: 'translation-spanish.json',
                                                                 giftStringSingle: [22, 33, 44, 44],
                                                                 giftStringMonthly: [5.5, 6.6, 7.7, 8.8],
+                                                                defaultCurrency: "MXN",
                                                                 currencies: {
                                                                     MXN: {
                                                                         giftStringSingle: [100, 200, 500, 750]
-                                                                    }
+                                                                    },
+                                                                    INR: {}
                                                                 },
+                                                                payMethods:
+                                                                    ["card"]
+                                                                ,
+                                                                frequencies:
+                                                                    ["single"]
+                                                                ,
                                                                 onLoad: function (data) {
                                                                     console.log("----- Custom onLoad function", data);
                                                                 },

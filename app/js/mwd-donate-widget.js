@@ -73,9 +73,9 @@
 		// MWD test environment key: ODBm2idmYFT3pBge5qxRBjQaWH9
 		thisWidget.defaults.paymentTokenizerApiKey = "ECDNSGhIR0fYQisIc1PHH7NX0pN";
 		thisWidget.defaults.minimumGiftAmount = 5;
-		thisWidget.defaults.extraPercentage = 3;
 		thisWidget.defaults.giftStringSingle = [25, 50, 75, 100];
 		thisWidget.defaults.giftStringMonthly = [5, 10, 15, 20];
+		thisWidget.defaults.currencyCode = "USD";
 		thisWidget.defaults.topVisualPaddingSelector = "section#header";
 
 		// OTHER
@@ -131,6 +131,11 @@
 		}
 
 		// CURRENCIES (and related gift values)
+		if (typeof input.defaultCurrency == "string" && input.defaultCurrency.trim()) {
+			thisWidget.options.defaultCurrency = input.defaultCurrency;
+		} else {
+			thisWidget.options.defaultCurrency = "";
+		}
 		if (typeof input.currencies == "object") {
 			thisWidget.options.currencyFilter = input.currencies;
 		} else {
@@ -138,6 +143,11 @@
 		}
 
 		// PAY METHODS
+		if (typeof input.defaultPayMethod == "string" && input.defaultPayMethod.trim()) {
+			thisWidget.options.defaultPayMethod = input.defaultPayMethod;
+		} else {
+			thisWidget.options.defaultPayMethod = "";
+		}
 		if (typeof input.payMethods == "object") {
 			thisWidget.options.payMethodFilter = input.payMethods;
 		} else {
@@ -154,7 +164,7 @@
 			thisWidget.options.fontAwesomeVersion = null;
 		}
 
-		// VARIOUD BOOLEAN OPTIONS
+		// VARIOUS BOOLEAN OPTIONS
 		// thisWidget.options.isMonthlyOnly = input.isMonthlyOnly === true;
 		thisWidget.options.includeCompanyMatch =
 			input.includeCompanyMatch === false ? false : true;
@@ -301,25 +311,26 @@
 
 		thisWidget.promises.labelOverrideLoad = thisWidget.prepareLabelOverride();
 
-		buildPayMethodSelect();
+		setOptionalSectionVisibility();
 
+		buildPayMethodSelect();
 		buildCountrySelect();
 		buildCardExpireMonthSelect();
 		buildCardExpireYearSelect();
 		setupCompanyMatchSelect();
 
 		setupInputWatchers();
-		buildFrequencyButtons();
-		buildCurrencySelect();
-		prePopulateUserFields();
-
-		setOptionalSectionVisibility();
 
 		// ensure text override file load (if any) is complete
 		await thisWidget.promises.labelOverrideLoad;
 		if (thisWidget.labelOverride) {
-			thisWidget.processLabelOverride(thisWidget.labelOverride);
+			thisWidget.processLabelOverrideObject(thisWidget.labelOverride);
 		}
+
+		buildFrequencyButtons();
+		buildCurrencySelect();
+		prePopulateUserFields();
+
 		showStep();
 
 		var promiseSpreedly = setupSpreedly(); //async, but waiting not required
@@ -349,12 +360,10 @@
 			thisWidget.isLoaded = true;
 		}, 999);
 
-		console.log("AWAITING promiseSpreedly", promiseSpreedly);
 		await promiseSpreedly;
-		console.log("READY promiseSpreedly", promiseSpreedly);
 		if (thisWidget.options.onLoad) {
 			try {
-				console.log("Running onLoad function");
+				console.log("*** Calling custom onLoad function ***");
 				thisWidget.options.onLoad();
 			} catch (err) {
 				console.warn("Caught error from onLoad function: ", err.message);
@@ -449,7 +458,7 @@
 								} catch (err) {}
 								break;
 						}
-						thisWidget.setElementText("button.goPaymentInfo", buttonText);
+						thisWidget.setElementLabelOverride("button.goPaymentInfo", buttonText);
 					}
 					jq(jqStepList[i]).fadeIn(666, function() {
 						scrollAll(jqContainer);
@@ -666,7 +675,7 @@
 				} else if (name == "payMethod" && tag == "select") {
 					updatePayMethod();
 				} else if (name == "giftFrequency" && tag == "input") {
-					updateFrequency();
+					updateFrequency(newValue);
 				}
 			});
 
@@ -878,39 +887,92 @@
 				return;
 			}
 
-			// TODO: change login to pre-building an action list
+			// TODO: change logic to pre-building an action list
 
+			var actionList = [];
 			var visibleOptions = 0;
 			var selectedOptionNowHidden = false;
+
+			var thisFrequency;
 			jqContainer
 				.find("div.giftFrequencyContainer div.fancyRadioButton input[type='radio']")
 				.each(function() {
-					if (frequencyList.indexOf(jq(this).val()) >= 0) {
+					thisFrequency = {
+						jqObject: jq(this),
+						show: true,
+					};
+					if (frequencyList.indexOf(thisFrequency.jqObject.val()) >= 0) {
 						// show this frequency
-						jq(this)
-							.closest("div.fancyRadioButton")
-							.show();
 						visibleOptions++;
 					} else {
 						// hide this frequency
-						if (jq(this).prop("checked")) {
+						thisFrequency.show = false;
+						if (thisFrequency.jqObject.prop("checked")) {
 							selectedOptionNowHidden = true;
 						}
-						jq(this)
-							.closest("div.fancyRadioButton")
-							.hide();
 					}
+					actionList.push(thisFrequency);
 				});
+
 			if (visibleOptions < 1) {
 				// something is wrong, show all
 				jqContainer.find("div.giftFrequencyContainer div.fancyRadioButton").show();
 			} else if (visibleOptions == 1) {
 				// hide all
 				jqContainer.find("div.giftFrequencyContainer div.fancyRadioButton").hide();
+			} else {
+				// show/hide according to action list
+				for (var i = 0; i < actionList.length; i++) {
+					if (actionList[i].show) {
+						actionList[i].jqObject.closest("div.fancyRadioButton").show();
+					} else {
+						actionList[i].jqObject.closest("div.fancyRadioButton").hide();
+					}
+				}
+			}
+
+			if (selectedOptionNowHidden) {
+				// auto select the first visible option
+				for (var i = 0; i < actionList.length; i++) {
+					if (actionList[i].show) {
+						actionList[i].jqObject.prop("checked", true).trigger("change");
+						break;
+					}
+				}
 			}
 		}
 
-		function updateFrequency() {
+		function updateFrequency(newValue) {
+			// console.log(">>> updateFrequency()", newValue);
+			if (typeof newValue == "undefined") {
+				var newValue = null;
+			}
+			var donationAmountHeadline;
+			switch (newValue) {
+				case "single":
+					donationAmountHeadline = "Your donation";
+					try {
+						if (thisWidget.labelOverride.header.singleDonationText)
+							donationAmountHeadline =
+								thisWidget.labelOverride.header.singleDonationText;
+					} catch (err) {}
+					break;
+				case "monthly":
+					donationAmountHeadline = "Your recurring donation";
+					try {
+						if (thisWidget.labelOverride.header.monthlyDonationText)
+							donationAmountHeadline =
+								thisWidget.labelOverride.header.monthlyDonationText;
+					} catch (err) {}
+					break;
+				default:
+					donationAmountHeadline = "UNKNOWN DONATION FREQUENCY";
+			}
+
+			thisWidget.setElementLabelOverride("header.donationText", donationAmountHeadline);
+
+			getGiftString();
+
 			// var frequency = jqContainer
 			// 	.find("div.giftFrequencyContainer input[type='radio']:checked")
 			// 	.val();
@@ -922,7 +984,6 @@
 			// 		break;
 			// 	}
 			// }
-			getGiftString();
 		}
 
 		function prePopulateUserFields() {
@@ -1273,7 +1334,6 @@
 			input = "" + input;
 			var rawCurrency = parseFloat(input.replace(/[^0-9|\.]/g, ""));
 			if (isNaN(rawCurrency)) {
-				console.log("cleanCurrency() defaulting invalid input to 0.00", input);
 				return 0.0;
 			}
 			return Math.round(rawCurrency * 100) / 100;
@@ -1291,21 +1351,24 @@
 			return amount;
 		}
 
-		function buildCurrencySelect(options) {
-			if (typeof options == "undefined") {
-				var options = {};
-			}
-			if (typeof options != "object") {
-				options = {};
-				console.warn("buildCurrencySelect(): ignoring invalid option object", options);
-			}
-			var defaultCurrency = typeof options.default == "string" ? options.default : "USD";
+		function buildCurrencySelect() {
+			var filterList = thisWidget.options.currencyFilter;
+			var defaultCurrency =
+				typeof thisWidget.options.defaultCurrency == "string"
+					? thisWidget.options.defaultCurrency
+					: thisWidget.defaults.currencyCode;
+
+			// TODO - make action list from the filter
+
+			var itemsVisible = 0;
+
+			console.warn("BUILDING WITH FILTER LIST", filterList);
+
 			try {
 				if (!window.mwdspace.validCurrencyList) {
 					throw new Error("List of valid currencies not found");
 				}
-				var domCurrencySelect = jqCurrencySelect;
-				if (domCurrencySelect.length !== 1) {
+				if (jqCurrencySelect.length !== 1) {
 					throw new Error("Unable to identify the currency select dropdown");
 				}
 				var domThisOption, thisCurrency, okToAdd;
@@ -1313,19 +1376,26 @@
 				for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
 					okToAdd = true;
 					thisCurrency = window.mwdspace.validCurrencyList[i];
-					if (options.filterList) {
-						okToAdd = findListMatch(options.filterList, thisCurrency.code);
+					if (filterList) {
+						okToAdd = typeof filterList[thisCurrency.code] == "object";
 					}
 					if (okToAdd) {
+						console.warn("INCLUDING", thisCurrency.code);
 						domThisOption = buildCurrencyOption(thisCurrency);
 						if (domThisOption) {
-							domCurrencySelect.append(domThisOption);
+							jqCurrencySelect.append(domThisOption);
+							itemsVisible++;
 						} else {
 							console.warn("Unable to add currency:", thisCurrency);
 						}
 					}
 				}
-				domCurrencySelect.val(defaultCurrency).trigger("change");
+				jqCurrencySelect.val(defaultCurrency).trigger("change");
+				if (itemsVisible == 1) {
+					jqCurrencySelect.hide();
+				} else {
+					jqCurrencySelect.show();
+				}
 			} catch (err) {
 				console.error("Unable to build the currency select dropdown", err);
 			}
@@ -1846,19 +1916,9 @@
 
 		function setupSpreedly() {
 			return new Promise(async (resolve) => {
-				// if (thisWidget.promises.spreedlyIframeScript) {
-				console.log(
-					"AWAITING spreedlyIframeScript",
-					thisWidget.promises.spreedlyIframeScript
-				);
 				await thisWidget.promises.spreedlyIframeScript;
-				console.log(
-					"DONE WAITING spreedlyIframeScript",
-					thisWidget.promises.spreedlyIframeScript
-				);
 				Spreedly.on("ready", function() {
 					setSpreedlyLabels();
-					console.log("RESOLVING setupSpreedly");
 					resolve();
 				});
 				Spreedly.on("paymentMethod", function(token, result) {
@@ -1913,17 +1973,19 @@
 					numberEl: "cardNumberTarget",
 					cvvEl: "cardCvvTarget",
 				});
-				// } else {
-				// 	console.error("Spreedly load not found - Skipping Spreedly setup");
-				// }
 			});
 		}
 
 		function setSpreedlyLabels() {
 			Spreedly.setFieldType("number", "text");
 			Spreedly.setNumberFormat("prettyFormat");
-			Spreedly.setStyle("number", "font-size:16px;color:#333;");
-			Spreedly.setStyle("cvv", "font-size:16px;color:#333;");
+
+			// match styles from another typical field
+			var inputFontSize = jqPayMethodSelect.css("font-size") || "16px";
+			var inputColor = jqPayMethodSelect.css("color") || "#333";
+			var cssString = "font-size:" + inputFontSize + ";color:" + inputColor + ";";
+			Spreedly.setStyle("number", cssString);
+			Spreedly.setStyle("cvv", cssString);
 
 			var labelCard = "Card";
 			var labelCvv = "cvv";
@@ -1987,12 +2049,13 @@
 			}
 
 			// EXTRA PERCENT
-			var jqExtraPercentRadio = jqContainer.find('input[name="giftExtraPercent"]');
-			jqExtraPercentRadio.val(parseFloat(thisWidget.defaults.extraPercentage) || 0);
+			var jqExtraPercentRadio = jqContainer
+				.find('input[name="giftExtraPercent"]')
+				.closest("div.inputGroup");
 			if (thisWidget.options.includeExtraPercent) {
-				jqExtraPercentRadio.closest("div.inputGroup").show();
+				jqExtraPercentRadio.show();
 			} else {
-				jqExtraPercentRadio.closest("div.inputGroup").hide();
+				jqExtraPercentRadio.hide();
 			}
 		}
 
@@ -2290,7 +2353,7 @@
 
 			if (thisWidget.options.onDonation) {
 				try {
-					console.log("Running onDonation function");
+					console.log("*** Calling custom onDonation function ***");
 					thisWidget.options.onDonation(window.mwdspace.userInputData);
 				} catch (err) {
 					console.warn("Caught error from onDonation function: ", err.message);
@@ -2490,7 +2553,7 @@
 			} else if (thisWidget.options.labelOverrideFileUrl) {
 				try {
 					console.log(
-						"Loading label override file",
+						"Loading label override file:",
 						thisWidget.options.labelOverrideFileUrl
 					);
 					var overrideFileContents = await thisWidget.loadFile(
@@ -2524,14 +2587,14 @@
 		});
 	};
 
-	window.mwdspace.MFA_Funraise_Widget.prototype.processLabelOverride = function(
+	window.mwdspace.MFA_Funraise_Widget.prototype.processLabelOverrideObject = function(
 		input,
 		prefix
 	) {
 		var thisWidget = this;
 		if (typeof input != "object" || !input) {
 			console.warn(
-				"MFA_Funraise_Widget.processLabelOverride() given invalid object",
+				"MFA_Funraise_Widget.processLabelOverrideObject() given invalid object",
 				typeof input
 			);
 			return false;
@@ -2550,21 +2613,24 @@
 		for (var key in input) {
 			thisSelector = prefix + key;
 			if (typeof input[key] == "string") {
-				thisWidget.setElementText(thisSelector, input[key]);
+				thisWidget.setElementLabelOverride(thisSelector, input[key]);
 			} else {
 				// recursive, to handle nested JSON objects
-				thisWidget.processLabelOverride(input[key], thisSelector);
+				thisWidget.processLabelOverrideObject(input[key], thisSelector);
 			}
 		}
 	};
 
-	window.mwdspace.MFA_Funraise_Widget.prototype.setElementText = function(labelId, value) {
+	window.mwdspace.MFA_Funraise_Widget.prototype.setElementLabelOverride = function(
+		labelId,
+		value
+	) {
 		var thisWidget = this;
 		if (typeof labelId == "undefined") {
 			var labelId = "";
 		}
 		if (!labelId) {
-			console.warn("setElementText() given empty labelId");
+			console.warn("setElementLabelOverride() given empty labelId");
 			return;
 		}
 		var selector = '[data-label-id="' + labelId + '"]';
@@ -2592,7 +2658,11 @@
 						elementList[i].innerHTML = value;
 						break;
 					default:
-						console.warn("setElementText(): Ignoring tag", labelId, thisTag);
+						console.warn(
+							"setElementLabelOverride(): Ignoring tag",
+							labelId,
+							thisTag
+						);
 				}
 			}
 		} else {
