@@ -1,0 +1,76 @@
+{
+	"header": {
+		"amountText": "Tu donación",
+		"introContent": "LAST CHANCE! ACT&nbsp;<strong>NOW!</strong>"
+	},
+	"button": {
+		"goDonorInfo": "Tus datos",
+		"goPaymentInfo": "Información sobre el pago",
+		"mainSubmit": "Envía la donación"
+	},
+	"gift": {
+		"mainLabel": "Selecciona la cantidad a donar",
+		"otherAmountPlaceholder": "o entra una cantidad diferente",
+		"payMethod": {
+			"card": "Dona con una tarjeta",
+			"bitcoin": "Dona con Bitcoin"
+		},
+		"frequency": {
+			"single": "Una vez",
+			"monthly": "Mensualmente"
+		},
+		"error": {
+			"invalidAmount": "Se requiere una cantidad"
+		}
+	},
+	"donor": {
+		"firstnamePlaceholder": "Nombres",
+		"lastnamePlaceholder": "Apellidos",
+		"emailPlaceholder": "Correo electrónico",
+		"phonePlaceholder": "Número telefónico (opcional)",
+		"streetPlaceholder": "Calle y número",
+		"cityPlaceholder": "Ciudad",
+		"regionPlaceholder": "Estado",
+		"postCodePlaceholder": "Código postal",
+		"companyMatchLabel": "Needs transation (Company Match)",
+		"matchCompanyPlaceholder": "Translation of (Search by company name)",
+		"matchEmailPlaceholder": "Translation of  (Your work email)",
+		"billingLabel": "Dirección donde recibes la correspondencia",
+		"error": {
+			"invalidFields": "Por favor complete las informaciónes"
+		}
+	},
+	"cardInfo": {
+		"cardNumberPlaceholder": "Tarjeta",
+		"cvvHint":
+			"El número CVV está en la parte de atrás de las tarjetas Visa, Mastercard y Discover. En las tajeras American Express está en el frente.",
+		"cardExpireMonthPlaceholder": "Mes",
+		"cardExpireYearPlaceholder": "Año",
+		"extraPercentageLabel": "Translation of (Add 3% to cover processing fees)",
+		"extraPercentageInfoText":
+			"Translation of (By covering processing fees 100% of your donation will go to Mercy For Animals)",
+		"error": {
+			"tokenizeError":
+				"Translation of (Error during secure card information transfer. Please try again.)",
+			"generalTokenizerError":
+				"Translation of (Unexpected error with secure card handler)"
+		}
+	},
+	"processing": {
+		"message": "¡Hurra! Estamos procesando tu donación."
+	},
+	"confirmation": {
+		"thankYouText": "¡Gracias",
+		"emailReceiptText":
+			"Te enviaremos pronto un recibo de tu donación al correo electrónico."
+	},
+	"transactionError": {
+		"headline": "Translation of (Oh no! There was an error:)",
+		"tryAgainText": "Translation of (Please try again)",
+		"error": {
+			"systemMessage": "Translation of (System message:)",
+			"unknown":
+				"Translation of (The server was unable to process the transaction, but provided no explanation.)"
+		}
+	}
+}
