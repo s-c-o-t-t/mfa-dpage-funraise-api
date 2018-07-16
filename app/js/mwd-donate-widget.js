@@ -69,9 +69,13 @@
 			"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js";
 
 		// DEFAULT VALUES
-		// Funraise environment key: ECDNSGhIR0fYQisIc1PHH7NX0pN
+		// Funraise test environment key: ECDNSGhIR0fYQisIc1PHH7NX0pN
+		// KvcTOx3FPBgscLs51rjT848DP7p
 		// MWD test environment key: ODBm2idmYFT3pBge5qxRBjQaWH9
-		thisWidget.defaults.paymentTokenizerApiKey = "ECDNSGhIR0fYQisIc1PHH7NX0pN";
+
+		// TODO - switch between test and live paymentTokenizerApiKey
+
+		thisWidget.defaults.paymentTokenizerApiKey = "KvcTOx3FPBgscLs51rjT848DP7p";
 		thisWidget.defaults.minimumGiftAmount = 5;
 		thisWidget.defaults.giftStringSingle = [25, 50, 75, 100];
 		thisWidget.defaults.giftStringMonthly = [5, 10, 15, 20];
@@ -134,7 +138,7 @@
 		if (typeof input.defaultCurrency == "string" && input.defaultCurrency.trim()) {
 			thisWidget.options.defaultCurrency = input.defaultCurrency;
 		} else {
-			thisWidget.options.defaultCurrency = "";
+			thisWidget.options.defaultCurrency = false;
 		}
 		if (typeof input.currencies == "object") {
 			thisWidget.options.currencyFilter = input.currencies;
@@ -1390,6 +1394,7 @@
 						}
 					}
 				}
+
 				jqCurrencySelect.val(defaultCurrency).trigger("change");
 				if (itemsVisible == 1) {
 					jqCurrencySelect.hide();

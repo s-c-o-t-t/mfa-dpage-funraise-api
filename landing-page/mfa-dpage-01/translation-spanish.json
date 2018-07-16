@@ -2,7 +2,8 @@
 	"header": {
 		"singleDonationText": "Tu donación",
 		"monthlyDonationText": "Tu donación periódica",
-		"introContent": "LAST CHANCE! ACT&nbsp;<strong>NOW!</strong>"
+		"introContent":
+			"<img src=\"https://mfa.cachefly.net/mfa/images/mercy-for-animals-logo-color.png\">"
 	},
 	"button": {
 		"goDonorInfo": "Tus datos",

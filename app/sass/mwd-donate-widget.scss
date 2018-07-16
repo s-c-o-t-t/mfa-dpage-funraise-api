@@ -106,7 +106,6 @@ div#mfaDonationWidgetContainer {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			align-items: baseline;
 			padding: 0.75em;
 			background: linear-gradient(#fff, darken($colorFormBg, 2%));
 			border-bottom: 1px solid darken($colorFormBg, 8%);
@@ -119,6 +118,7 @@ div#mfaDonationWidgetContainer {
 			div.introContentContainer {
 				display: none;
 				text-align: center;
+				padding: 0.75em;
 				img {
 					width: 100%;
 					height: auto;
