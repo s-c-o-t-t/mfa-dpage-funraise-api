@@ -369,6 +369,9 @@ div#mfaDonationWidgetContainer {
 					margin-top: 0.5em;
 					display: none;
 				}
+				&.noWrap {
+					flex-wrap: nowrap;
+				}
 			}
 			&.borderTop {
 				border-top: 1px solid $colorElementBorder;

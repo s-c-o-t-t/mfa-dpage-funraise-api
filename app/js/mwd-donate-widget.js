@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.15");
+	console.log("mwd-donate-widget.js v18.7.16");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -14,9 +14,10 @@
 		thisWidget.isLoaded = false;
 		thisWidget.codeVersion = "1.0.0";
 
-		thisWidget.targetElement = {};
+		thisWidget.domTargetElement = {};
 		thisWidget.promises = {};
 		thisWidget.intervals = {};
+		thisWidget.urls = {};
 		thisWidget.defaults = {};
 		thisWidget.options = {};
 
@@ -38,7 +39,7 @@
 			);
 			return false;
 		}
-		thisWidget.targetElement = target[0];
+		thisWidget.domTargetElement = target[0];
 	};
 
 	window.mwdspace.MFA_Funraise_Widget.prototype.setSystemValues = function() {
@@ -72,10 +73,12 @@
 		// MWD test environment key: ODBm2idmYFT3pBge5qxRBjQaWH9
 		thisWidget.defaults.paymentTokenizerApiKey = "ECDNSGhIR0fYQisIc1PHH7NX0pN";
 		thisWidget.defaults.minimumGiftAmount = 5;
-		thisWidget.defaults.listSingleGiftAskString = [25, 50, 75, 100];
-		thisWidget.defaults.listMonthlyGiftAskString = [5, 10, 15, 20];
+		thisWidget.defaults.extraPercentage = 3;
+		thisWidget.defaults.giftStringSingle = [25, 50, 75, 100];
+		thisWidget.defaults.giftStringMonthly = [5, 10, 15, 20];
+		thisWidget.defaults.topVisualPaddingSelector = "section#header";
 
-		// TEXT/CONSTANTS
+		// OTHER
 		thisWidget.payMethodIconHtml = {
 			card: '<i class="fa far fa-credit-card" aria-hidden="true"></i>',
 			visa: '<i class="fa fab fa-cc-visa" aria-hidden="true"></i>',
@@ -115,24 +118,16 @@
 			thisWidget.options.formId = 1194; // 4394
 		}
 		// MAIN SINGLE GIFT VALUES
-		if (
-			typeof input.listSingleGiftAskString == "object" &&
-			input.listSingleGiftAskString.length > 0
-		) {
-			thisWidget.options.listSingleGiftAskString = input.listSingleGiftAskString;
+		if (typeof input.giftStringSingle == "object" && input.giftStringSingle.length > 0) {
+			thisWidget.options.giftStringSingle = input.giftStringSingle;
 		} else {
-			thisWidget.options.listSingleGiftAskString =
-				thisWidget.defaults.listSingleGiftAskString;
+			thisWidget.options.giftStringSingle = thisWidget.defaults.giftStringSingle;
 		}
 		// MAIN MONTHLY GIFT VALUES
-		if (
-			typeof input.listMonthlyGiftAskString == "object" &&
-			input.listMonthlyGiftAskString.length > 0
-		) {
-			thisWidget.options.listMonthlyGiftAskString = input.listMonthlyGiftAskString;
+		if (typeof input.giftStringMonthly == "object" && input.giftStringMonthly.length > 0) {
+			thisWidget.options.giftStringMonthly = input.giftStringMonthly;
 		} else {
-			thisWidget.options.listMonthlyGiftAskString =
-				thisWidget.defaults.listMonthlyGiftAskString;
+			thisWidget.options.giftStringMonthly = thisWidget.defaults.giftStringMonthly;
 		}
 
 		// CURRENCIES (and related gift values)
@@ -159,7 +154,14 @@
 			thisWidget.options.fontAwesomeVersion = null;
 		}
 
-		// LABEL OVERRIDES (TRANSLATIONS)
+		// VARIOUD BOOLEAN OPTIONS
+		// thisWidget.options.isMonthlyOnly = input.isMonthlyOnly === true;
+		thisWidget.options.includeCompanyMatch =
+			input.includeCompanyMatch === false ? false : true;
+		thisWidget.options.includeExtraPercent =
+			input.includeExtraPercent === false ? false : true;
+
+		// LABEL OVERRIDES (aka TRANSLATIONS)
 		thisWidget.options.labelOverrideObject = false;
 		thisWidget.options.labelOverrideFileUrl = false;
 		if (typeof input.labelOverride == "string" && input.labelOverride.trim()) {
@@ -191,7 +193,7 @@
 		}
 		thisWidget.isStarted = true;
 
-		thisWidget.targetElement.innerHTML = "";
+		thisWidget.domTargetElement.innerHTML = "";
 
 		var promiseFontIconStyles = thisWidget.getFontIconStyles();
 		// TODO: validate thisWidget.options.styleSheets
@@ -217,7 +219,7 @@
 		var container = document.createElement("div");
 		container.id = "mfaDonationWidgetContainer";
 		container.style.opacity = 0;
-		thisWidget.targetElement.appendChild(container);
+		thisWidget.domTargetElement.appendChild(container);
 
 		container.innerHTML = widgetHtml;
 
@@ -310,6 +312,8 @@
 		buildFrequencyButtons();
 		buildCurrencySelect();
 		prePopulateUserFields();
+
+		setOptionalSectionVisibility();
 
 		// ensure text override file load (if any) is complete
 		await thisWidget.promises.labelOverrideLoad;
@@ -1131,17 +1135,15 @@
 				// minimumDynamicStart: 30.0,
 			};
 			if (window.mwdspace.userInputData.giftFrequency == "monthly") {
-				if (thisWidget.options.listMonthlyGiftAskString) {
-					giftStringOptions.giftStringList =
-						thisWidget.options.listMonthlyGiftAskString;
+				if (thisWidget.options.giftStringMonthly) {
+					giftStringOptions.giftStringList = thisWidget.options.giftStringMonthly;
 					if (!thisWidget.isMonthlyOnlyPage) {
 						giftStringOptions.calculateAsMonthly = true;
 					}
 				}
 			} else {
-				if (thisWidget.options.listSingleGiftAskString) {
-					giftStringOptions.giftStringList =
-						thisWidget.options.listSingleGiftAskString;
+				if (thisWidget.options.giftStringSingle) {
+					giftStringOptions.giftStringList = thisWidget.options.giftStringSingle;
 				}
 			}
 
@@ -1973,6 +1975,27 @@
 			}
 		}
 
+		function setOptionalSectionVisibility() {
+			// COMPANY MATCH
+			var jqCompanyMatchGroup = jqContainer
+				.find('input[name="companyMatch"]')
+				.closest("div.inputGroup");
+			if (thisWidget.options.includeCompanyMatch) {
+				jqCompanyMatchGroup.show();
+			} else {
+				jqCompanyMatchGroup.hide();
+			}
+
+			// EXTRA PERCENT
+			var jqExtraPercentRadio = jqContainer.find('input[name="giftExtraPercent"]');
+			jqExtraPercentRadio.val(parseFloat(thisWidget.defaults.extraPercentage) || 0);
+			if (thisWidget.options.includeExtraPercent) {
+				jqExtraPercentRadio.closest("div.inputGroup").show();
+			} else {
+				jqExtraPercentRadio.closest("div.inputGroup").hide();
+			}
+		}
+
 		function tokenizeUserCard() {
 			// tokenize only when all fields are ready
 			// when successful, this will populate transactionSendData.paymentToken field
@@ -2285,31 +2308,49 @@
 		}
 
 		function scrollAll(theElement) {
+			if (typeof theElement == "undefined") {
+				return;
+			}
 			if (!thisWidget.isLoaded) {
 				// don't scroll until after initial page load is complete
 				return;
 			}
-
 			theElement = jq(theElement);
+			if (theElement.length <= 0) {
+				return;
+			}
 
 			var originalScrollTop = jq(window).scrollTop();
+			var baseScrollTime = 555;
 
 			var viewHeight = jq(window).height();
 			var viewTop = originalScrollTop;
 			var viewBottom = viewTop + viewHeight;
-			var padding = (theElement.outerHeight() - theElement.innerHeight()) / 2;
-			padding = padding <= 0 ? 4 : padding;
-			var elementTop = theElement.offset().top + padding;
+
+			var elementPadding = (theElement.outerHeight() - theElement.innerHeight()) / 2;
+			elementPadding = elementPadding <= 0 ? 0 : elementPadding;
+			elementPadding += 3;
+
+			var topVisualPadding = 0;
+			if (typeof thisWidget.defaults.topVisualPaddingSelector == "string") {
+				topVisualPadding =
+					jq(thisWidget.defaults.topVisualPaddingSelector).outerHeight() || 0;
+				topVisualPadding =
+					topVisualPadding > viewHeight * 0.25 ? viewHeight * 0.25 : topVisualPadding;
+			}
+
+			var elementTop = theElement.offset().top + elementPadding;
 			var elementBottom = elementTop + theElement.innerHeight();
+
+			console.log(viewTop, elementTop, elementPadding, topVisualPadding);
 
 			//when the element is taller the screen, scroll to element top (less padding)
 			if (theElement.innerHeight() > viewHeight) {
 				jq("html,body").animate(
 					{
 						scrollTop: elementTop,
-						easing: "ease",
 					},
-					444
+					baseScrollTime
 				);
 				return;
 			}
@@ -2319,9 +2360,8 @@
 				jq("html,body").animate(
 					{
 						scrollTop: elementTop,
-						easing: "ease",
 					},
-					999
+					baseScrollTime
 				);
 				return;
 			}
@@ -2330,10 +2370,9 @@
 			if (viewBottom < elementBottom) {
 				jq("html,body").animate(
 					{
-						scrollTop: elementBottom - viewHeight + padding,
-						easing: "ease",
+						scrollTop: elementBottom - viewHeight + elementPadding,
 					},
-					999
+					baseScrollTime
 				);
 			}
 		}
@@ -2344,7 +2383,7 @@
 		return new Promise(function(resolve) {
 			// console.log("linkExternalStylesheet() start:", url);
 			var domStyleLink = document.createElement("link");
-			thisWidget.targetElement.appendChild(domStyleLink);
+			thisWidget.domTargetElement.appendChild(domStyleLink);
 			domStyleLink.rel = "stylesheet";
 			domStyleLink.type = "text/css";
 			var timeout = setTimeout(function() {
@@ -2369,7 +2408,7 @@
 		return new Promise(function(resolve) {
 			// console.log("linkExternalScript() start:", url);
 			var domScript = document.createElement("script");
-			thisWidget.targetElement.appendChild(domScript);
+			thisWidget.domTargetElement.appendChild(domScript);
 			var timeout = setTimeout(function() {
 				console.log("linkExternalScript() No load after 5s", url);
 				resolve(false);

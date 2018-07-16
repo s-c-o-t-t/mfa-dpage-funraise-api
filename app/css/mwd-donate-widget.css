@@ -357,6 +357,11 @@ div#mfaDonationWidgetContainer {
         div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.infoBox.collapsable {
           margin-top: 0.5em;
           display: none; }
+        div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.infoBox.noWrap,
+        div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.infoBox.noWrap,
+        div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.infoBox.noWrap,
+        div#mfaDonationWidgetContainer div.payMethodContainer div.inputGroup.infoBox.noWrap {
+          flex-wrap: nowrap; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.inputGroup.borderTop,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.inputGroup.borderTop,
       div#mfaDonationWidgetContainer div.payInfoContainer div.inputGroup.borderTop,
