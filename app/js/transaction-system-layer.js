@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.12b");
+	console.log("transaction-system-layer.js v18.7.17a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -8,14 +8,18 @@
 	var transactionLayer = window.mwdspace.transactionLayer;
 
 	var apiConstants = {
-		baseUrl: "https://test.funraise.io/public/api/v2/",
+		baseUrl: "https://platform.funraise.io/public/api/v2/",
+		testBaseUrl: "https://test.funraise.io/public/api/v2/",
+		testOrganizationId: "1e78fec4-8fd0-4a3e-b82b-866c29012531",
+		testFormId: 10,
 	};
 
-	if (window.mwdspace.sharedUtils.getUrlParameter("api") == "live") {
-		apiConstants.baseUrl = "https://platform.funraise.io/public/api/v2/";
+	var inTestMode = window.mwdspace.sharedUtils.getUrlParameter("test") == "true";
+	if (inTestMode) {
+		console.warn("TEST MODE - transaction-system-layer.js", apiConstants);
 	}
 
-	var requestTimeoutSeconds = 30;
+	var requestTimeoutSeconds = 45;
 	var requestInitialPollDelay = 4000;
 	window.mwdspace = window.mwdspace || {};
 
@@ -874,15 +878,19 @@
 				window.location.pathname;
 		sendData.referrer = sendData.referrer || document.referrer || "";
 
+		var baseUrl = apiConstants.baseUrl;
+		if (inTestMode) {
+			baseUrl = apiConstants.testBaseUrl;
+			sendData.organizationId = apiConstants.testOrganizationId;
+			sendData.formId = apiConstants.testFormId;
+		}
+
 		var donationOptions = {
 			method: "post",
-			url: apiConstants.baseUrl + "donation",
+			url: baseUrl + "donation",
 			sendData: sendData,
 			verbose: true,
 		};
-
-		// if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
-		console.log("SENDING LIVE DONATION POST");
 
 		//initial post to create donation
 		try {
@@ -960,16 +968,17 @@
 		setTimeout(function() {
 			console.log("completeDonation() RUNNING");
 
-			var targetUrl = apiConstants.baseUrl + "donation/" + donateId;
+			var baseUrl = apiConstants.baseUrl;
+			if (inTestMode) {
+				baseUrl = apiConstants.testBaseUrl;
+			}
 
 			var donationOptions = {
 				method: "get",
-				url: targetUrl,
+				url: baseUrl + "donation/" + donateId,
 				verbose: true,
 			};
 
-			// if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
-			console.log("SENDING LIVE POLL REQUEST");
 			sendXhrRequest(
 				donationOptions,
 				function(response) {
@@ -1001,51 +1010,6 @@
 			);
 		}, delayMilliseconds);
 	}
-
-	// function makeTestDonationResponse(type) {
-	// 	if (typeof type == "undefined") {
-	// 		var type = "";
-	// 	}
-	// 	var testResponse = {
-	// 		status: 200,
-	// 		statusText: "OK",
-	// 		text: "testing",
-	// 		json: {},
-	// 	};
-	// 	if (type == "bitcoin") {
-	// 		testResponse.json = {
-	// 			payment_id: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
-	// 			donation_id: 644353,
-	// 			checkout_url: "https://bitpay.com/i/X19hQRxwvD87QBRcADXrDX",
-	// 			img_data:
-	// 				"iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQAAAACFI5MzAAABd0lEQVR42u2XQY6DMAxFf8QiS46Qm8DFKoHExeAmOUKWWSA830bq0KIuazQjIhWRvi4s+/vbhXw6uMlN/gDJABpBKEOWrR15a70JP5PI3E5SOz6IvUkF7wjE+pbRXUJyDXyN25Wka1fIRcTqg14MnyvnQFSj9qU+Tup1IPvR0qhCzh38fZKjFCR0DFAWu/qTmRHVvjwSm3WFqdWVCAsypjjjQY1iyIe8eRGRMohFxACHQ3a8CIMpTQazA5PJS//4kMphIeoPrBR7RGZ3wqo0TIyMqapQ6RnOhKVhYmBOEQpQn27pRVSUI8wo48JWOUbtRGxY0C7YJYv+5tdHvQidYkwsElMU9Lq5E22LbJuDWJcc+tSLzM/9TbvkkB0nYkdzspo8X13MhexzW70qwfa33p3o7mJC1ZmlyWq9ie2wNEqODYaJuMglhGNDrRq7c19Boi4NNjEQxJtYfdSmEsfGJG9btAcxjdrixNJQK2/q/T65/73f5L+RH2btkZ0kpUV3AAAAAElFTkSuQmCC",
-	// 			exp: new Date().getTime() + 899123,
-	// 			type: "bitcoin",
-	// 			alt_amount: "0.000777",
-	// 			transaction_id: "X19hQRxwvD87QBRcADXrDX",
-	// 			status: "Pending",
-	// 			invoice_status: "new",
-	// 			id: 644353,
-	// 			errors: null,
-	// 		};
-	// 	} else {
-	// 		testResponse.json = {
-	// 			payment_id: "1111",
-	// 			donation_id: 15697,
-	// 			checkout_url: null,
-	// 			img_data: null,
-	// 			exp: 1706745600000,
-	// 			type: "card",
-	// 			alt_amount: null,
-	// 			transaction_id: "68",
-	// 			status: "Complete",
-	// 			invoice_status: null,
-	// 			id: 15697,
-	// 			errors: "Succeeded!",
-	// 		};
-	// 	}
-	// 	return testResponse;
-	// }
 
 	// GENERAL AJAX CALL
 	function sendXhrRequest(options, successFunction, failFunction) {

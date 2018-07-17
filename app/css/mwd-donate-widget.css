@@ -99,21 +99,33 @@ div#mfaDonationWidgetContainer {
     color: #f3f3f4;
     text-align: center;
     font-size: 2em; }
+  div#mfaDonationWidgetContainer div.testModeContainer {
+    display: none;
+    padding: 0.25em;
+    text-align: center;
+    color: #fff;
+    background-color: goldenrod;
+    border: 1px solid #e4b849;
+    border-top-left-radius: 0.15em;
+    border-top-right-radius: 0.15em; }
   div#mfaDonationWidgetContainer div.giftFormHeaderContainer {
     display: none; }
     div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      align-items: baseline;
       padding: 0.75em;
       background: linear-gradient(#fff, #eeeeef);
       border-bottom: 1px solid #dedee0; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader > div {
-        width: 25%; }
+        width: 25%;
+        padding: 0.1em; }
+      div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.buttonContainer {
+        align-self: start; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.introContentContainer {
         display: none;
-        text-align: center; }
+        text-align: center;
+        padding: 0.25em; }
         div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.introContentContainer img {
           width: 100%;
           height: auto;
@@ -483,6 +495,11 @@ div#mfaDonationWidgetContainer {
     div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon {
       position: relative;
       margin-left: auto; }
+      div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon i,
+      div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon i,
+      div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon i,
+      div#mfaDonationWidgetContainer div.payMethodContainer div.infoIcon i {
+        padding: 0.1em; }
       div#mfaDonationWidgetContainer div.donorInfoContainer div.infoIcon span.infoText,
       div#mfaDonationWidgetContainer div.billingInfoContainer div.infoIcon span.infoText,
       div#mfaDonationWidgetContainer div.payInfoContainer div.infoIcon span.infoText,

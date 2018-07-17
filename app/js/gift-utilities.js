@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("gift-utilities.js v18.7.9a");
+	console.log("gift-utilities.js v18.7.17");
 
 	window.mwdspace = window.mwdspace || {};
 	var sharedUtils = window.mwdspace.sharedUtils;

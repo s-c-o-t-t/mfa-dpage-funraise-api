@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.16");
+	console.log("mwd-donate-widget.js v18.7.17");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -45,37 +45,29 @@
 	window.mwdspace.MFA_Funraise_Widget.prototype.setSystemValues = function() {
 		var thisWidget = this;
 
-		// BASE WIDGET LOCATION
-		if (window.location.hostname == "localhost") {
-			thisWidget.baseWidgetUrl =
-				"http://localhost:8888/mwd/mfa/mfa-dpage-funraise-api/dist/";
-			console.warn("USING TEST BASE URL", thisWidget.baseWidgetUrl);
-		} else {
-			thisWidget.baseWidgetUrl =
-				"https://quiz.mercyforanimals.org/donate-widget/" +
-				thisWidget.codeVersion +
-				"/";
-		}
-
-		// LOCATIONS
-		thisWidget.mainStylesUrl = thisWidget.baseWidgetUrl + "css/mwd-donate-widget.css";
-		thisWidget.mainHtmlUrl = thisWidget.baseWidgetUrl + "mwd-donate-widget.html";
-		thisWidget.fontAwesome4Url =
+		// LOCATION URLS
+		thisWidget.urls.base =
+			"https://quiz.mercyforanimals.org/donate-widget/" + thisWidget.codeVersion + "/";
+		thisWidget.urls.fontAwesome4 =
 			"https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
-		thisWidget.fontAwesome5Url = "https://use.fontawesome.com/releases/v5.1.0/css/all.css";
-		thisWidget.specialSelectStylesUrl =
+		thisWidget.urls.fontAwesome5 =
+			"https://use.fontawesome.com/releases/v5.1.0/css/all.css";
+		thisWidget.urls.specialSelectStyles =
 			"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css";
-		thisWidget.specialSelectScriptUrl =
+		thisWidget.urls.specialSelectScript =
 			"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js";
+		thisWidget.urls.bitcoinPaymentApi = "https://bitpay.com/";
+		thisWidget.urls.testBitcoinPaymentApi = "https://test.bitpay.com/";
 
 		// DEFAULT VALUES
-		// Funraise test environment key: ECDNSGhIR0fYQisIc1PHH7NX0pN
-		// KvcTOx3FPBgscLs51rjT848DP7p
+		// Funraise test Spreedly environment key: ECDNSGhIR0fYQisIc1PHH7NX0pN
+		// Funraise live Spreedly environment key: KvcTOx3FPBgscLs51rjT848DP7p
 		// MWD test environment key: ODBm2idmYFT3pBge5qxRBjQaWH9
 
-		// TODO - switch between test and live paymentTokenizerApiKey
-
-		thisWidget.defaults.paymentTokenizerApiKey = "KvcTOx3FPBgscLs51rjT848DP7p";
+		thisWidget.defaults.organizationId = "fcb4d538-ca92-4212-86cc-06d8ac929c4d";
+		thisWidget.defaults.formId = 1194;
+		thisWidget.defaults.paymentTokenApiKey = "KvcTOx3FPBgscLs51rjT848DP7p";
+		thisWidget.defaults.testPaymentTokenApiKey = "ECDNSGhIR0fYQisIc1PHH7NX0pN";
 		thisWidget.defaults.minimumGiftAmount = 5;
 		thisWidget.defaults.giftStringSingle = [25, 50, 75, 100];
 		thisWidget.defaults.giftStringMonthly = [5, 10, 15, 20];
@@ -99,6 +91,13 @@
 			var input = {};
 		}
 
+		if (typeof input.baseUrlOverride == "string" && input.baseUrlOverride.trim()) {
+			thisWidget.urls.base = encodeURI(input.baseUrlOverride);
+			if (thisWidget.urls.base.substr(-1) != "/") {
+				thisWidget.urls.base += "/";
+			}
+		}
+
 		// VALIDATE/FINALIZE USER OPTIONS
 		if (typeof input.element == "string" && input.element.trim()) {
 			thisWidget.options.element = input.element;
@@ -107,20 +106,26 @@
 			return false;
 		}
 
-		// TODO: move organizationId/formId to same area as other transaction data
-		if (
-			typeof thisWidget.options.organizationId != "string" ||
-			!thisWidget.options.organizationId.trim()
-		) {
-			thisWidget.options.organizationId = "fcb4d538-ca92-4212-86cc-06d8ac929c4d";
+		// ENVIRONMENT IDS/KEYS
+		// Funraise organization id
+		if (typeof input.organizationId != "undefined") {
+			thisWidget.options.organizationId = input.organizationId;
+		} else {
+			thisWidget.options.organizationId = thisWidget.defaults.organizationId;
 		}
-		if (
-			typeof thisWidget.options.formId != "number" ||
-			typeof thisWidget.options.formId != "string" ||
-			!thisWidget.options.formId
-		) {
-			thisWidget.options.formId = 1194; // 4394
+		// Funraise form id
+		if (typeof input.formId != "undefined") {
+			thisWidget.options.formId = input.formId;
+		} else {
+			thisWidget.options.formId = thisWidget.defaults.formId;
 		}
+		// Spreedly environment key
+		if (typeof input.paymentTokenApiKey != "undefined") {
+			thisWidget.options.paymentTokenApiKey = input.paymentTokenApiKey;
+		} else {
+			thisWidget.options.paymentTokenApiKey = thisWidget.defaults.paymentTokenApiKey;
+		}
+
 		// MAIN SINGLE GIFT VALUES
 		if (typeof input.giftStringSingle == "object" && input.giftStringSingle.length > 0) {
 			thisWidget.options.giftStringSingle = input.giftStringSingle;
@@ -210,16 +215,18 @@
 		thisWidget.domTargetElement.innerHTML = "";
 
 		var promiseFontIconStyles = thisWidget.getFontIconStyles();
-		// TODO: validate thisWidget.options.styleSheets
-		var stylesUrl = thisWidget.options.styleSheets || thisWidget.mainStylesUrl;
-		var promiseMainStyles = thisWidget.linkExternalStylesheet(stylesUrl);
-		thisWidget.linkExternalStylesheet(thisWidget.specialSelectStylesUrl);
+		var promiseMainStyles = thisWidget.linkExternalStylesheet(
+			thisWidget.urls.base + "css/mwd-donate-widget.css"
+		);
+		thisWidget.linkExternalStylesheet(thisWidget.urls.specialSelectStyles);
 		await Promise.all([promiseFontIconStyles, promiseMainStyles]);
 
 		var widgetHtml, sharedUtilResult;
-		var promiseMainHtml = thisWidget.loadFile(thisWidget.mainHtmlUrl);
+		var promiseMainHtml = thisWidget.loadFile(
+			thisWidget.urls.base + "mwd-donate-widget.html"
+		);
 		var promiseSharedUtils = thisWidget.linkExternalScript(
-			thisWidget.baseWidgetUrl + "js/shared-utils.js"
+			thisWidget.urls.base + "js/shared-utils.js"
 		);
 		[widgetHtml, sharedUtilResult] = await Promise.all([
 			promiseMainHtml,
@@ -251,14 +258,14 @@
 
 		// select2 should load after jQuery load complete
 		var promiseSpecialSelectCode = thisWidget.linkExternalScript(
-			thisWidget.specialSelectScriptUrl
+			thisWidget.urls.specialSelectScript
 		);
 
 		var promiseBusinessLayer = thisWidget.linkExternalScript(
-			thisWidget.baseWidgetUrl + "js/gift-utilities.js"
+			thisWidget.urls.base + "js/gift-utilities.js"
 		);
 		var promiseTransactionLayer = thisWidget.linkExternalScript(
-			thisWidget.baseWidgetUrl + "js/transaction-system-layer.js"
+			thisWidget.urls.base + "js/transaction-system-layer.js"
 		);
 
 		await Promise.all([
@@ -292,14 +299,10 @@
 
 		window.mwdspace.pageIdPrefix = "widget" + thisWidget.options.formId;
 
-		// GLOBALS
-		var paymentTokenizerApiKey =
-			thisWidget.options.paymentTokenizerApiKey ||
-			thisWidget.defaults.paymentTokenizerApiKey;
-
 		// JQUERY OBJECTS
 		var jqContainer = jq("div.giftFormContainer");
 		var jqStepList = jqContainer.find("section.step");
+		var jqGiftFormHeader = jqContainer.find("div.giftFormHeaderContainer");
 		var jqMainBackButton = jqContainer.find("button.goPreviousStep");
 		var jqFreeFormGiftInput = jqContainer.find('input[name="giftAmountFreeform"]');
 		var jqPayMethodSelect = jqContainer.find('select[name="payMethod"]');
@@ -312,6 +315,13 @@
 		var jqBitcoinTimeRemaining = jqContainer.find(
 			"div.bitcoinContainer span.bitcoinTimeRemaining"
 		);
+
+		// TEST MODE
+		var inTestMode = window.mwdspace.sharedUtils.getUrlParameter("test") == "true";
+		if (inTestMode) {
+			console.warn("TEST MODE - mwd-donate-widget.js");
+			jqContainer.find("div.testModeContainer").slideDown(999);
+		}
 
 		thisWidget.promises.labelOverrideLoad = thisWidget.prepareLabelOverride();
 
@@ -329,9 +339,17 @@
 		await thisWidget.promises.labelOverrideLoad;
 		if (thisWidget.labelOverride) {
 			thisWidget.processLabelOverrideObject(thisWidget.labelOverride);
+			// show any intro content
+			// var jqIntroContent = jqGiftFormHeader.find("div.introContentContainer");
+			// if (jqIntroContent.html() != "") {
+			// 	// console.log("SHOWING INTRO");
+			// 	jqGiftFormHeader.find("div.giftFormHeader").addClass("showIntro");
+			// 	jqGiftFormHeader.show();
+			// }
 		}
 
 		buildFrequencyButtons();
+		updateGiftAmount();
 		buildCurrencySelect();
 		prePopulateUserFields();
 
@@ -788,7 +806,7 @@
 
 			jqTarget.addClass("selected");
 			if (event.type == "change") {
-				jqContainer.find("div.giftFormHeaderContainer").slideDown(666, function() {
+				jqGiftFormHeader.slideDown(666, function() {
 					scrollAll(jqContainer);
 				});
 			}
@@ -1044,12 +1062,6 @@
 					: ""; //mimic test
 				sendData.formAllocationId = thisWidget.options.formAllocationId || null;
 
-				// TESTING - 12 July
-				if (window.mwdspace.sharedUtils.getUrlParameter("api") != "live") {
-					sendData.organizationId = "1e78fec4-8fd0-4a3e-b82b-866c29012531";
-					sendData.formId = 10;
-				}
-
 				/* start - no data, added to mimic current widget */
 				sendData.bank_account_holder_type = "personal";
 				sendData.bank_account_number = "";
@@ -1129,7 +1141,9 @@
 
 					console.log("transactionData", transactionData);
 
-					if (transactionData.type == "card") {
+					if (transactionData.type == "bitcoin") {
+						prepAndShowBitcoinStep(transactionData);
+					} else {
 						var transactionStatus = String(transactionData.status);
 						if (transactionStatus.match(/complete/i)) {
 							prepAndShowConfirmationStep();
@@ -1139,18 +1153,6 @@
 									transactionStatus +
 									'".'
 							);
-						}
-					} else if (transactionData.type == "bitcoin") {
-						prepAndShowBitcoinStep(transactionData);
-					} else {
-						if (window.mwdspace.sharedUtils.getUrlParameter("api") == "live") {
-							console.warn(
-								"Unrecognized type property in server response",
-								response
-							);
-							prepAndShowErrorStep("Unrecognized response from the server");
-						} else {
-							prepAndShowConfirmationStep();
 						}
 					}
 				},
@@ -1922,10 +1924,12 @@
 		function setupSpreedly() {
 			return new Promise(async (resolve) => {
 				await thisWidget.promises.spreedlyIframeScript;
+
 				Spreedly.on("ready", function() {
 					setSpreedlyLabels();
 					resolve();
 				});
+
 				Spreedly.on("paymentMethod", function(token, result) {
 					window.mwdspace.transactionSendData.paymentToken = null;
 
@@ -1948,6 +1952,20 @@
 						showStepFeedback("cardInfo");
 					}
 				});
+
+				Spreedly.on("fieldEvent", function(name, type, activeEl, response) {
+					if (type == "input") {
+						window.mwdspace.userInputData.hasValidCardNumber =
+							response.validNumber || false;
+						window.mwdspace.userInputData.hasValidCardCvv =
+							response.validCvv || false;
+						window.mwdspace.userInputData.payCardType = response.cardType || false;
+						if (name == "number") {
+							setCardNumberFeedback(response.validNumber, response.cardType);
+						}
+					}
+				});
+
 				Spreedly.on("errors", function(errors) {
 					console.warn("SPREEDLY REPORTS GENERAL ERRORS:");
 					for (var i = 0; i < errors.length; i++) {
@@ -1962,19 +1980,12 @@
 					} catch (err) {}
 					showStepFeedback("cardInfo", message, true);
 				});
-				Spreedly.on("fieldEvent", function(name, type, activeEl, response) {
-					if (type == "input") {
-						window.mwdspace.userInputData.hasValidCardNumber =
-							response.validNumber || false;
-						window.mwdspace.userInputData.hasValidCardCvv =
-							response.validCvv || false;
-						window.mwdspace.userInputData.payCardType = response.cardType || false;
-						if (name == "number") {
-							setCardNumberFeedback(response.validNumber, response.cardType);
-						}
-					}
-				});
-				Spreedly.init(paymentTokenizerApiKey, {
+
+				var paymentTokenApiKey = thisWidget.options.paymentTokenApiKey;
+				if (inTestMode) {
+					paymentTokenApiKey = thisWidget.defaults.testPaymentTokenApiKey;
+				}
+				Spreedly.init(paymentTokenApiKey, {
 					numberEl: "cardNumberTarget",
 					cvvEl: "cardCvvTarget",
 				});
@@ -2233,17 +2244,14 @@
 				var input = null;
 			}
 
-			var baseInvoiceUrl = "https://test.bitpay.com/invoices/";
-			if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
-				baseInvoiceUrl = "https://bitpay.com/invoices/";
+			var baseUrl = thisWidget.urls.bitcoinPaymentApi;
+			if (inTestMode) {
+				baseUrl = thisWidget.urls.testBitcoinPaymentApi;
 			}
+
 			var jqBitcoinContainer = jqContainer.find("div.bitcoinContainer");
 
-			var response;
-
-			// if (window.mwdspace.sharedUtils.getUrlParameter("data") == "live") {
-			console.log("SENDING LIVE BITCOIN POLL REQUEST");
-			response = await new Promise(function(resolve) {
+			var response = await new Promise(function(resolve) {
 				console.log(">>> checkBitcoinPaymentStatus() INSIDE PROMISE");
 				if (typeof input != "string") {
 					console.warn(
@@ -2253,8 +2261,8 @@
 					);
 					resolve(null);
 				}
-				console.log("checkBitcoinPaymentStatus() start:", input);
-				var requestUrl = encodeURI(baseInvoiceUrl + input);
+
+				var requestUrl = encodeURI(baseUrl + "invoices/" + input);
 				var xhr = new XMLHttpRequest();
 
 				xhr.addEventListener("load", function(event) {
@@ -2287,7 +2295,10 @@
 					new Date().toLocaleTimeString() +
 					"). Will try again shortly.</div>";
 				jq(domMessage).addClass("spacingContainer error");
-				jqBitcoinContainer.find("div.bitcoinFeedback").append(domMessage);
+				jqBitcoinContainer
+					.find("div.bitcoinFeedback")
+					.empty()
+					.append(domMessage);
 				return;
 			}
 
@@ -2313,14 +2324,18 @@
 					domMessage.innerHTML =
 						"The invoice received payments, but is listed as invalid.";
 					jq(domMessage).addClass("spacingContainer error");
-					jqBitcoinContainer.find("div.bitcoinFeedback").append(domMessage);
+					jqBitcoinContainer
+						.find("div.bitcoinFeedback")
+						.empty()
+						.append(domMessage);
 					break;
 				case "new":
 					// FOR TEST MODE
-					if (window.mwdspace.sharedUtils.getUrlParameter("data") != "live") {
+					if (inTestMode) {
+						prepAndShowConfirmationStep();
+						clearInterval(thisWidget.intervals.bitcoinStatusChecker);
 					}
-					prepAndShowConfirmationStep();
-					clearInterval(thisWidget.intervals.bitcoinStatusChecker);
+
 					break;
 			}
 		}
@@ -2537,11 +2552,11 @@
 			var fontsLoaded = false;
 			if (thisWidget.options.fontAwesomeVersion == 4) {
 				fontsLoaded = await thisWidget.linkExternalStylesheet(
-					thisWidget.fontAwesome4Url
+					thisWidget.urls.fontAwesome4
 				);
 			} else if (thisWidget.options.fontAwesomeVersion == 5) {
 				fontsLoaded = await thisWidget.linkExternalStylesheet(
-					thisWidget.fontAwesome5Url
+					thisWidget.urls.fontAwesome5
 				);
 			}
 			return resolve(fontsLoaded);
@@ -2552,15 +2567,12 @@
 		var thisWidget = this;
 		return new Promise(async (resolve) => {
 			if (thisWidget.options.labelOverrideObject) {
-				console.log("Using label override object");
+				console.log("Using label object");
 				thisWidget.labelOverride = thisWidget.options.labelOverrideObject;
 				resolve(true);
 			} else if (thisWidget.options.labelOverrideFileUrl) {
 				try {
-					console.log(
-						"Loading label override file:",
-						thisWidget.options.labelOverrideFileUrl
-					);
+					console.log("Loading label file:", thisWidget.options.labelOverrideFileUrl);
 					var overrideFileContents = await thisWidget.loadFile(
 						thisWidget.options.labelOverrideFileUrl
 					);
