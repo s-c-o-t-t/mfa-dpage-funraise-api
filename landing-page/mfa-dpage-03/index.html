@@ -1284,26 +1284,10 @@
                                                         <div id="form-test-01">Loading...</div>
                                                         <script src="https://quiz.mercyforanimals.org/donate-widget/1.0.0/mfa_funraise_widget.js"></script>
                                                         <script>
+                                                            window.mwdspace = window.mwdspace || {};
                                                             var mainWidget = new window.mwdspace.MFA_Funraise_Widget({
                                                                 element: 'div#form-test-01',
-                                                                labelOverride: 'https://quiz.mercyforanimals.org/mfa-dpage-01/translation-spanish.json',
-                                                                giftStringSingle: [200, 300, 400, 500],
-                                                                giftStringMonthly: [50, 60, 70, 80],
-                                                                defaultCurrency: "MXN",
-                                                                currencies: {
-                                                                    MXN: {},
-                                                                    INR: {}
-                                                                },
-                                                                defaultFrequency: "monthly",
-                                                                // frequencies: ["monthly"],
-                                                                // includeCompanyMatch: false,
-                                                                // includeExtraPercent: false,
-                                                                onLoad: function () {
-                                                                    console.log("----- Custom onLoad function");
-                                                                },
-                                                                onDonation: function (data) {
-                                                                    console.log("----- Custom onDonation function", data);
-                                                                }
+                                                                frequencies: "single"
                                                             });
                                                             mainWidget.start();
                                                         </script>

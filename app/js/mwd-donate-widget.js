@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.17");
+	console.log("mwd-donate-widget.js v18.7.24");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -146,9 +146,9 @@
 			thisWidget.options.defaultCurrency = false;
 		}
 		if (typeof input.currencies == "object") {
-			thisWidget.options.currencyFilter = input.currencies;
+			thisWidget.options.filterListCurrency = input.currencies;
 		} else {
-			thisWidget.options.currencyFilter = false;
+			thisWidget.options.filterListCurrency = false;
 		}
 
 		// PAY METHODS
@@ -158,9 +158,29 @@
 			thisWidget.options.defaultPayMethod = "";
 		}
 		if (typeof input.payMethods == "object") {
-			thisWidget.options.payMethodFilter = input.payMethods;
+			thisWidget.options.filterListPayMethod = input.payMethods;
 		} else {
-			thisWidget.options.payMethodFilter = false;
+			thisWidget.options.filterListPayMethod = false;
+		}
+
+		// FREQUENCIES
+		if (typeof input.defaultFrequency == "string" && input.defaultFrequency.trim()) {
+			thisWidget.options.defaultFrequency = input.defaultFrequency;
+		} else {
+			thisWidget.options.defaultFrequency = false;
+		}
+		if (typeof input.frequencies == "string" && input.frequencies.trim()) {
+			// convert given string to array
+			thisWidget.options.filterListFrequency = [input.frequencies];
+		} else if (
+			input.frequencies &&
+			input.frequencies.constructor === Array &&
+			input.frequencies.length > 0
+		) {
+			// use given frequency list as array
+			thisWidget.options.filterListFrequency = input.frequencies;
+		} else {
+			thisWidget.options.filterListFrequency = false;
 		}
 
 		// FONT AWESOME - no load (use existing), or load either version 4 or 5
@@ -893,26 +913,26 @@
 				if (thisItem.code == payMethod) {
 					window.mwdspace.minimumAmount = thisItem.minimumAmount;
 					if (thisItem.frequencies) {
-						filterFrequencyButtons(thisItem.frequencies);
+						setFrequencyButtonVisibility(thisItem.frequencies);
 					}
 					break;
 				}
 			}
 		}
 
-		function filterFrequencyButtons(frequencyList) {
+		// Evaluate the existing HTML buttons and hide or show
+		function setFrequencyButtonVisibility(frequencyList) {
 			if (typeof frequencyList != "object" || frequencyList.length < 1) {
 				console.warn(
-					"filterFrequencyButtons() ignoring invalid frequency list",
+					"setFrequencyButtonVisibility() ignoring invalid frequency list",
 					frequencyList
 				);
 				return;
 			}
-
-			// TODO: change logic to pre-building an action list
+			console.log("setFrequencyButtonVisibility() frequencyList", frequencyList);
 
 			var actionList = [];
-			var visibleOptions = 0;
+			var itemsVisible = 0;
 			var selectedOptionNowHidden = false;
 
 			var thisFrequency;
@@ -925,7 +945,7 @@
 					};
 					if (frequencyList.indexOf(thisFrequency.jqObject.val()) >= 0) {
 						// show this frequency
-						visibleOptions++;
+						itemsVisible++;
 					} else {
 						// hide this frequency
 						thisFrequency.show = false;
@@ -936,10 +956,12 @@
 					actionList.push(thisFrequency);
 				});
 
-			if (visibleOptions < 1) {
+			console.log("setFrequencyButtonVisibility() itemsVisible", itemsVisible);
+
+			if (itemsVisible < 1) {
 				// something is wrong, show all
 				jqContainer.find("div.giftFrequencyContainer div.fancyRadioButton").show();
-			} else if (visibleOptions == 1) {
+			} else if (itemsVisible == 1) {
 				// hide all
 				jqContainer.find("div.giftFrequencyContainer div.fancyRadioButton").hide();
 			} else {
@@ -1358,7 +1380,7 @@
 		}
 
 		function buildCurrencySelect() {
-			var filterList = thisWidget.options.currencyFilter;
+			var filterList = thisWidget.options.filterListCurrency;
 			var defaultCurrency =
 				typeof thisWidget.options.defaultCurrency == "string"
 					? thisWidget.options.defaultCurrency
@@ -1368,8 +1390,6 @@
 
 			var itemsVisible = 0;
 
-			console.warn("BUILDING WITH FILTER LIST", filterList);
-
 			try {
 				if (!window.mwdspace.validCurrencyList) {
 					throw new Error("List of valid currencies not found");
@@ -1377,16 +1397,15 @@
 				if (jqCurrencySelect.length !== 1) {
 					throw new Error("Unable to identify the currency select dropdown");
 				}
-				var domThisOption, thisCurrency, okToAdd;
+				var domThisOption, thisCurrency, okToBuild;
 
 				for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
-					okToAdd = true;
+					okToBuild = true;
 					thisCurrency = window.mwdspace.validCurrencyList[i];
 					if (filterList) {
-						okToAdd = typeof filterList[thisCurrency.code] == "object";
+						okToBuild = typeof filterList[thisCurrency.code] == "object";
 					}
-					if (okToAdd) {
-						console.warn("INCLUDING", thisCurrency.code);
+					if (okToBuild) {
 						domThisOption = buildCurrencyOption(thisCurrency);
 						if (domThisOption) {
 							jqCurrencySelect.append(domThisOption);
@@ -1484,27 +1503,45 @@
 				// remove any existing options
 				jqFrequencyContainer.find("div.fancyRadioButton").remove();
 
-				var domThisButton;
+				var domThisButton, thisFrequency, okToBuild;
+
+				var finalFrequencyList = [];
+				var defaultIndex = 0;
+				var currentIndex = 0;
 
 				for (var i = 0; i < window.mwdspace.validFrequencyList.length; i++) {
-					domThisButton = buildFrequencyButton(
-						window.mwdspace.validFrequencyList[i],
-						{ id: window.mwdspace.sharedUtils.makeUniqueId("frequency-" + i) }
-					);
-					if (domThisButton) {
-						jqFrequencyContainer.append(domThisButton);
-					} else {
-						console.warn(
-							"Unable to add frequency:",
-							window.mwdspace.validFrequencyList[i]
-						);
+					thisFrequency = window.mwdspace.validFrequencyList[i];
+					okToBuild = true;
+					if (thisWidget.options.filterListFrequency) {
+						if (
+							thisWidget.options.filterListFrequency.indexOf(thisFrequency.code) <
+							0
+						) {
+							okToBuild = false;
+						}
+					}
+					if (okToBuild) {
+						domThisButton = buildFrequencyButton(thisFrequency, {
+							id: window.mwdspace.sharedUtils.makeUniqueId("frequency-" + i),
+						});
+						if (domThisButton) {
+							jqFrequencyContainer.append(domThisButton);
+							finalFrequencyList.push(thisFrequency.code);
+						} else {
+							console.warn("Unable to add frequency:", thisFrequency);
+						}
+						if (thisWidget.options.defaultFrequency === thisFrequency.code) {
+							defaultIndex = currentIndex;
+						}
+						currentIndex++;
 					}
 				}
 				jqFrequencyContainer
 					.find('input[name="giftFrequency"]')
-					.eq(0)
+					.eq(defaultIndex)
 					.prop("checked", true)
 					.trigger("change");
+				setFrequencyButtonVisibility(finalFrequencyList);
 			} catch (err) {
 				console.error("Unable to build the frequency buttons", err);
 			}
@@ -1683,15 +1720,15 @@
 				if (domCountrySelect.length !== 1) {
 					throw new Error("Unable to identify the country select dropdown");
 				}
-				var domThisOption, thisCountry, okToAdd;
+				var domThisOption, thisCountry, okToBuild;
 
 				for (var i = 0; i < window.mwdspace.validCountryList.length; i++) {
-					okToAdd = true;
+					okToBuild = true;
 					thisCountry = window.mwdspace.validCountryList[i];
 					if (options.filterList) {
-						okToAdd = findListMatch(options.filterList, thisCountry.code);
+						okToBuild = findListMatch(options.filterList, thisCountry.code);
 					}
-					if (okToAdd) {
+					if (okToBuild) {
 						// var attributes = {};
 						domThisOption = buildCountryOption(thisCountry);
 						if (domThisOption) {
