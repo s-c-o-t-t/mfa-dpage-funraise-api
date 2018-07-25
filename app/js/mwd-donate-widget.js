@@ -155,9 +155,17 @@
 		if (typeof input.defaultPayMethod == "string" && input.defaultPayMethod.trim()) {
 			thisWidget.options.defaultPayMethod = input.defaultPayMethod;
 		} else {
-			thisWidget.options.defaultPayMethod = "";
+			thisWidget.options.defaultPayMethod = false;
 		}
-		if (typeof input.payMethods == "object") {
+		if (typeof input.payMethods == "string" && input.payMethods.trim()) {
+			// convert given string to array
+			thisWidget.options.filterListPayMethod = [input.payMethods];
+		} else if (
+			input.payMethods &&
+			input.payMethods.constructor === Array &&
+			input.payMethods.length > 0
+		) {
+			// use given pay method list as array
 			thisWidget.options.filterListPayMethod = input.payMethods;
 		} else {
 			thisWidget.options.filterListPayMethod = false;
@@ -929,7 +937,6 @@
 				);
 				return;
 			}
-			console.log("setFrequencyButtonVisibility() frequencyList", frequencyList);
 
 			var actionList = [];
 			var itemsVisible = 0;
@@ -955,8 +962,6 @@
 					}
 					actionList.push(thisFrequency);
 				});
-
-			console.log("setFrequencyButtonVisibility() itemsVisible", itemsVisible);
 
 			if (itemsVisible < 1) {
 				// something is wrong, show all
@@ -1449,24 +1454,50 @@
 				if (jqPayMethodSelect.length !== 1) {
 					throw new Error("Unable to identify the payment method select dropdown");
 				}
-				var domThisOption;
+				var domThisOption, thisPayMethod, okToBuild;
+
+				var defaultCode = null;
+				var itemCount = 0;
 
 				for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
-					domThisOption = buildPayMethodOption(window.mwdspace.validPayMethodList[i]);
-					if (domThisOption) {
-						jqPayMethodSelect.append(domThisOption);
-					} else {
-						console.warn(
-							"Unable to add payment method:",
+					thisPayMethod = window.mwdspace.validPayMethodList[i];
+					okToBuild = true;
+					if (thisWidget.options.filterListPayMethod) {
+						if (
+							thisWidget.options.filterListPayMethod.indexOf(thisPayMethod.code) <
+							0
+						) {
+							okToBuild = false;
+						}
+					}
+					if (okToBuild) {
+						domThisOption = buildPayMethodOption(
 							window.mwdspace.validPayMethodList[i]
 						);
+						if (domThisOption) {
+							jqPayMethodSelect.append(domThisOption);
+							itemCount++;
+						} else {
+							console.warn(
+								"Unable to add payment method:",
+								window.mwdspace.validPayMethodList[i]
+							);
+						}
+						if (
+							thisWidget.options.defaultPayMethod === thisPayMethod.code ||
+							!defaultCode
+						) {
+							defaultCode = thisPayMethod.code;
+						}
 					}
 				}
+
+				jqPayMethodSelect.val(defaultCode);
 				// hide the selector when it has only one value
-				if (window.mwdspace.validPayMethodList.length > 1) {
-					jqPayMethodSelect.show();
+				if (itemCount === 1) {
+					jqPayMethodSelect.closest("div.inputGroup").hide();
 				} else {
-					jqPayMethodSelect.hide();
+					jqPayMethodSelect.closest("div.inputGroup").show();
 				}
 			} catch (err) {
 				console.error("Unable to build the payment method select dropdown", err);
@@ -1490,10 +1521,7 @@
 
 		function buildFrequencyButtons() {
 			try {
-				if (
-					!window.mwdspace.validFrequencyList ||
-					window.mwdspace.validFrequencyList.length < 1
-				) {
+				if (!window.mwdspace.validFrequencyList) {
 					throw new Error("Invalid list of frequencies given");
 				}
 				var jqFrequencyContainer = jqContainer.find("div.giftFrequencyContainer");
