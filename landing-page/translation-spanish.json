@@ -1,7 +1,8 @@
 {
 	"header": {
 		"singleDonationText": "Tu donación",
-		"monthlyDonationText": "Tu donación periódica"
+		"monthlyDonationText": "Tu donación periódica",
+		"introContent": "2018 <strong>MATCH</strong> CAMPAIGN!"
 	},
 	"button": {
 		"goDonorInfo": "Tus datos",
@@ -68,7 +69,7 @@
 		"headline": "Translation of (Oh no! There was an error:)",
 		"tryAgainText": "Translation of (Please try again)",
 		"error": {
-			"systemMessage": "Translation of (System message:)",
+			"systemMessage": "Translation of (Server message:)",
 			"unknown":
 				"Translation of (The server was unable to process the transaction, but provided no explanation.)"
 		}

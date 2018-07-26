@@ -840,7 +840,7 @@
 
 			return true;
 		} catch (err) {
-			console.log("buildTransactionSendData() caught error: ", err.message);
+			console.warn("validateSendData() caught error: ", err.message);
 		}
 		return false;
 	};
@@ -864,7 +864,7 @@
 	};
 
 	transactionLayer.startDonation = function(sendData, successFunction, failFunction) {
-		console.log(">>>> startDonation()");
+		// console.log(">>>> startDonation()");
 		if (typeof sendData == "undefined") {
 			var sendData = {};
 		}
@@ -889,7 +889,6 @@
 			method: "post",
 			url: baseUrl + "donation",
 			sendData: sendData,
-			verbose: true,
 		};
 
 		//initial post to create donation
@@ -897,9 +896,8 @@
 			sendXhrRequest(
 				donationOptions,
 				function(response) {
-					console.log("response INITIAL", typeof response, response);
 					if (!response.json || !response.json.id) {
-						console.error('startDonation(): Invalid response, no "id":');
+						console.warn('startDonation(): Invalid response, no "id":');
 						console.log(response);
 						return failFunction(response);
 					}
@@ -935,7 +933,7 @@
 		}
 
 		if (!donateId) {
-			console.error("completeDonation(): Empty id given");
+			console.warn("completeDonation(): Empty id given");
 			failFunction({});
 		}
 		if (delayMilliseconds <= 1000) {
@@ -943,20 +941,12 @@
 		} else if (delayMilliseconds > 5000) {
 			delayMilliseconds = 5000;
 		}
-		console.log(
-			">>>> completeDonation() (",
-			typeof donateId,
-			")",
-			donateId,
-			delayMilliseconds
-		);
+
 		var elapsedMilliseconds =
 			new Date().getTime() - window.mwdspace.donationStartTime.getTime();
-		console.log("elapsedMilliseconds", elapsedMilliseconds);
+
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
-			console.error(
-				"completeDonation(): request timeout reached, calling fail function."
-			);
+			console.warn("completeDonation(): request timeout reached, calling fail function.");
 			return failFunction({
 				text:
 					"Timeout after no response from the server for " +
@@ -966,7 +956,7 @@
 		}
 
 		setTimeout(function() {
-			console.log("completeDonation() RUNNING");
+			// console.log("completeDonation() RUNNING");
 
 			var baseUrl = apiConstants.baseUrl;
 			if (inTestMode) {
@@ -976,7 +966,6 @@
 			var donationOptions = {
 				method: "get",
 				url: baseUrl + "donation/" + donateId,
-				verbose: true,
 			};
 
 			sendXhrRequest(
@@ -985,7 +974,6 @@
 					// console.log("response POLL", response);
 
 					if (response.status == 204) {
-						console.warn("DONATION STILL PROCESSING");
 						return completeDonation(donateId, 3000, successFunction, failFunction);
 					} else if (response.status == 200) {
 						var transactionStatus = String(response.json.status);
@@ -1002,8 +990,8 @@
 						}
 					}
 
-					console.error("completeDonation(): Invalid response follows:");
-					console.warn(response);
+					console.warn("completeDonation(): Invalid response follows:");
+					console.log(response);
 					return failFunction(response);
 				},
 				failFunction

@@ -120,26 +120,29 @@ div#mfaDonationWidgetContainer {
 			background: linear-gradient(#fff, darken($colorFormBg, 2%));
 			border-bottom: 1px solid darken($colorFormBg, 8%);
 			> div {
-				width: 25%;
-				padding: 0.1em;
+				width: auto;
 			}
 			div.buttonContainer {
 				align-self: start;
-				// width: auto;
+				width: 1.75rem;
 			}
 			div.introContentContainer {
 				display: none;
+				max-width: 33%;
 				text-align: center;
 				padding: 0.25em;
 				img {
+					display: block;
 					width: 100%;
 					height: auto;
 					margin: 0.15em auto;
 				}
 			}
 			div.giftDisplayContainer {
-				text-align: center;
+				flex-grow: 1;
 				min-width: 45%;
+				text-align: center;
+				padding: 0.1em;
 				h3 {
 					font-size: 1em;
 				}
@@ -160,16 +163,29 @@ div#mfaDonationWidgetContainer {
 					}
 				}
 			}
-			// div.positioning {
-			// 	display: block;
+			div.positioning {
+				display: block;
+				width: 1.75rem;
+			}
+			&.showIntro {
+				div.introContentContainer {
+					display: block;
+				}
+				div.positioning {
+					display: none;
+				}
+			}
+			// div.buttonContainer {
+			// 	background: pink;
 			// }
-			// &.showIntro {
-			// 	div.introContentContainer {
-			// 		display: block;
-			// 	}
-			// 	div.positioning {
-			// 		display: none;
-			// 	}
+			// div.introContentContainer {
+			// 	background: cyan;
+			// }
+			// div.giftDisplayContainer {
+			// 	background: lightgreen;
+			// }
+			// div.positioning {
+			// 	background: lightsalmon;
 			// }
 		}
 	}
@@ -328,6 +344,10 @@ div#mfaDonationWidgetContainer {
 		}
 		div.giftOption {
 			padding: 0.125em;
+			span.currencySymbol {
+				font-size: 0.75em;
+				margin-right: 0.15em;
+			}
 			&.freeform {
 				display: flex;
 				align-items: stretch;

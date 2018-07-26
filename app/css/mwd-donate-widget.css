@@ -118,21 +118,25 @@ div#mfaDonationWidgetContainer {
       background: linear-gradient(#fff, #eeeeef);
       border-bottom: 1px solid #dedee0; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader > div {
-        width: 25%;
-        padding: 0.1em; }
+        width: auto; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.buttonContainer {
-        align-self: start; }
+        align-self: start;
+        width: 1.75rem; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.introContentContainer {
         display: none;
+        max-width: 33%;
         text-align: center;
         padding: 0.25em; }
         div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.introContentContainer img {
+          display: block;
           width: 100%;
           height: auto;
           margin: 0.15em auto; }
       div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer {
+        flex-grow: 1;
+        min-width: 45%;
         text-align: center;
-        min-width: 45%; }
+        padding: 0.1em; }
         div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer h3 {
           font-size: 1em; }
         div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.giftDisplayContainer div.amountDisplay {
@@ -147,6 +151,13 @@ div#mfaDonationWidgetContainer {
             position: relative;
             left: -0.15em;
             font-size: 1.1em; }
+      div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader div.positioning {
+        display: block;
+        width: 1.75rem; }
+      div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader.showIntro div.introContentContainer {
+        display: block; }
+      div#mfaDonationWidgetContainer div.giftFormHeaderContainer div.giftFormHeader.showIntro div.positioning {
+        display: none; }
   div#mfaDonationWidgetContainer div.giftFormContainer {
     width: 100%;
     min-width: 17.5em;
@@ -294,6 +305,10 @@ div#mfaDonationWidgetContainer {
     div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption,
     div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption {
       padding: 0.125em; }
+      div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption span.currencySymbol,
+      div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption span.currencySymbol {
+        font-size: 0.75em;
+        margin-right: 0.15em; }
       div#mfaDonationWidgetContainer div.giftAmountContainer div.giftOption.freeform,
       div#mfaDonationWidgetContainer div.giftFrequencyContainer div.giftOption.freeform {
         display: flex;

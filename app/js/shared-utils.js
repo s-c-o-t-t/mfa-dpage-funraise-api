@@ -11,8 +11,8 @@
 		try {
 			return JSON.parse(input);
 		} catch (e) {
-			console.error("safeJsonParse(): Caught error: " + e.message);
-			console.log("safeJsonParse() INPUT:", input);
+			console.warn("safeJsonParse(): Caught error: " + e.message);
+			console.warn("safeJsonParse() INPUT:", input);
 		}
 		return null;
 	};

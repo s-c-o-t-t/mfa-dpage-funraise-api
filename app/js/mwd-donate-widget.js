@@ -330,7 +330,7 @@
 		// JQUERY OBJECTS
 		var jqContainer = jq("div.giftFormContainer");
 		var jqStepList = jqContainer.find("section.step");
-		var jqGiftFormHeader = jqContainer.find("div.giftFormHeaderContainer");
+		var jqGiftHeaderContainer = jqContainer.find("div.giftFormHeaderContainer");
 		var jqMainBackButton = jqContainer.find("button.goPreviousStep");
 		var jqFreeFormGiftInput = jqContainer.find('input[name="giftAmountFreeform"]');
 		var jqPayMethodSelect = jqContainer.find('select[name="payMethod"]');
@@ -367,13 +367,7 @@
 		await thisWidget.promises.labelOverrideLoad;
 		if (thisWidget.labelOverride) {
 			thisWidget.processLabelOverrideObject(thisWidget.labelOverride);
-			// show any intro content
-			// var jqIntroContent = jqGiftFormHeader.find("div.introContentContainer");
-			// if (jqIntroContent.html() != "") {
-			// 	// console.log("SHOWING INTRO");
-			// 	jqGiftFormHeader.find("div.giftFormHeader").addClass("showIntro");
-			// 	jqGiftFormHeader.show();
-			// }
+			showIntroContent();
 		}
 
 		buildFrequencyButtons();
@@ -402,6 +396,8 @@
 				} else if (clickTarget.hasClass("errorRestart")) {
 					window.mwdspace.donationInProgress = false;
 					showStep("giftAmount");
+				} else if (clickTarget.hasClass("infoIcon")) {
+					clickTarget.trigger("hover");
 				}
 			}
 		});
@@ -558,7 +554,6 @@
 		}
 
 		function checkStepDonor() {
-			console.log(">>> checkStepDonor()");
 			var isValid = true;
 
 			jqContainer
@@ -629,7 +624,6 @@
 		}
 
 		function checkStepCard() {
-			console.log(">>> checkStepCard()");
 			var isValid = true;
 
 			jqContainer
@@ -693,6 +687,18 @@
 					jq(this).html("");
 					jq(this).removeClass("error");
 				});
+			}
+		}
+
+		function showIntroContent() {
+			// check for intro content (from label override)
+			var jqIntroContent = jqGiftHeaderContainer.find("div.introContentContainer");
+			if (jqIntroContent.html() != "") {
+				console.log("SHOWING INTRO CONTENT");
+				jqGiftHeaderContainer.find("div.giftFormHeader").addClass("showIntro");
+				jqGiftHeaderContainer.show();
+			} else {
+				console.log("NOT SHOWING INTRO CONTENT");
 			}
 		}
 
@@ -834,7 +840,7 @@
 
 			jqTarget.addClass("selected");
 			if (event.type == "change") {
-				jqGiftFormHeader.slideDown(666, function() {
+				jqGiftHeaderContainer.slideDown(666, function() {
 					scrollAll(jqContainer);
 				});
 			}
@@ -1075,13 +1081,13 @@
 		}
 
 		function buildTransactionSendData() {
-			console.log("buildTransactionSendData() START");
+			// console.log("buildTransactionSendData() START");
 			try {
 				window.mwdspace.transactionSendData = {};
 				var sendData = window.mwdspace.transactionSendData;
 
 				var userData = window.mwdspace.userInputData;
-				console.log("buildTransactionSendData() userData", userData);
+				// console.log("buildTransactionSendData() userData", userData);
 
 				sendData.organizationId = thisWidget.options.organizationId || null;
 				sendData.formId = thisWidget.options.formId
@@ -1141,10 +1147,9 @@
 				sendData.company = userData.companyMatchName || "";
 				sendData.employeeEmail = userData.companyMatchEmail || "";
 
-				console.log("buildTransactionSendData() sendData", sendData);
 				return true;
 			} catch (err) {
-				console.log("buildTransactionSendData() caught error: ", err.message);
+				console.warn("buildTransactionSendData() caught error: ", err.message);
 			}
 			return false;
 		}
@@ -1157,7 +1162,8 @@
 			) {
 				return false;
 			}
-			console.log("sendTransaction() SENDING", window.mwdspace.transactionSendData);
+
+			// console.log("sendTransaction() SENDING", window.mwdspace.transactionSendData);
 
 			prepAndShowProcessingStep();
 
@@ -1189,11 +1195,11 @@
 					var userMessage;
 					if (response.text) {
 						// pass thru the transaction system response text
-						userMessage = "System message:";
+						userMessage = "Server message:";
 						try {
 							userMessage =
-								window.mwdspace.labelOverride.transactionError.error
-									.systemMessage || userMessage;
+								thisWidget.labelOverride.transactionError.error.systemMessage ||
+								userMessage;
 						} catch (err) {}
 						userMessage += " " + response.text;
 					} else {
@@ -1201,7 +1207,7 @@
 							"The server was unable to process the transaction, but provided no explanation.";
 						try {
 							userMessage =
-								window.mwdspace.labelOverride.transactionError.error.unknown ||
+								thisWidget.labelOverride.transactionError.error.unknown ||
 								userMessage;
 						} catch (err) {}
 						try {
@@ -2183,7 +2189,6 @@
 						tokenOptions.country = userInputData.donorCountry;
 					}
 
-					console.log(">> CALLING tokenizeCreditCard", tokenOptions);
 					Spreedly.tokenizeCreditCard(tokenOptions);
 					return true;
 				} else {
@@ -2303,7 +2308,6 @@
 		}
 
 		async function checkBitcoinPaymentStatus(input) {
-			console.log(">>> checkBitcoinPaymentStatus()");
 			if (typeof input == "undefined") {
 				console.warn("checkBitcoinPaymentStatus() given empty url");
 				var input = null;
@@ -2317,7 +2321,6 @@
 			var jqBitcoinContainer = jqContainer.find("div.bitcoinContainer");
 
 			var response = await new Promise(function(resolve) {
-				console.log(">>> checkBitcoinPaymentStatus() INSIDE PROMISE");
 				if (typeof input != "string") {
 					console.warn(
 						"checkBitcoinPaymentStatus() given invalid url type:",

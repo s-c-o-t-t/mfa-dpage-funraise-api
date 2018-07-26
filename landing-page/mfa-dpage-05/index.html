@@ -1282,28 +1282,15 @@
                                                     <div class="form">
 
                                                         <div id="form-test-01">Loading...</div>
-                                                        <script src="http://localhost:8888/mwd/mfa/mfa-dpage-funraise-api/dist/mfa_funraise_widget.js"></script>
+                                                        <script src="https://quiz.mercyforanimals.org/donate-widget/1.0.0/mfa_funraise_widget.js"></script>
                                                         <script>
-                                                            window.mwdspace = window.mwdspace || {};
                                                             var mainWidget = new window.mwdspace.MFA_Funraise_Widget({
                                                                 element: 'div#form-test-01',
-                                                                labelOverride: 'translation-spanish.json',
-                                                                baseUrlOverride: "http://localhost:8888/mwd/mfa/mfa-dpage-funraise-api/dist",
-                                                                giftStringSingle: [500, 1000, 2000, 5000],
-                                                                giftStringMonthly: [50, 100, 200, 500],
-                                                                includeExtraPercent: false,
-                                                                includeCompanyMatch: false,
-                                                                defaultCurrency: "MXN",
-                                                                currencies: {
-                                                                    MXN: {
-                                                                        giftStringSingle: [100, 200, 500, 750]
+                                                                labelOverride: {
+                                                                    header: {
+                                                                        introContent:
+                                                                            "<img src=\"https://mfa.cachefly.net/mfa/images/mercy-for-animals-logo-color.png\">"
                                                                     }
-                                                                },
-                                                                onLoad: function (data) {
-                                                                    console.log("----- Custom onLoad function", data);
-                                                                },
-                                                                onDonation: function (data) {
-                                                                    console.log("----- Custom onDonation function", data);
                                                                 }
                                                             });
                                                             mainWidget.start();
