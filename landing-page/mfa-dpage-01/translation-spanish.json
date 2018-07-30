@@ -22,7 +22,7 @@
 			"monthly": "Mensualmente"
 		},
 		"error": {
-			"invalidAmount": "Se requiere una cantidad"
+			"invalidAmount": "Translation of (Please enter an amount of at least)"
 		}
 	},
 	"donor": {

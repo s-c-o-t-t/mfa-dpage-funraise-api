@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("transaction-system-layer.js v18.7.17a");
+	if (window.console) console.log("transaction-system-layer.js v18.7.17a");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -16,7 +16,8 @@
 
 	var inTestMode = window.mwdspace.sharedUtils.getUrlParameter("test") == "true";
 	if (inTestMode) {
-		console.warn("TEST MODE - transaction-system-layer.js", apiConstants);
+		if (window.console)
+			console.warn("TEST MODE - transaction-system-layer.js", apiConstants);
 	}
 
 	var requestTimeoutSeconds = 45;
@@ -31,26 +32,31 @@
 			code: "USD",
 			name: "U.S. Dollar",
 			symbol: "$",
+			minimumAmount: 1,
 		},
 		{
 			code: "CAD",
 			name: "Canadian Dollar",
 			symbol: "C$",
+			minimumAmount: 1,
 		},
 		{
 			code: "MXN",
 			name: "Mexican Peso",
 			symbol: "MX$ ",
+			minimumAmount: 15,
 		},
 		{
 			code: "BRL",
 			name: "Brazilian Real",
 			symbol: "R$",
+			minimumAmount: 2.75,
 		},
 		{
 			code: "INR",
 			name: "Indian Rupee",
 			symbol: "₹ ",
+			minimumAmount: 50,
 		},
 	];
 
@@ -59,14 +65,12 @@
 			code: "card",
 			name: "Card",
 			description: "Donate With Card",
-			minimumAmount: 5.0,
 			frequencies: ["single", "monthly"],
 		},
 		{
 			code: "bitcoin",
 			name: "Bitcoin",
 			description: "Donate With Bitcoin",
-			minimumAmount: 1.0,
 			frequencies: ["single"],
 		},
 	];
@@ -840,7 +844,7 @@
 
 			return true;
 		} catch (err) {
-			console.warn("validateSendData() caught error: ", err.message);
+			if (window.console) console.warn("validateSendData() caught error: ", err.message);
 		}
 		return false;
 	};
@@ -864,7 +868,7 @@
 	};
 
 	transactionLayer.startDonation = function(sendData, successFunction, failFunction) {
-		// console.log(">>>> startDonation()");
+		// if (window.console) console.log(">>>> startDonation()");
 		if (typeof sendData == "undefined") {
 			var sendData = {};
 		}
@@ -897,8 +901,9 @@
 				donationOptions,
 				function(response) {
 					if (!response.json || !response.json.id) {
-						console.warn('startDonation(): Invalid response, no "id":');
-						console.log(response);
+						if (window.console)
+							console.warn('startDonation(): Invalid response, no "id":');
+						if (window.console) console.log(response);
 						return failFunction(response);
 					}
 					var donateId = response.json.id;
@@ -918,7 +923,7 @@
 				failFunction
 			);
 		} catch (err) {
-			console.error("startDonation CAUGHT ERROR", err);
+			if (window.console) console.error("startDonation CAUGHT ERROR", err);
 			failFunction({});
 		}
 	};
@@ -933,7 +938,7 @@
 		}
 
 		if (!donateId) {
-			console.warn("completeDonation(): Empty id given");
+			if (window.console) console.warn("completeDonation(): Empty id given");
 			failFunction({});
 		}
 		if (delayMilliseconds <= 1000) {
@@ -946,7 +951,10 @@
 			new Date().getTime() - window.mwdspace.donationStartTime.getTime();
 
 		if (elapsedMilliseconds > requestTimeoutSeconds * 1000) {
-			console.warn("completeDonation(): request timeout reached, calling fail function.");
+			if (window.console)
+				console.warn(
+					"completeDonation(): request timeout reached, calling fail function."
+				);
 			return failFunction({
 				text:
 					"Timeout after no response from the server for " +
@@ -956,7 +964,7 @@
 		}
 
 		setTimeout(function() {
-			// console.log("completeDonation() RUNNING");
+			// if (window.console) console.log("completeDonation() RUNNING");
 
 			var baseUrl = apiConstants.baseUrl;
 			if (inTestMode) {
@@ -971,7 +979,7 @@
 			sendXhrRequest(
 				donationOptions,
 				function(response) {
-					// console.log("response POLL", response);
+					// if (window.console) console.log("response POLL", response);
 
 					if (response.status == 204) {
 						return completeDonation(donateId, 3000, successFunction, failFunction);
@@ -990,8 +998,9 @@
 						}
 					}
 
-					console.warn("completeDonation(): Invalid response follows:");
-					console.log(response);
+					if (window.console)
+						console.warn("completeDonation(): Invalid response follows:");
+					if (window.console) console.log(response);
 					return failFunction(response);
 				},
 				failFunction
@@ -1032,7 +1041,8 @@
 		xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
 
 		if (verboseMode) {
-			console.log(">>> sendXhrRequest() sending with data", requestUrl, sendData);
+			if (window.console)
+				console.log(">>> sendXhrRequest() sending with data", requestUrl, sendData);
 		}
 		xhr.send(sendData);
 
@@ -1051,9 +1061,9 @@
 		}
 
 		function requestFailed(event) {
-			console.log("event.status", event.status);
-			console.warn("sendXhrRequest(): request failed", this);
-			console.log(event);
+			if (window.console) console.log("event.status", event.status);
+			if (window.console) console.warn("sendXhrRequest(): request failed", this);
+			if (window.console) console.log(event);
 			failFunction(this);
 		}
 

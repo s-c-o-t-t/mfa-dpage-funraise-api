@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("mwd-donate-widget.js v18.7.24");
+	if (window.console) console.log("mwd-donate-widget.js v18.7.27");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -12,6 +12,7 @@
 
 		thisWidget.isStarted = false;
 		thisWidget.isLoaded = false;
+		thisWidget.allowAutoScroll = false;
 		thisWidget.codeVersion = "1.0.0";
 
 		thisWidget.domTargetElement = {};
@@ -26,17 +27,19 @@
 
 		var target = document.querySelectorAll(thisWidget.options.element);
 		if (!target) {
-			console.error(
-				"MFA_Funraise_Widget(): specified target element not found:",
-				thisWidget.options.element
-			);
+			if (window.console)
+				console.error(
+					"MFA_Funraise_Widget(): specified target element not found:",
+					thisWidget.options.element
+				);
 			return false;
 		}
 		if (target.length > 1) {
-			console.warn(
-				"MFA_Funraise_Widget(): using 1st of multiple target elemets found:",
-				thisWidget.options.element
-			);
+			if (window.console)
+				console.warn(
+					"MFA_Funraise_Widget(): using 1st of multiple target elemets found:",
+					thisWidget.options.element
+				);
 			return false;
 		}
 		thisWidget.domTargetElement = target[0];
@@ -56,6 +59,9 @@
 			"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css";
 		thisWidget.urls.specialSelectScript =
 			"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js";
+		thisWidget.urls.spreedlyScript = "https://core.spreedly.com/iframe/iframe-v1.min.js";
+		thisWidget.urls.jqueryScript = "https://code.jquery.com/jquery-3.3.1.min.js";
+		thisWidget.urls.companyMatchApi = "https://platform.funraise.io/api/v1/ddcompanies";
 		thisWidget.urls.bitcoinPaymentApi = "https://bitpay.com/";
 		thisWidget.urls.testBitcoinPaymentApi = "https://test.bitpay.com/";
 
@@ -102,7 +108,11 @@
 		if (typeof input.element == "string" && input.element.trim()) {
 			thisWidget.options.element = input.element;
 		} else {
-			console.error("MFA_Funraise_Widget(): invalid options - No target element:", input);
+			if (window.console)
+				console.error(
+					"MFA_Funraise_Widget(): invalid options - No target element:",
+					input
+				);
 			return false;
 		}
 
@@ -192,7 +202,6 @@
 		}
 
 		// FONT AWESOME - no load (use existing), or load either version 4 or 5
-		//
 		if (typeof input.fontAwesomeVersion == "undefined") {
 			thisWidget.options.fontAwesomeVersion = 4;
 		} else if (!isNaN(input.fontAwesomeVersion)) {
@@ -202,7 +211,6 @@
 		}
 
 		// VARIOUS BOOLEAN OPTIONS
-		// thisWidget.options.isMonthlyOnly = input.isMonthlyOnly === true;
 		thisWidget.options.includeCompanyMatch =
 			input.includeCompanyMatch === false ? false : true;
 		thisWidget.options.includeExtraPercent =
@@ -235,7 +243,7 @@
 	window.mwdspace.MFA_Funraise_Widget.prototype.start = async function() {
 		var thisWidget = this;
 		if (thisWidget.isStarted) {
-			console.warn("MFA_Funraise_Widget already started");
+			if (window.console) console.warn("MFA_Funraise_Widget already started");
 			return;
 		}
 		thisWidget.isStarted = true;
@@ -261,7 +269,8 @@
 			promiseSharedUtils,
 		]);
 		if (!widgetHtml) {
-			console.error("MFA_Funraise_Widget.start() - unable to load base HTML");
+			if (window.console)
+				console.error("MFA_Funraise_Widget.start() - unable to load base HTML");
 			return;
 		}
 
@@ -278,11 +287,9 @@
 
 		// start Spreedly first bc it has slow response time
 		thisWidget.promises.spreedlyIframeScript = thisWidget.linkExternalScript(
-			"https://core.spreedly.com/iframe/iframe-v1.min.js"
+			thisWidget.urls.spreedlyScript
 		);
-		var isJqueryLoaded = await thisWidget.linkExternalScript(
-			"https://code.jquery.com/jquery-3.3.1.min.js"
-		);
+		var isJqueryLoaded = await thisWidget.linkExternalScript(thisWidget.urls.jqueryScript);
 
 		// select2 should load after jQuery load complete
 		var promiseSpecialSelectCode = thisWidget.linkExternalScript(
@@ -314,16 +321,16 @@
 		var thisWidget = this;
 
 		if (typeof thisWidget.jquery !== "function") {
-			console.error("jQuery (thisWidget.jquery) not found");
+			if (window.console) console.error("jQuery (thisWidget.jquery) not found");
 			exit();
 		}
 		var jq = thisWidget.jquery;
-		// console.log("MFA_Funraise_Widget using jQuery version", jq.fn.jquery);
+		// if (window.console) console.log("MFA_Funraise_Widget using jQuery version", jq.fn.jquery);
 
 		window.mwdspace.userInputData = {};
 		window.mwdspace.transactionSendData = {};
 		var userInputData = window.mwdspace.userInputData;
-		window.mwdspace.minimumAmount = thisWidget.defaults.minimumGiftAmount;
+		thisWidget.currentGiftMinimum = thisWidget.defaults.minimumGiftAmount;
 
 		window.mwdspace.pageIdPrefix = "widget" + thisWidget.options.formId;
 
@@ -347,7 +354,7 @@
 		// TEST MODE
 		var inTestMode = window.mwdspace.sharedUtils.getUrlParameter("test") == "true";
 		if (inTestMode) {
-			console.warn("TEST MODE - mwd-donate-widget.js");
+			if (window.console) console.warn("TEST MODE - mwd-donate-widget.js");
 			jqContainer.find("div.testModeContainer").slideDown(999);
 		}
 
@@ -355,13 +362,13 @@
 
 		setOptionalSectionVisibility();
 
-		buildPayMethodSelect();
 		buildCountrySelect();
 		buildCardExpireMonthSelect();
 		buildCardExpireYearSelect();
 		setupCompanyMatchSelect();
 
 		setupInputWatchers();
+		buildPayMethodSelect();
 
 		// ensure text override file load (if any) is complete
 		await thisWidget.promises.labelOverrideLoad;
@@ -370,9 +377,9 @@
 			showIntroContent();
 		}
 
+		buildCurrencySelect();
 		buildFrequencyButtons();
 		updateGiftAmount();
-		buildCurrencySelect();
 		prePopulateUserFields();
 
 		showStep();
@@ -381,7 +388,7 @@
 
 		// GENERAL CLICK HANDLER
 		document.addEventListener("click", function(event) {
-			// console.log("click", event.target.tagName, event.target.className);
+			// if (window.console) console.log("click", event.target.tagName, event.target.className);
 			var clickTarget = jq(event.target).closest("button, .clickTarget");
 			if (clickTarget) {
 				if (clickTarget.hasClass("goNextStep")) {
@@ -403,16 +410,18 @@
 		});
 
 		setTimeout(function() {
-			thisWidget.isLoaded = true;
+			thisWidget.allowAutoScroll = true;
 		}, 999);
 
 		await promiseSpreedly;
+		thisWidget.isLoaded = true;
 		if (thisWidget.options.onLoad) {
 			try {
-				console.log("*** Calling custom onLoad function ***");
+				if (window.console) console.log(">>> Calling custom onLoad function");
 				thisWidget.options.onLoad();
 			} catch (err) {
-				console.warn("Caught error from onLoad function: ", err.message);
+				if (window.console)
+					console.error("Caught error from onLoad function: ", err.message);
 			}
 		}
 
@@ -487,7 +496,7 @@
 						// TODO - make function to create all next buttons on the fly (and indicate action)
 						switch (window.mwdspace.userInputData.payMethod) {
 							case "card":
-								console.warn("Making next button");
+								if (window.console) console.warn("Making next button");
 								buttonText = "Enter Payment Information";
 								try {
 									if (thisWidget.labelOverride.button.goPaymentInfo)
@@ -496,7 +505,7 @@
 								} catch (err) {}
 								break;
 							case "bitcoin":
-								console.warn("Making submit button");
+								if (window.console) console.warn("Making submit button");
 								buttonText = "Submit Donation";
 								try {
 									if (thisWidget.labelOverride.button.mainSubmit)
@@ -525,28 +534,34 @@
 
 			if (
 				typeof userInputData.baseAmount != "number" ||
-				userInputData.baseAmount < window.mwdspace.minimumAmount
+				userInputData.baseAmount < thisWidget.currentGiftMinimum
 			) {
-				console.warn("baseAmount is invalid", userInputData.baseAmount);
+				if (window.console)
+					console.warn("baseAmount is invalid", userInputData.baseAmount);
 				isValid = false;
-				var message = "Please enter a valid gift amount";
+				var message = "Please enter an amount of at least";
 				try {
 					message = thisWidget.labelOverride.gift.error.invalidAmount || message;
 				} catch (err) {}
+				message +=
+					" " + thisWidget.currentCurrencySymbol + thisWidget.currentGiftMinimum;
 				showStepFeedback("giftAmount", message, true);
 			} else {
 				showStepFeedback("giftAmount");
 			}
 			if (typeof userInputData.giftCurrency != "string") {
-				console.warn("Currency is invalid", userInputData.giftCurrency);
+				if (window.console)
+					console.warn("Currency is invalid", userInputData.giftCurrency);
 				isValid = false;
 			}
 			if (typeof userInputData.payMethod != "string") {
-				console.warn("Pay Method is invalid", userInputData.payMethod);
+				if (window.console)
+					console.warn("Pay Method is invalid", userInputData.payMethod);
 				isValid = false;
 			}
 			if (typeof userInputData.giftFrequency != "string") {
-				console.warn("Gift frequency is invalid", userInputData.giftFrequency);
+				if (window.console)
+					console.warn("Gift frequency is invalid", userInputData.giftFrequency);
 				isValid = false;
 			}
 
@@ -572,50 +587,63 @@
 					.val() || null;
 
 			if (typeof userInputData.donorFirstName != "string") {
-				console.warn("donorFirstName is invalid", userInputData.donorFirstName);
+				if (window.console)
+					console.warn("donorFirstName is invalid", userInputData.donorFirstName);
 				isValid = false;
 			}
 			if (typeof userInputData.donorLastName != "string") {
-				console.warn("donorLastName is invalid", userInputData.donorLastName);
+				if (window.console)
+					console.warn("donorLastName is invalid", userInputData.donorLastName);
 				isValid = false;
 			}
 			if (typeof userInputData.donorEmail != "string") {
-				console.warn("donorEmail is invalid", userInputData.donorEmail);
+				if (window.console)
+					console.warn("donorEmail is invalid", userInputData.donorEmail);
 				isValid = false;
 			}
 			if (
 				typeof userInputData.donorPhone != "undefined" &&
 				typeof userInputData.donorPhone != "string"
 			) {
-				console.warn("donorPhone is invalid", userInputData.donorPhone);
+				if (window.console)
+					console.warn("donorPhone is invalid", userInputData.donorPhone);
 				isValid = false;
 			}
 			if (typeof userInputData.donorStreet != "string") {
-				console.warn("donorStreet is invalid", userInputData.donorStreet);
+				if (window.console)
+					console.warn("donorStreet is invalid", userInputData.donorStreet);
 				isValid = false;
 			}
 			if (typeof userInputData.donorRegion != "string") {
-				console.warn("donorRegion is invalid", userInputData.donorRegion);
+				if (window.console)
+					console.warn("donorRegion is invalid", userInputData.donorRegion);
 				isValid = false;
 			}
 			if (typeof userInputData.donorPostCode != "string") {
-				console.warn("donorPostCode is invalid", userInputData.donorPostCode);
+				if (window.console)
+					console.warn("donorPostCode is invalid", userInputData.donorPostCode);
 				isValid = false;
 			}
 			if (typeof userInputData.donorCountry != "string") {
-				console.warn("donorCountry is invalid", userInputData.donorCountry);
+				if (window.console)
+					console.warn("donorCountry is invalid", userInputData.donorCountry);
 				isValid = false;
 			}
 			if (userInputData.companyMatch == "on") {
 				if (typeof userInputData.donorMatchCompany != "string") {
-					console.warn(
-						"donorMatchCompany is invalid",
-						userInputData.donorMatchCompany
-					);
+					if (window.console)
+						console.warn(
+							"donorMatchCompany is invalid",
+							userInputData.donorMatchCompany
+						);
 					isValid = false;
 				}
 				if (typeof userInputData.donorMatchEmail != "string") {
-					console.warn("donorMatchEmail is invalid", userInputData.donorMatchEmail);
+					if (window.console)
+						console.warn(
+							"donorMatchEmail is invalid",
+							userInputData.donorMatchEmail
+						);
 					isValid = false;
 				}
 			}
@@ -636,7 +664,11 @@
 			} else {
 				isValid = false;
 				jqCardNumberBox.addClass("invalid");
-				console.warn("hasValidCardNumber is invalid", userInputData.hasValidCardNumber);
+				if (window.console)
+					console.warn(
+						"hasValidCardNumber is invalid",
+						userInputData.hasValidCardNumber
+					);
 			}
 			var jqCardCvvBox = jqContainer.find("div.payInfoContainer div#cardCvvTarget");
 			if (userInputData.hasValidCardCvv === true) {
@@ -644,15 +676,24 @@
 			} else {
 				isValid = false;
 				jqCardCvvBox.addClass("invalid");
-				console.warn("hasValidCardCvv is invalid", userInputData.hasValidCardCvv);
+				if (window.console)
+					console.warn("hasValidCardCvv is invalid", userInputData.hasValidCardCvv);
 			}
 
 			if (typeof userInputData.payCardExpireMonth != "string") {
-				console.warn("payCardExpireMonth is invalid", userInputData.payCardExpireMonth);
+				if (window.console)
+					console.warn(
+						"payCardExpireMonth is invalid",
+						userInputData.payCardExpireMonth
+					);
 				isValid = false;
 			}
 			if (typeof userInputData.payCardExpireYear != "string") {
-				console.warn("payCardExpireYear is invalid", userInputData.payCardExpireYear);
+				if (window.console)
+					console.warn(
+						"payCardExpireYear is invalid",
+						userInputData.payCardExpireYear
+					);
 				isValid = false;
 			}
 
@@ -670,7 +711,8 @@
 				var isError = false;
 			}
 			if (!stepName) {
-				console.log("showStepFeedback() given invalid input", stepName, message);
+				if (window.console)
+					console.log("showStepFeedback() given invalid input", stepName, message);
 			}
 			var jqFeedback = jq(
 				'section[data-step-name="' + stepName + '"] div.userFeedback p.message'
@@ -694,11 +736,8 @@
 			// check for intro content (from label override)
 			var jqIntroContent = jqGiftHeaderContainer.find("div.introContentContainer");
 			if (jqIntroContent.html() != "") {
-				console.log("SHOWING INTRO CONTENT");
 				jqGiftHeaderContainer.find("div.giftFormHeader").addClass("showIntro");
 				jqGiftHeaderContainer.show();
-			} else {
-				console.log("NOT SHOWING INTRO CONTENT");
 			}
 		}
 
@@ -727,7 +766,8 @@
 					}
 					updateGiftAmount({ extraPercent: newPercent });
 				} else if (name == "giftCurrency" && tag == "select") {
-					updateCurrency();
+					setCurrencyDisplaySymbol();
+					getGiftString();
 				} else if (name == "payMethod" && tag == "select") {
 					updatePayMethod();
 				} else if (name == "giftFrequency" && tag == "input") {
@@ -743,13 +783,16 @@
 				});
 
 			// CURRENCY
-			jqCurrencySelect.trigger("change");
+			// if (window.console) console.log('jqCurrencySelect.trigger("change");');
+			// jqCurrencySelect.trigger("change");
 
 			// PAYMENT METHOD
-			jqPayMethodSelect.trigger("change");
+			// if (window.console) console.log('jqPayMethodSelect.trigger("change");');
+			// jqPayMethodSelect.trigger("change");
 
 			// FREQUENCY
-			jqContainer.trigger("change");
+			// if (window.console) console.log('jqContainer.trigger("change");');
+			// jqContainer.trigger("change");
 
 			// COMPANY MATCH - also show/hide company match input fields
 			jqContainer
@@ -773,7 +816,7 @@
 		}
 
 		function processChangeWatch(jqThis, options) {
-			// console.log("processChangeWatch()", jqThis, options);
+			// if (window.console) console.log("processChangeWatch()", jqThis, options);
 			if (typeof options == "undefined") {
 				var options = {};
 			}
@@ -799,11 +842,13 @@
 			}
 			userInputData[options.name] = validatedValue;
 
-			window.mwdspace.sharedUtils.setSessionValue(options.name, options.value);
+			window.mwdspace.sharedUtils.setLocalValue(options.name, options.value, {
+				prefix: false,
+			});
 		}
 
 		function validateInputField(jqThis, options) {
-			// console.log("validateInputField()", jqThis, options);
+			// if (window.console) console.log("validateInputField()", jqThis, options);
 			if (typeof options == "undefined") {
 				var options = {};
 			}
@@ -833,7 +878,7 @@
 
 		function processGiftAmountChange(event) {
 			var jqTarget = jq(event.target);
-			// console.log(">>> processGiftAmountChange()", event.type, jqTarget.attr("name"));
+			// if (window.console) console.log(">>> processGiftAmountChange()", event.type, jqTarget.attr("name"));
 			var newValue = cleanCurrency(jqTarget.val()) || 0.0;
 			updateGiftAmount({ baseAmount: newValue });
 			jqContainer.find("div.giftOption input").removeClass("selected");
@@ -852,7 +897,7 @@
 						jqTarget.val(cleanedAmount);
 					}
 				}
-				if (amount < window.mwdspace.minimumAmount) {
+				if (amount < thisWidget.currentGiftMinimum) {
 					jqFreeFormGiftInput.addClass("invalid");
 				} else {
 					jqFreeFormGiftInput.removeClass("invalid");
@@ -862,6 +907,7 @@
 		}
 
 		function updateGiftAmount(input) {
+			// if (window.console) console.log(">>> updateGiftAmount()", input);
 			if (typeof input == "undefined") {
 				var input = {};
 			}
@@ -889,43 +935,36 @@
 				jqContainer
 					.find("div.amountDisplay span.displaySubAmount")
 					.text("." + displayAmount[1] || "??");
-
-				window.mwdspace.sharedUtils.setSessionValue(
-					"baseAmount",
-					userInputData.baseAmount
-				);
-				window.mwdspace.sharedUtils.setSessionValue(
-					"extraPercent",
-					userInputData.extraPercent
-				);
 			} catch (err) {
-				console.log("updateGiftAmount() caught error: ", err.message);
+				if (window.console)
+					console.log("updateGiftAmount() caught error: ", err.message);
 			}
 		}
 
-		function updateCurrency() {
-			console.log(">>> updateCurrency()");
-			// delete userInputData.currency;
+		function setCurrencyDisplaySymbol() {
+			// if (window.console) console.log(">>> setCurrencyDisplaySymbol()");
 			var currencyCode = jqCurrencySelect.val();
-			var currencySymbol = " (?) ";
+			var currencySymbol = "(?)";
 			var thisItem;
 			for (var i = 0; i < window.mwdspace.validCurrencyList.length; i++) {
 				thisItem = window.mwdspace.validCurrencyList[i];
+				thisWidget.currentGiftMinimum = thisItem.minimumAmount;
 				if (thisItem.code == currencyCode && thisItem.symbol) {
 					currencySymbol = thisItem.symbol;
 					break;
 				}
 			}
+			thisWidget.currentCurrencySymbol = currencySymbol;
 			jqContainer.find("span.currencySymbol").html(currencySymbol);
 		}
 
 		function updatePayMethod() {
+			// if (window.console) console.log(">>> updatePayMethod()");
 			var payMethod = jqPayMethodSelect.val();
 			var thisItem;
 			for (var i = 0; i < window.mwdspace.validPayMethodList.length; i++) {
 				thisItem = window.mwdspace.validPayMethodList[i];
 				if (thisItem.code == payMethod) {
-					window.mwdspace.minimumAmount = thisItem.minimumAmount;
 					if (thisItem.frequencies) {
 						setFrequencyButtonVisibility(thisItem.frequencies);
 					}
@@ -936,11 +975,13 @@
 
 		// Evaluate the existing HTML buttons and hide or show
 		function setFrequencyButtonVisibility(frequencyList) {
+			// if (window.console) console.log(">>> setFrequencyButtonVisibility()");
 			if (typeof frequencyList != "object" || frequencyList.length < 1) {
-				console.warn(
-					"setFrequencyButtonVisibility() ignoring invalid frequency list",
-					frequencyList
-				);
+				if (window.console)
+					console.warn(
+						"setFrequencyButtonVisibility() ignoring invalid frequency list",
+						frequencyList
+					);
 				return;
 			}
 
@@ -998,7 +1039,7 @@
 		}
 
 		function updateFrequency(newValue) {
-			// console.log(">>> updateFrequency()", newValue);
+			// if (window.console) console.log(">>> updateFrequency()", newValue);
 			if (typeof newValue == "undefined") {
 				var newValue = null;
 			}
@@ -1027,67 +1068,94 @@
 			thisWidget.setElementLabelOverride("header.donationText", donationAmountHeadline);
 
 			getGiftString();
-
-			// var frequency = jqContainer
-			// 	.find("div.giftFrequencyContainer input[type='radio']:checked")
-			// 	.val();
-			// var thisItem;
-			// for (var i = 0; i < window.mwdspace.validFrequencyList.length; i++) {
-			// 	thisItem = window.mwdspace.validFrequencyList[i];
-			// 	if (thisItem.code == frequency) {
-			// 		userInputData.giftFrequency = thisItem.code;
-			// 		break;
-			// 	}
-			// }
 		}
 
 		function prePopulateUserFields() {
-			setInputFromUrl("first", "donorFirstName");
-			setInputFromUrl("last", "donorLastName");
-			setInputFromUrl("email", "donorEmail");
-			setInputFromUrl("phone", "donorPhone");
-			setInputFromUrl("street", "donorStreet");
-			setInputFromUrl("city", "donorCity");
-			setInputFromUrl("postcode", "donorPostCode");
-			setInputFromUrl("country", "donorCountry");
-			setInputFromUrl("region", "donorRegion"); //must be after country
+			// populate from URL or storage
+			checkPrePopulationSources("first", "donorFirstName");
+			checkPrePopulationSources("last", "donorLastName");
+			checkPrePopulationSources("email", "donorEmail");
+			checkPrePopulationSources("phone", "donorPhone");
+			checkPrePopulationSources("street", "donorStreet");
+			checkPrePopulationSources("city", "donorCity");
+			checkPrePopulationSources("postcode", "donorPostCode");
+			checkPrePopulationSources("country", "donorCountry");
+			checkPrePopulationSources("region", "donorRegion"); //must occur after country
 
+			// populate from url only
 			setInputFromUrl("currency", "giftCurrency");
 			setInputFromUrl("amount", "giftAmountFreeform");
 		}
 
+		function checkPrePopulationSources(urlKey, selector) {
+			// check for and set value from url first
+			if (!setInputFromUrl(urlKey, selector)) {
+				// check storage if no url value exists
+				setInputFromStorage(selector);
+			}
+		}
+
 		function setInputFromUrl(urlKey, selector) {
 			if (typeof urlKey == "undefined" || !urlKey) {
-				console.log("setInputFromUrl() given invalid urlKey", urlKey);
+				if (window.console)
+					console.log("setInputFromUrl() given invalid urlKey", urlKey);
 				return;
 			}
 			if (typeof selector == "undefined" || !selector) {
-				console.log("setInputFromUrl() given invalid selector", selector);
+				if (window.console)
+					console.log("setInputFromUrl() given invalid selector", selector);
 				return;
 			}
 			var urlValue = window.mwdspace.sharedUtils.getUrlParameter(urlKey);
 			if (urlValue) {
-				jqContainer
-					.find(
-						"section.step input[name='" +
-							selector +
-							"'], section.step select[name='" +
-							selector +
-							"']"
-					)
-					.val(urlValue)
-					.trigger("change");
+				return setInputValue(selector, urlValue);
 			}
+			return false;
+		}
+
+		function setInputFromStorage(selector) {
+			if (typeof selector == "undefined" || !selector) {
+				if (window.console)
+					console.log("setInputFromStorage() given invalid selector", selector);
+				return;
+			}
+			var storedValue = window.mwdspace.sharedUtils.getLocalValue(selector, {
+				prefix: false,
+			});
+			if (storedValue) {
+				return setInputValue(selector, storedValue);
+			}
+			return false;
+		}
+
+		function setInputValue(selector, value) {
+			if (typeof selector == "undefined" || !selector) {
+				if (window.console)
+					console.log("setInputValue() given invalid selector", selector);
+				return;
+			}
+			var jqTargets = jqContainer.find(
+				"section.step input[name='" +
+					selector +
+					"'], section.step select[name='" +
+					selector +
+					"']"
+			);
+			if (jqTargets.length > 0) {
+				jqTargets.val(value).trigger("change");
+				return true;
+			}
+			return false;
 		}
 
 		function buildTransactionSendData() {
-			// console.log("buildTransactionSendData() START");
+			// if (window.console) console.log("buildTransactionSendData() START");
 			try {
 				window.mwdspace.transactionSendData = {};
 				var sendData = window.mwdspace.transactionSendData;
 
 				var userData = window.mwdspace.userInputData;
-				// console.log("buildTransactionSendData() userData", userData);
+				// if (window.console) console.log("buildTransactionSendData() userData", userData);
 
 				sendData.organizationId = thisWidget.options.organizationId || null;
 				sendData.formId = thisWidget.options.formId
@@ -1149,7 +1217,8 @@
 
 				return true;
 			} catch (err) {
-				console.warn("buildTransactionSendData() caught error: ", err.message);
+				if (window.console)
+					console.warn("buildTransactionSendData() caught error: ", err.message);
 			}
 			return false;
 		}
@@ -1163,7 +1232,7 @@
 				return false;
 			}
 
-			// console.log("sendTransaction() SENDING", window.mwdspace.transactionSendData);
+			// if (window.console) console.log("sendTransaction() SENDING", window.mwdspace.transactionSendData);
 
 			prepAndShowProcessingStep();
 
@@ -1172,7 +1241,7 @@
 				function(response) {
 					var transactionData = response.json || {};
 
-					console.log("transactionData", transactionData);
+					if (window.console) console.log("transactionData", transactionData);
 
 					if (transactionData.type == "bitcoin") {
 						prepAndShowBitcoinStep(transactionData);
@@ -1190,7 +1259,8 @@
 					}
 				},
 				function(response) {
-					console.warn("Donation received fail response from server", response);
+					if (window.console)
+						console.warn("Donation received fail response from server", response);
 
 					var userMessage;
 					if (response.text) {
@@ -1218,7 +1288,7 @@
 								(response.statusText || "[No Text]") +
 								")</span>";
 						} catch (err) {
-							console.log("Caught error: ", err.message);
+							if (window.console) console.log("Caught error: ", err.message);
 						}
 					}
 
@@ -1229,32 +1299,78 @@
 		}
 
 		function getGiftString() {
-			console.log(">>> getGiftString()");
+			// if (window.console) console.log(">>> getGiftString()");
 			var giftStringOptions = {
+				minimumGiftAmount: thisWidget.currentGiftMinimum,
 				// basicRounding: true,
 				// minimumDynamicStart: 30.0,
 			};
 			if (window.mwdspace.userInputData.giftFrequency == "monthly") {
 				if (thisWidget.options.giftStringMonthly) {
-					giftStringOptions.giftStringList = thisWidget.options.giftStringMonthly;
-					if (!thisWidget.isMonthlyOnlyPage) {
-						giftStringOptions.calculateAsMonthly = true;
+					var tempGiftString = getCurrencySpecificGiftString("monthly");
+					if (tempGiftString) {
+						// use given currency specific monthly amounts
+						giftStringOptions.giftStringList = tempGiftString;
+					} else {
+						tempGiftString = getCurrencySpecificGiftString("single");
+						if (tempGiftString) {
+							// convert currency specific single gifts into monthly amounts
+							giftStringOptions.calculateAsMonthly = true;
+							giftStringOptions.giftStringList = tempGiftString;
+						} else {
+							// use default monthly
+							giftStringOptions.giftStringList =
+								thisWidget.options.giftStringMonthly;
+						}
 					}
 				}
 			} else {
 				if (thisWidget.options.giftStringSingle) {
-					giftStringOptions.giftStringList = thisWidget.options.giftStringSingle;
+					// use given currency specific monthly amounts, with default as backup
+					giftStringOptions.giftStringList =
+						getCurrencySpecificGiftString("single") ||
+						thisWidget.options.giftStringSingle;
 				}
 			}
 
 			var finalGiftString = window.mwdspace.giftUtils.processGiftStringList(
 				giftStringOptions
 			);
+
 			buildGiftStringButtons(finalGiftString);
-			updateCurrency();
+			setCurrencyDisplaySymbol();
+		}
+
+		function getCurrencySpecificGiftString(type) {
+			if (typeof type == "undefined") {
+				var type = "";
+			}
+			var propertyName = "giftStringSingle";
+			if (type == "monthly") {
+				propertyName = "giftStringMonthly";
+			}
+			try {
+				var giftStringList =
+					thisWidget.options.filterListCurrency[
+						window.mwdspace.userInputData.giftCurrency
+					][propertyName];
+				if (giftStringList && giftStringList.length > 0) {
+					return giftStringList;
+				}
+			} catch (err) {
+				if (window.console)
+					console.warn(
+						"getCurrencySpecificGiftString() caught error: ",
+						err.name,
+						err.message
+					);
+			}
+
+			return false;
 		}
 
 		function buildGiftStringButtons(giftStringList) {
+			// if (window.console) console.log(">>> buildGiftStringButtons()", giftStringList);
 			if (typeof giftStringList == "undefined") {
 				var giftStringList = [];
 			}
@@ -1284,7 +1400,8 @@
 					if (domThisButton) {
 						jqGiftStringContainer.append(domThisButton);
 					} else {
-						console.warn("Unable to add fixed gift button:", thisAmount);
+						if (window.console)
+							console.warn("Unable to add fixed gift button:", thisAmount);
 					}
 				}
 				// below is in progress
@@ -1301,7 +1418,8 @@
 						.trigger("change");
 				}
 			} catch (err) {
-				console.error("Unable to build the fixed gift buttons", err);
+				if (window.console)
+					console.error("Unable to build the fixed gift buttons", err);
 			}
 		}
 
@@ -1311,10 +1429,11 @@
 			}
 			if (typeof options != "object") {
 				options = {};
-				console.warn(
-					"buildGiftStringButton(): ignoring invalid option object",
-					options
-				);
+				if (window.console)
+					console.warn(
+						"buildGiftStringButton(): ignoring invalid option object",
+						options
+					);
 			}
 			var domButton = null;
 			try {
@@ -1359,7 +1478,8 @@
 				domAmount.innerHTML = thisAmount.displayText || "Unknown";
 				domLabel.appendChild(domAmount);
 			} catch (err) {
-				console.error("Error building the button for fixed amount:", input, err);
+				if (window.console)
+					console.error("Error building the button for fixed amount:", input, err);
 			}
 			return domButton;
 		}
@@ -1367,7 +1487,7 @@
 		/* remove all but digits/dot before converting to float and rounding to 2 digits */
 		function cleanCurrency(input) {
 			if (typeof input == "undefined") {
-				console.warn("cleanCurrency() given empty input");
+				if (window.console) console.warn("cleanCurrency() given empty input");
 				var input = "";
 			}
 			input = "" + input;
@@ -1422,7 +1542,8 @@
 							jqCurrencySelect.append(domThisOption);
 							itemsVisible++;
 						} else {
-							console.warn("Unable to add currency:", thisCurrency);
+							if (window.console)
+								console.warn("Unable to add currency:", thisCurrency);
 						}
 					}
 				}
@@ -1434,7 +1555,8 @@
 					jqCurrencySelect.show();
 				}
 			} catch (err) {
-				console.error("Unable to build the currency select dropdown", err);
+				if (window.console)
+					console.error("Unable to build the currency select dropdown", err);
 			}
 		}
 
@@ -1447,7 +1569,8 @@
 					domOption.innerText = currency.code + " " + (currency.name || "");
 				}
 			} catch (err) {
-				console.error("Unable to build the option element for currency:", currency);
+				if (window.console)
+					console.error("Unable to build the option element for currency:", currency);
 			}
 			return domOption;
 		}
@@ -1484,10 +1607,11 @@
 							jqPayMethodSelect.append(domThisOption);
 							itemCount++;
 						} else {
-							console.warn(
-								"Unable to add payment method:",
-								window.mwdspace.validPayMethodList[i]
-							);
+							if (window.console)
+								console.warn(
+									"Unable to add payment method:",
+									window.mwdspace.validPayMethodList[i]
+								);
 						}
 						if (
 							thisWidget.options.defaultPayMethod === thisPayMethod.code ||
@@ -1498,15 +1622,16 @@
 					}
 				}
 
-				jqPayMethodSelect.val(defaultCode);
-				// hide the selector when it has only one value
+				jqPayMethodSelect.val(defaultCode).trigger("change");
+				// hide the selector when only one value
 				if (itemCount === 1) {
 					jqPayMethodSelect.closest("div.inputGroup").hide();
 				} else {
 					jqPayMethodSelect.closest("div.inputGroup").show();
 				}
 			} catch (err) {
-				console.error("Unable to build the payment method select dropdown", err);
+				if (window.console)
+					console.error("Unable to build the payment method select dropdown", err);
 			}
 		}
 
@@ -1520,7 +1645,8 @@
 					domOption.innerText = method.description || "Unknown";
 				}
 			} catch (err) {
-				console.error("Unable to build the option element for method:", method);
+				if (window.console)
+					console.error("Unable to build the option element for method:", method);
 			}
 			return domOption;
 		}
@@ -1562,7 +1688,8 @@
 							jqFrequencyContainer.append(domThisButton);
 							finalFrequencyList.push(thisFrequency.code);
 						} else {
-							console.warn("Unable to add frequency:", thisFrequency);
+							if (window.console)
+								console.warn("Unable to add frequency:", thisFrequency);
 						}
 						if (thisWidget.options.defaultFrequency === thisFrequency.code) {
 							defaultIndex = currentIndex;
@@ -1577,7 +1704,7 @@
 					.trigger("change");
 				setFrequencyButtonVisibility(finalFrequencyList);
 			} catch (err) {
-				console.error("Unable to build the frequency buttons", err);
+				if (window.console) console.error("Unable to build the frequency buttons", err);
 			}
 		}
 
@@ -1587,7 +1714,11 @@
 			}
 			if (typeof options != "object") {
 				options = {};
-				console.warn("buildFrequencyButton(): ignoring invalid option object", options);
+				if (window.console)
+					console.warn(
+						"buildFrequencyButton(): ignoring invalid option object",
+						options
+					);
 			}
 			var domButton = null;
 			try {
@@ -1618,7 +1749,8 @@
 					domButton.appendChild(domLabel);
 				}
 			} catch (err) {
-				console.error("Error building the button for frequency:", frequency, err);
+				if (window.console)
+					console.error("Error building the button for frequency:", frequency, err);
 			}
 			return domButton;
 		}
@@ -1629,7 +1761,11 @@
 			}
 			if (typeof options != "object") {
 				options = {};
-				console.warn("prepareRegionInput(): ignoring invalid option object", options);
+				if (window.console)
+					console.warn(
+						"prepareRegionInput(): ignoring invalid option object",
+						options
+					);
 			}
 
 			try {
@@ -1644,7 +1780,8 @@
 					}
 				}
 			} catch (err) {
-				console.error("Unable to prepare the region input method", err);
+				if (window.console)
+					console.error("Unable to prepare the region input method", err);
 			}
 			showRegionInput();
 		}
@@ -1665,17 +1802,20 @@
 				.trigger("change");
 
 			if (typeof regions == "undefined") {
-				console.warn("buildRegionSelect(): no regions object", regions);
+				if (window.console)
+					console.warn("buildRegionSelect(): no regions object", regions);
 				return false;
 			}
 			if (typeof regions != "object" || regions.length < 1) {
-				console.warn("buildRegionSelect(): invalid regions object", regions);
+				if (window.console)
+					console.warn("buildRegionSelect(): invalid regions object", regions);
 				return false;
 			}
 
 			try {
 				if (jqRegionSelect.length !== 1) {
-					console.error("Unable to identify the region select dropdown");
+					if (window.console)
+						console.error("Unable to identify the region select dropdown");
 					return false;
 				}
 				var domThisOption, thisRegion;
@@ -1696,14 +1836,15 @@
 						jqRegionSelect.append(domThisOption);
 						regionCtr++;
 					} else {
-						console.warn("Unable to add region:", thisRegion);
+						if (window.console) console.warn("Unable to add region:", thisRegion);
 					}
 				}
 				if (regionCtr > 0) {
 					return true;
 				}
 			} catch (err) {
-				console.error("Unable to build the region select dropdown", err);
+				if (window.console)
+					console.error("Unable to build the region select dropdown", err);
 			}
 			return false;
 		}
@@ -1713,10 +1854,11 @@
 				var attributes = {};
 			}
 			if (typeof attributes != "object") {
-				console.warn(
-					"buildRegionOption() ignoring invalid attributes object",
-					attributes
-				);
+				if (window.console)
+					console.warn(
+						"buildRegionOption() ignoring invalid attributes object",
+						attributes
+					);
 				attributes = {};
 			}
 			try {
@@ -1730,7 +1872,8 @@
 					return domOption;
 				}
 			} catch (err) {
-				console.error("Unable to build the option element for region:", region);
+				if (window.console)
+					console.error("Unable to build the option element for region:", region);
 			}
 			return null;
 		}
@@ -1741,7 +1884,11 @@
 			}
 			if (typeof options != "object") {
 				options = {};
-				console.warn("buildCountrySelect(): ignoring invalid option object", options);
+				if (window.console)
+					console.warn(
+						"buildCountrySelect(): ignoring invalid option object",
+						options
+					);
 			}
 			var defaultCountry =
 				typeof options.default == "string" ? options.default : "United States";
@@ -1759,22 +1906,20 @@
 				for (var i = 0; i < window.mwdspace.validCountryList.length; i++) {
 					okToBuild = true;
 					thisCountry = window.mwdspace.validCountryList[i];
-					if (options.filterList) {
-						okToBuild = findListMatch(options.filterList, thisCountry.code);
-					}
 					if (okToBuild) {
-						// var attributes = {};
 						domThisOption = buildCountryOption(thisCountry);
 						if (domThisOption) {
 							domCountrySelect.append(domThisOption);
 						} else {
-							console.warn("Unable to add country:", thisCountry);
+							if (window.console)
+								console.warn("Unable to add country:", thisCountry);
 						}
 					}
 				}
 				domCountrySelect.val(defaultCountry).trigger("change");
 			} catch (err) {
-				console.error("Unable to build the country select dropdown", err);
+				if (window.console)
+					console.error("Unable to build the country select dropdown", err);
 			}
 		}
 
@@ -1783,10 +1928,11 @@
 				var attributes = {};
 			}
 			if (typeof attributes != "object") {
-				console.warn(
-					"buildCountryOption() ignoring invalid attributes object",
-					attributes
-				);
+				if (window.console)
+					console.warn(
+						"buildCountryOption() ignoring invalid attributes object",
+						attributes
+					);
 				attributes = {};
 			}
 			var domOption = null;
@@ -1796,7 +1942,8 @@
 					domOption.innerText = country.name;
 				}
 			} catch (err) {
-				console.error("Unable to build the option element for country:", country);
+				if (window.console)
+					console.error("Unable to build the option element for country:", country);
 			}
 			for (var key in attributes) {
 				domOption.setAttribute(key, attributes[key]);
@@ -1824,11 +1971,13 @@
 					if (domThisOption) {
 						domCardExpireMonthSelect.append(domThisOption);
 					} else {
-						console.warn("Unable to add card expire month:", expireMonth);
+						if (window.console)
+							console.warn("Unable to add card expire month:", expireMonth);
 					}
 				}
 			} catch (err) {
-				console.error("Unable to build the card expire month select dropdown", err);
+				if (window.console)
+					console.error("Unable to build the card expire month select dropdown", err);
 			}
 		}
 
@@ -1837,17 +1986,18 @@
 				var attributes = {};
 			}
 			if (typeof attributes != "object") {
-				console.warn(
-					"buildRegionOption() ignoring invalid attributes object",
-					attributes
-				);
+				if (window.console)
+					console.warn(
+						"buildRegionOption() ignoring invalid attributes object",
+						attributes
+					);
 				attributes = {};
 			}
 
 			var domOption = null;
 			try {
 				if (typeof month != "number" && typeof month != "string" && !month) {
-					console.error("Invalid month given:", month);
+					if (window.console) console.error("Invalid month given:", month);
 				} else {
 					try {
 						var tempInt = parseInt(month);
@@ -1863,7 +2013,8 @@
 					domOption.innerText = month;
 				}
 			} catch (err) {
-				console.error("Unable to build the option element for month:", month);
+				if (window.console)
+					console.error("Unable to build the option element for month:", month);
 			}
 			return domOption;
 		}
@@ -1898,11 +2049,13 @@
 					if (domThisOption) {
 						domCardExpireYearSelect.append(domThisOption);
 					} else {
-						console.warn("Unable to add card expire year:", expireYear);
+						if (window.console)
+							console.warn("Unable to add card expire year:", expireYear);
 					}
 				}
 			} catch (err) {
-				console.error("Unable to build the card expire year select dropdown", err);
+				if (window.console)
+					console.error("Unable to build the card expire year select dropdown", err);
 			}
 		}
 
@@ -1911,17 +2064,18 @@
 				var attributes = {};
 			}
 			if (typeof attributes != "object") {
-				console.warn(
-					"buildRegionOption() ignoring invalid attributes object",
-					attributes
-				);
+				if (window.console)
+					console.warn(
+						"buildRegionOption() ignoring invalid attributes object",
+						attributes
+					);
 				attributes = {};
 			}
 
 			var domOption = null;
 			try {
 				if (typeof year != "number" && typeof year != "string" && !year) {
-					console.error("Invalid year given:", year);
+					if (window.console) console.error("Invalid year given:", year);
 				} else {
 					if (typeof value == "undefined") {
 						var value = year;
@@ -1934,7 +2088,8 @@
 					domOption.innerText = year;
 				}
 			} catch (err) {
-				console.error("Unable to build the option element for year:", year);
+				if (window.console)
+					console.error("Unable to build the option element for year:", year);
 			}
 			return domOption;
 		}
@@ -1954,7 +2109,7 @@
 			var jqMatchSelect = jq('select[name="donorMatchCompany"]');
 
 			if (typeof jqMatchSelect.select2 != "function") {
-				console.warn("SKIPPING COMPANY MATCH SMART SELECTOR");
+				if (window.console) console.warn("SKIPPING COMPANY MATCH SMART SELECTOR");
 				return;
 			}
 
@@ -1964,7 +2119,7 @@
 				placeholder: theLabel,
 				width: "100%",
 				ajax: {
-					url: "https://platform.funraise.io/api/v1/ddcompanies",
+					url: thisWidget.urls.companyMatchApi,
 					data: function(params) {
 						var query = {
 							q: params.term,
@@ -2005,10 +2160,11 @@
 					window.mwdspace.transactionSendData.paymentToken = null;
 
 					if (result.errors && result.errors.length > 0) {
-						console.warn("SPREEDLY REPORTS paymentMethod ERRORS:");
+						if (window.console)
+							console.warn("SPREEDLY REPORTS paymentMethod ERRORS:");
 						for (var i = 0; i < result.errors.length; i++) {
 							var error = result.errors[i];
-							console.warn(error);
+							if (window.console) console.warn(error);
 						}
 						var message =
 							"Error during secure card information transfer. Please try again.";
@@ -2038,10 +2194,10 @@
 				});
 
 				Spreedly.on("errors", function(errors) {
-					console.warn("SPREEDLY REPORTS GENERAL ERRORS:");
+					if (window.console) console.warn("SPREEDLY REPORTS GENERAL ERRORS:");
 					for (var i = 0; i < errors.length; i++) {
 						var error = errors[i];
-						console.warn(error);
+						if (window.console) console.warn(error);
 					}
 					var message = "Unexpected error with secure card handler";
 					try {
@@ -2067,10 +2223,11 @@
 			Spreedly.setFieldType("number", "text");
 			Spreedly.setNumberFormat("prettyFormat");
 
-			// match styles from another typical field
+			// match styles from another similar field
 			var inputFontSize = jqPayMethodSelect.css("font-size") || "16px";
 			var inputColor = jqPayMethodSelect.css("color") || "#333";
-			var cssString = "font-size:" + inputFontSize + ";color:" + inputColor + ";";
+			var cssString =
+				"padding:0;font-size:" + inputFontSize + ";color:" + inputColor + ";";
 			Spreedly.setStyle("number", cssString);
 			Spreedly.setStyle("cvv", cssString);
 
@@ -2192,16 +2349,12 @@
 					Spreedly.tokenizeCreditCard(tokenOptions);
 					return true;
 				} else {
-					console.error("NO SPREEDLY OBJECT");
+					if (window.console) console.error("NO SPREEDLY OBJECT");
 				}
 			} else {
-				console.error("SPREEDLY FIELD NOT READY");
+				if (window.console) console.error("SPREEDLY FIELD NOT READY");
 			}
 			return false;
-		}
-
-		function findListMatch(theList, matchString) {
-			for (var i = 0; i < theList.length; i++) {}
 		}
 
 		function prepAndShowProcessingStep() {
@@ -2239,7 +2392,8 @@
 
 		function prepAndShowBitcoinStep(input) {
 			if (typeof input != "object") {
-				console.warn("prepAndShowBitcoinStep() given invalid input", input);
+				if (window.console)
+					console.warn("prepAndShowBitcoinStep() given invalid input", input);
 				prepAndShowErrorStep("Unable to display Bitcoin invoice screen");
 				return;
 			}
@@ -2263,6 +2417,11 @@
 
 			// watch for payment completion on Bitcoin side
 			thisWidget.intervals.bitcoinStatusChecker = setInterval(function() {
+				if (window.console)
+					console.log(
+						"Calling checkBitcoinPaymentStatus() with ",
+						input.transaction_id
+					);
 				checkBitcoinPaymentStatus(input.transaction_id);
 			}, 30000);
 		}
@@ -2302,15 +2461,21 @@
 				}
 				displayCountdown = minutes.toFixed() + ":" + seconds;
 			} catch (err) {
-				console.warn("updateBitcoinTimer() caught error", err.message);
+				if (window.console)
+					console.warn("updateBitcoinTimer() caught error", err.message);
 			}
 			jqBitcoinTimeRemaining.html(displayCountdown);
 		}
 
 		async function checkBitcoinPaymentStatus(input) {
-			if (typeof input == "undefined") {
-				console.warn("checkBitcoinPaymentStatus() given empty url");
-				var input = null;
+			if (typeof input != "string") {
+				if (window.console)
+					console.warn(
+						"checkBitcoinPaymentStatus() given invalid transaction id:",
+						typeof input,
+						input
+					);
+				resolve(null);
 			}
 
 			var baseUrl = thisWidget.urls.bitcoinPaymentApi;
@@ -2321,33 +2486,30 @@
 			var jqBitcoinContainer = jqContainer.find("div.bitcoinContainer");
 
 			var response = await new Promise(function(resolve) {
-				if (typeof input != "string") {
-					console.warn(
-						"checkBitcoinPaymentStatus() given invalid url type:",
-						typeof input,
-						input
-					);
-					resolve(null);
-				}
-
 				var requestUrl = encodeURI(baseUrl + "invoices/" + input);
 				var xhr = new XMLHttpRequest();
 
 				xhr.addEventListener("load", function(event) {
-					// console.log("FILE LOADED:", event);
+					// if (window.console) console.log("FILE LOADED:", event);
 					var fileContents =
 						event.target.responseText || event.target.response || null;
 					var tempObject = window.mwdspace.sharedUtils.safeJsonParse(fileContents);
 
 					if (!tempObject || !tempObject.data) {
-						console.log("checkBitcoinPaymentStatus(): invalid response", event);
+						if (window.console)
+							console.log("checkBitcoinPaymentStatus(): invalid response", event);
 						resolve(null);
 					}
 
 					resolve(tempObject.data);
 				});
 				xhr.addEventListener("error", function(event) {
-					console.error("checkBitcoinPaymentStatus() ERROR EVENT", requestUrl, event);
+					if (window.console)
+						console.error(
+							"checkBitcoinPaymentStatus() ERROR EVENT",
+							requestUrl,
+							event
+						);
 					resolve(null);
 				});
 
@@ -2370,7 +2532,7 @@
 				return;
 			}
 
-			console.log("checkBitcoinPaymentStatus() RESPONSE", response);
+			if (window.console) console.log("checkBitcoinPaymentStatus() RESPONSE", response);
 
 			jqBitcoinContainer.find("div.bitcoinStatus").html(response.status);
 
@@ -2441,10 +2603,11 @@
 
 			if (thisWidget.options.onDonation) {
 				try {
-					console.log("*** Calling custom onDonation function ***");
+					if (window.console) console.log(">>> Calling custom onDonation function");
 					thisWidget.options.onDonation(window.mwdspace.userInputData);
 				} catch (err) {
-					console.warn("Caught error from onDonation function: ", err.message);
+					if (window.console)
+						console.error("Caught error from onDonation function: ", err.message);
 				}
 			}
 		}
@@ -2462,7 +2625,7 @@
 			if (typeof theElement == "undefined") {
 				return;
 			}
-			if (!thisWidget.isLoaded) {
+			if (!thisWidget.allowAutoScroll) {
 				// don't scroll until after initial page load is complete
 				return;
 			}
@@ -2478,9 +2641,12 @@
 			var viewTop = originalScrollTop;
 			var viewBottom = viewTop + viewHeight;
 
-			var elementPadding = (theElement.outerHeight() - theElement.innerHeight()) / 2;
+			var elementHeight = theElement.innerHeight();
+			var elementPadding = (theElement.outerHeight() - elementHeight) / 2;
 			elementPadding = elementPadding <= 0 ? 0 : elementPadding;
-			elementPadding += 3;
+
+			var elementTop = theElement.offset().top;
+			var elementBottom = elementTop + elementHeight;
 
 			var topVisualPadding = 0;
 			if (typeof thisWidget.defaults.topVisualPaddingSelector == "string") {
@@ -2490,38 +2656,39 @@
 					topVisualPadding > viewHeight * 0.25 ? viewHeight * 0.25 : topVisualPadding;
 			}
 
-			var elementTop = theElement.offset().top + elementPadding;
-			var elementBottom = elementTop + theElement.innerHeight();
+			// if (window.console) {
+			// 	if (window.console) console.log("viewTop", viewTop);
+			// 	if (window.console) console.log("elementTop", elementTop);
+			// 	if (window.console) console.log("elementPadding", elementPadding);
+			// }
 
-			console.log(viewTop, elementTop, elementPadding, topVisualPadding);
-
-			//when the element is taller the screen, scroll to element top (less padding)
-			if (theElement.innerHeight() > viewHeight) {
-				jq("html,body").animate(
-					{
-						scrollTop: elementTop,
-					},
-					baseScrollTime
-				);
-				return;
-			}
-
-			//the element top is off screen so scroll to element top (less padding)
-			if (viewTop > elementTop) {
-				jq("html,body").animate(
-					{
-						scrollTop: elementTop,
-					},
-					baseScrollTime
-				);
+			//top is off screen or  element is taller the screen, so scroll to element top
+			if (elementHeight > viewHeight || viewTop + topVisualPadding > elementTop) {
+				// if (window.console) console.log("SCROLL TO TOP");
+				animateScroll(elementTop - topVisualPadding, -5);
 				return;
 			}
 
 			//the element bottom is off screen so scroll up enough to not push the top offscreen
 			if (viewBottom < elementBottom) {
+				// if (window.console) console.log("SCROLL TO BOTTOM");
+				var newTop = elementBottom - viewHeight;
+				if (newTop < topVisualPadding) {
+					newTop = topVisualPadding;
+				}
+				animateScroll(newTop, 5);
+			}
+
+			function animateScroll(scrollTop, gap) {
+				// if (window.console) console.log("animateScroll", scrollTop, gap);
+
+				if (typeof gap == "undefined") {
+					var gap = 0;
+				}
+
 				jq("html,body").animate(
 					{
-						scrollTop: elementBottom - viewHeight + elementPadding,
+						scrollTop: scrollTop + gap,
 					},
 					baseScrollTime
 				);
@@ -2532,22 +2699,24 @@
 	window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalStylesheet = function(url) {
 		var thisWidget = this;
 		return new Promise(function(resolve) {
-			// console.log("linkExternalStylesheet() start:", url);
+			// if (window.console) console.log("linkExternalStylesheet() start:", url);
 			var domStyleLink = document.createElement("link");
 			thisWidget.domTargetElement.appendChild(domStyleLink);
 			domStyleLink.rel = "stylesheet";
 			domStyleLink.type = "text/css";
 			var timeout = setTimeout(function() {
-				console.log("linkExternalStylesheet() No load after 5s", url);
+				if (window.console)
+					console.log("linkExternalStylesheet() No load after 5s", url);
 				resolve(false);
 			}, 5000);
 			domStyleLink.addEventListener("load", function(event) {
 				clearTimeout(timeout);
-				// console.log("STYLESHEET LOADED:", url);
+				// if (window.console) console.log("STYLESHEET LOADED:", url);
 				resolve(true);
 			});
 			domStyleLink.addEventListener("error", function(event) {
-				console.error("linkExternalStylesheet() ERROR EVENT", url, event);
+				if (window.console)
+					console.error("linkExternalStylesheet() ERROR EVENT", url, event);
 				resolve(false);
 			});
 			domStyleLink.href = encodeURI(url);
@@ -2557,21 +2726,21 @@
 	window.mwdspace.MFA_Funraise_Widget.prototype.linkExternalScript = function(url) {
 		var thisWidget = this;
 		return new Promise(function(resolve) {
-			// console.log("linkExternalScript() start:", url);
+			// if (window.console) console.log("linkExternalScript() start:", url);
 			var domScript = document.createElement("script");
 			thisWidget.domTargetElement.appendChild(domScript);
 			var timeout = setTimeout(function() {
-				console.log("linkExternalScript() No load after 5s", url);
+				if (window.console) console.log("linkExternalScript() No load after 5s", url);
 				resolve(false);
 			}, 5000);
 			domScript.addEventListener("load", function(event) {
 				clearTimeout(timeout);
-				// console.log("SCRIPT LOADED:", url);
+				// if (window.console) console.log("SCRIPT LOADED:", url);
 				resolve(true);
 			});
 			domScript.addEventListener("error", function(event) {
 				clearTimeout(timeout);
-				console.error("linkExternalScript() ERROR", url, event);
+				if (window.console) console.error("linkExternalScript() ERROR", url, event);
 				resolve(false);
 			});
 			domScript.src = encodeURI(url);
@@ -2582,30 +2751,31 @@
 		var thisWidget = this;
 		return new Promise(function(resolve) {
 			if (typeof input == "undefined") {
-				console.warn("loadFile() given empty url");
+				if (window.console) console.warn("loadFile() given empty url");
 				resolve(null);
 			}
 			if (typeof input != "string") {
-				console.warn("loadFile() given invalid url type:", typeof input, input);
+				if (window.console)
+					console.warn("loadFile() given invalid url type:", typeof input, input);
 				resolve(null);
 			}
-			// console.log("loadFile() start:", input);
+			// if (window.console) console.log("loadFile() start:", input);
 			var requestUrl = encodeURI(input);
 			var xhr = new XMLHttpRequest();
 
 			var timeout = setTimeout(function() {
-				console.log("linkExternalScript() No load after 5s", url);
+				if (window.console) console.log("linkExternalScript() No load after 5s", url);
 				resolve(false);
 			}, 5000);
 			xhr.addEventListener("load", function(event) {
 				clearTimeout(timeout);
-				// console.log("FILE LOADED:", input);
+				// if (window.console) console.log("FILE LOADED:", input);
 				var fileContents = event.target.responseText || event.target.response || null;
 				resolve(fileContents);
 			});
 			xhr.addEventListener("error", function(event) {
 				clearTimeout(timeout);
-				console.error("loadFile() ERROR EVENT", requestUrl, event);
+				if (window.console) console.error("loadFile() ERROR EVENT", requestUrl, event);
 				resolve(null);
 			});
 
@@ -2635,12 +2805,16 @@
 		var thisWidget = this;
 		return new Promise(async (resolve) => {
 			if (thisWidget.options.labelOverrideObject) {
-				console.log("Using label object");
+				if (window.console) console.log("Using label object");
 				thisWidget.labelOverride = thisWidget.options.labelOverrideObject;
 				resolve(true);
 			} else if (thisWidget.options.labelOverrideFileUrl) {
 				try {
-					console.log("Loading label file:", thisWidget.options.labelOverrideFileUrl);
+					if (window.console)
+						console.log(
+							"Loading label file:",
+							thisWidget.options.labelOverrideFileUrl
+						);
 					var overrideFileContents = await thisWidget.loadFile(
 						thisWidget.options.labelOverrideFileUrl
 					);
@@ -2652,19 +2826,22 @@
 							thisWidget.labelOverride = tempObject;
 							resolve(true);
 						} else {
-							console.error(
-								"MFA_Funraise_Widget.prepareLabelOverride() - unable to parse text override data from file:",
-								thisWidget.options.labelOverride
-							);
+							if (window.console)
+								console.error(
+									"MFA_Funraise_Widget.prepareLabelOverride() - unable to parse text override data from file:",
+									thisWidget.options.labelOverride
+								);
 						}
 					} else {
-						console.error(
-							"MFA_Funraise_Widget.prepareLabelOverride() - unable to load file for text override data:",
-							thisWidget.options.labelOverride
-						);
+						if (window.console)
+							console.error(
+								"MFA_Funraise_Widget.prepareLabelOverride() - unable to load file for text override data:",
+								thisWidget.options.labelOverride
+							);
 					}
 				} catch (err) {
-					console.log("prepareLabelOverride() caught error: ", err.message);
+					if (window.console)
+						console.log("prepareLabelOverride() caught error: ", err.message);
 				}
 			}
 
@@ -2678,17 +2855,18 @@
 	) {
 		var thisWidget = this;
 		if (typeof input != "object" || !input) {
-			console.warn(
-				"MFA_Funraise_Widget.processLabelOverrideObject() given invalid object",
-				typeof input
-			);
+			if (window.console)
+				console.warn(
+					"MFA_Funraise_Widget.processLabelOverrideObject() given invalid object",
+					typeof input
+				);
 			return false;
 		}
 		if (typeof prefix == "undefined") {
 			var prefix = "";
 		}
 		if (typeof prefix != "string") {
-			console.warn("Ignoring invalid string prefix value", prefix);
+			if (window.console) console.warn("Ignoring invalid string prefix value", prefix);
 			prefix = "";
 		}
 		if (prefix) {
@@ -2715,7 +2893,7 @@
 			var labelId = "";
 		}
 		if (!labelId) {
-			console.warn("setElementLabelOverride() given empty labelId");
+			if (window.console) console.warn("setElementLabelOverride() given empty labelId");
 			return;
 		}
 		var selector = '[data-label-id="' + labelId + '"]';
@@ -2743,15 +2921,16 @@
 						elementList[i].innerHTML = value;
 						break;
 					default:
-						console.warn(
-							"setElementLabelOverride(): Ignoring tag",
-							labelId,
-							thisTag
-						);
+						if (window.console)
+							console.warn(
+								"setElementLabelOverride(): Ignoring tag",
+								labelId,
+								thisTag
+							);
 				}
 			}
 		} else {
-			console.warn("REPLACE labelId not found", labelId);
+			if (window.console) console.warn("REPLACE labelId not found", labelId);
 		}
 	};
 })();

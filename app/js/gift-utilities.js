@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("gift-utilities.js v18.7.17");
+	if (window.console) console.log("gift-utilities.js v18.7.17");
 
 	window.mwdspace = window.mwdspace || {};
 	var sharedUtils = window.mwdspace.sharedUtils;
@@ -12,20 +12,34 @@
 		if (typeof options == "undefined") {
 			var options = {};
 		}
+		var calculateAsMonthly = options.calculateAsMonthly || false;
 
-		var giftStringList = options.giftStringList || [];
+		//create copy of passed gift string object
+		var giftStringList = [];
+		if (options.giftStringList instanceof Array) {
+			for (var i = 0; i < options.giftStringList.length; i++) {
+				giftStringList.push(options.giftStringList[i]);
+				// convert individual values to a monthly equivalent if requested
+				if (calculateAsMonthly) {
+					giftStringList[i] = convertSingleAmountToMonthly(
+						giftStringList[i],
+						options
+					);
+				}
+			}
+		}
 
 		var listAskReplacement = getUrlAskReplacement(options);
 		if (listAskReplacement) {
 			// use ask string from URL
 			giftStringList = listAskReplacement;
-			console.log("Note: Using replacement ask string.");
+			if (window.console) console.log("Note: Using replacement ask string.");
 		} else {
 			var listDynamicAsk = getUrlDynamicAsk(options);
 			if (listDynamicAsk) {
 				// use dynamic ask based on URL starter
 				giftStringList = listDynamicAsk;
-				console.log("Note: Using dynamic ask string.");
+				if (window.console) console.log("Note: Using dynamic ask string.");
 			}
 		}
 
@@ -33,20 +47,20 @@
 		if (selectedAmount) {
 			// pre-select the requested ask amount
 			giftStringList = preselectAskByAmount(giftStringList, selectedAmount);
-			console.log("Note: Pre-selecting by amount.");
+			if (window.console) console.log("Note: Pre-selecting by amount.");
 		} else {
 			var selectedPosition = getUrlAskSelectPosition();
 			if (selectedPosition) {
 				// pre-select the requested ask level position
 				giftStringList = preselectAskByPosition(giftStringList, selectedPosition);
-				console.log("Note: Pre-selecting by position.");
+				if (window.console) console.log("Note: Pre-selecting by position.");
 			}
 		}
 
-		giftStringList = finalizeGiftStringList(giftStringList);
+		giftStringList = finalizeGiftStringList(giftStringList, options);
 		if (!giftStringList) {
 			// use backup ask string
-			console.warn("Note: Using backup ask string");
+			if (window.console) console.warn("Note: Using backup ask string");
 			giftStringList = ["25", "50*", "75", "100"];
 		}
 
@@ -308,7 +322,8 @@
 	function isMostlyDescending(givenList) {
 		var theList = givenList.slice(0); //create true copy
 		if (typeof theList == "undefined") {
-			console.warn("isMostlyDescending() given an undefined list value");
+			if (window.console)
+				console.warn("isMostlyDescending() given an undefined list value");
 			return null;
 		}
 		/* prep the list by ensuring numbers are not text */
@@ -373,7 +388,7 @@
 		var minimumGiftAmount = options.minimumGiftAmount || 5;
 		var basicRounding = options.basicRounding || false;
 
-		cleanAmount = cleanFloat(singleAmount);
+		var cleanAmount = cleanFloat(singleAmount);
 		if (cleanAmount <= 0) {
 			return singleAmount;
 		}
@@ -401,5 +416,15 @@
 			}
 		}
 		return input;
+	}
+
+	/* round UP to the nearest given rounding factor */
+	function roundUpTo(theNumber, roundingFactor) {
+		theNumber = Math.round(theNumber);
+		var testNbr = Math.round(theNumber / roundingFactor) * roundingFactor;
+		if (testNbr < theNumber) {
+			testNbr += roundingFactor;
+		}
+		return testNbr;
 	}
 })();

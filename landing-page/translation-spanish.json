@@ -1,8 +1,7 @@
 {
 	"header": {
 		"singleDonationText": "Tu donación",
-		"monthlyDonationText": "Tu donación periódica",
-		"introContent": "2018 <strong>MATCH</strong> CAMPAIGN!"
+		"monthlyDonationText": "Tu donación periódica"
 	},
 	"button": {
 		"goDonorInfo": "Tus datos",
@@ -21,7 +20,7 @@
 			"monthly": "Mensualmente"
 		},
 		"error": {
-			"invalidAmount": "Se requiere una cantidad"
+			"invalidAmount": "Translation of (Please enter an amount of at least)"
 		}
 	},
 	"donor": {

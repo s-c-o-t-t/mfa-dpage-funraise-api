@@ -4,7 +4,6 @@
 @import "mixins";
 div#mfaDonationWidgetContainer {
 	opacity: 0;
-	max-width: 30em;
 	min-height: 42em;
 	margin: 3em auto;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
@@ -175,21 +174,11 @@ div#mfaDonationWidgetContainer {
 					display: none;
 				}
 			}
-			// div.buttonContainer {
-			// 	background: pink;
-			// }
-			// div.introContentContainer {
-			// 	background: cyan;
-			// }
-			// div.giftDisplayContainer {
-			// 	background: lightgreen;
-			// }
-			// div.positioning {
-			// 	background: lightsalmon;
-			// }
 		}
 	}
 	div.giftFormContainer {
+		display: block;
+		margin: 0 auto;
 		width: 100%;
 		min-width: 17.5em;
 		max-width: 25em;
@@ -198,7 +187,6 @@ div#mfaDonationWidgetContainer {
 			background: linear-gradient(#fff, $colorFormBg, $colorFormBg, $colorFormBg);
 			box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
 			border-radius: $standardRadius;
-			// overflow: hidden;
 			section.step {
 				display: none;
 				padding: 1rem 2.5%;
@@ -303,7 +291,8 @@ div#mfaDonationWidgetContainer {
 	div.giftAmountContainer,
 	div.giftFrequencyContainer {
 		display: flex;
-		flex-flow: row wrap;
+		flex-direction: row;
+		flex-wrap: wrap;
 		align-items: center;
 		margin: 0.5em 0;
 		&.giftAmountContainer {
@@ -311,13 +300,16 @@ div#mfaDonationWidgetContainer {
 		}
 		div.fixedAmountContainer {
 			display: flex;
-			flex-flow: row wrap;
+			flex-direction: row;
+			flex-wrap: wrap;
 			flex-basis: 100%;
 			align-items: center;
 			margin-top: 0.5em;
 		}
 		div.fancyRadioButton {
-			flex: 1 0 0;
+			flex-grow: 1;
+			flex-shrink: 0;
+			flex-basis: 0%;
 			padding: 0.125em;
 			input[type="radio"] {
 				display: none;
@@ -351,7 +343,9 @@ div#mfaDonationWidgetContainer {
 			&.freeform {
 				display: flex;
 				align-items: stretch;
-				flex: 1 0 100%;
+				flex-grow: 1;
+				flex-shrink: 0;
+				flex-basis: 100%;
 				padding: 0;
 				margin: 0.25em 0.1em 0.1em 0.1em;
 				background: #fff;
@@ -387,17 +381,23 @@ div#mfaDonationWidgetContainer {
 	div.payInfoContainer,
 	div.payMethodContainer {
 		display: flex;
-		flex-flow: row wrap;
+		flex-direction: row;
+		flex-wrap: wrap;
 		div.connectedSection {
 			display: flex;
-			flex-flow: row wrap;
-			flex: 1 0 100%;
+			flex-direction: row;
+			flex-wrap: wrap;
+			flex-grow: 1;
+			flex-shrink: 0;
+			flex-basis: 100%;
 			background: #fff;
 			border: 1px solid $colorElementBorder;
 			border-radius: $standardRadius;
 		}
 		div.inputGroup {
-			flex: 1 0 100%;
+			flex-grow: 1;
+			flex-shrink: 0;
+			flex-basis: 100%;
 			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 			&.infoBox {
 				display: flex;
@@ -477,9 +477,10 @@ div#mfaDonationWidgetContainer {
 			}
 			div.cardTokenizerFrame {
 				height: $standardInputHeight;
-				overflow: hidden;
 				iframe {
 					width: 100%;
+					height: $standardInputHeight;
+					overflow: hidden;
 				}
 			}
 		}

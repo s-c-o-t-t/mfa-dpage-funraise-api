@@ -1290,6 +1290,17 @@
                                                                 baseUrlOverride: "http://localhost:8888/mwd/mfa/mfa-dpage-funraise-api/dist",
                                                                 giftStringSingle: [25, 45, 100, 250],
                                                                 giftStringMonthly: [5, 10, 15, 20],
+                                                                currencies: {
+                                                                    USD: {},
+                                                                    CAD: {},
+                                                                    MXN: {
+                                                                        giftStringSingle: [500, 1000, 2000, 5000],
+                                                                    },
+                                                                    BRL: { giftStringSingle: [10, 45, 100, 250], },
+                                                                    INR: {
+                                                                        giftStringSingle: [10, 45, 100, 250],
+                                                                    }
+                                                                },
                                                                 onLoad: function (data) {
                                                                     console.log("----- Custom onLoad function", data);
                                                                 },

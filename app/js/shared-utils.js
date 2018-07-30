@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	console.log("shared-utils.js v18.7.17");
+	if (window.console) console.log("shared-utils.js v18.7.17");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -11,8 +11,8 @@
 		try {
 			return JSON.parse(input);
 		} catch (e) {
-			console.warn("safeJsonParse(): Caught error: " + e.message);
-			console.warn("safeJsonParse() INPUT:", input);
+			if (window.console) console.warn("safeJsonParse(): Caught error: " + e.message);
+			if (window.console) console.warn("safeJsonParse() INPUT:", input);
 		}
 		return null;
 	};
@@ -22,8 +22,8 @@
 		try {
 			sJson = JSON.stringify(input);
 		} catch (e) {
-			console.error("safeJsonString(): Caught error: " + e.message);
-			console.log("safeJsonString() INPUT:", input);
+			if (window.console) console.error("safeJsonString(): Caught error: " + e.message);
+			if (window.console) console.log("safeJsonString() INPUT:", input);
 		}
 		return sJson;
 	};
@@ -44,7 +44,7 @@
 			try {
 				return String(input);
 			} catch (err) {
-				console.warn("ensureString() caught error:", err);
+				if (window.console) console.warn("ensureString() caught error:", err);
 			}
 		}
 		return "";
@@ -89,7 +89,8 @@
 			sessionStorage.setItem(pageKey, value);
 		} catch (e) {
 			// use cookie when session storage isn't available
-			console.warn("setSessionValue(): Unable to use session storage.");
+			if (window.console)
+				console.warn("setSessionValue(): Unable to use session storage.");
 			sharedUtils.createCookie(name, value, 0);
 		}
 	};
@@ -101,7 +102,8 @@
 			value = sessionStorage.getItem(pageKey);
 		} catch (e) {
 			// use cookie when session storage isn't available
-			console.warn("getSessionValue(): Unable to use session storage.");
+			if (window.console)
+				console.warn("getSessionValue(): Unable to use session storage.");
 			value = readCookie(name);
 		}
 		return value;
@@ -114,47 +116,58 @@
 			return true;
 		} catch (e) {
 			// use cookie when session storage isn't available
-			console.warn("removeLocalValue(): Unable to use session storage.");
+			if (window.console)
+				console.warn("removeLocalValue(): Unable to use session storage.");
 			sharedUtils.createCookie(name, "", -1);
 		}
 		return false;
 	};
 
-	sharedUtils.setLocalValue = function(key, value) {
+	sharedUtils.setLocalValue = function(key, value, options) {
 		if (typeof value == "undefined") {
 			var value = "";
 		}
+		if (typeof options == "undefined") {
+			var options = {};
+		}
 		try {
-			var pageKey = sharedUtils.getPageId() + "_" + key;
+			var pageKey = sharedUtils.makeKeyPrefix(options.prefix, key);
 			localStorage.setItem(pageKey, value);
 		} catch (e) {
 			// use cookie when local storage isn't available
-			console.warn("setLocalValue(): Unable to use local storage.");
+			if (window.console) console.warn("setLocalValue(): Unable to use local storage.");
 			sharedUtils.createCookie(name, value, 365);
 		}
 	};
 
-	sharedUtils.getLocalValue = function(key) {
+	sharedUtils.getLocalValue = function(key, options) {
+		if (typeof options == "undefined") {
+			var options = {};
+		}
 		var value = null;
 		try {
-			var pageKey = sharedUtils.getPageId() + "_" + key;
+			var pageKey = sharedUtils.makeKeyPrefix(options.prefix, key);
 			value = localStorage.getItem(pageKey);
 		} catch (e) {
 			// use cookie when local storage isn't available
-			console.warn("getLocalValue(): Unable to use local storage.");
+			if (window.console) console.warn("getLocalValue(): Unable to use local storage.");
 			value = sharedUtils.readCookie(name);
 		}
 		return value;
 	};
 
-	sharedUtils.removeLocalValue = function(key) {
+	sharedUtils.removeLocalValue = function(key, options) {
+		if (typeof options == "undefined") {
+			var options = {};
+		}
 		try {
-			var pageKey = sharedUtils.getPageId() + "_" + key;
+			var pageKey = sharedUtils.makeKeyPrefix(options.prefix, key);
 			localStorage.removeItem(pageKey);
 			return true;
 		} catch (e) {
 			// use cookie when local storage isn't available
-			console.warn("removeLocalValue(): Unable to use local storage.");
+			if (window.console)
+				console.warn("removeLocalValue(): Unable to use local storage.");
 			sharedUtils.createCookie(name, "", -1);
 		}
 		return false;
@@ -167,6 +180,19 @@
 			window.mwdspace.pageId = prefix + "_" + cleanPath;
 		}
 		return window.mwdspace.pageId;
+	};
+
+	sharedUtils.makeKeyPrefix = function(prefix, key) {
+		if (typeof prefix == "undefined") {
+			var prefix = true;
+		}
+		if (prefix === false) {
+			return key;
+		}
+		if (typeof prefix == "string") {
+			return prefix.trim() + "_" + key;
+		}
+		return sharedUtils.getPageId() + "_" + key;
 	};
 
 	sharedUtils.createCookie = function(name, value, days) {
@@ -201,7 +227,7 @@
 		}
 		var targetKey = sharedUtils.ensureString(input);
 		if (sharedUtils.isEmpty(targetKey)) {
-			console.warn("getUrlParameter() given empty input");
+			if (window.console) console.warn("getUrlParameter() given empty input");
 			return "";
 		}
 		if (typeof window.mwdspace.urlParameters != "object") {
