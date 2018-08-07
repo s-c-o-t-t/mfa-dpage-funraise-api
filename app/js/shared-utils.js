@@ -1,6 +1,6 @@
 "use strict";
 (function() {
-	if (window.console) console.log("shared-utils.js v18.7.17");
+	if (window.console) console.log("shared-utils.js v18.8.7");
 
 	window.mwdspace = window.mwdspace || {};
 
@@ -234,7 +234,7 @@
 			sharedUtils.makeUrlParameterList();
 		}
 		var regexFlag = ignoreCase ? "i" : "";
-		var regex = new RegExp(targetKey, regexFlag);
+		var regex = new RegExp("^" + targetKey + "$", regexFlag);
 		for (var parameterKey in window.mwdspace.urlParameters) {
 			if (parameterKey.match(regex)) {
 				return window.mwdspace.urlParameters[parameterKey];
